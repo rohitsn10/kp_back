@@ -40,4 +40,10 @@ class LoginUserSerializer(serializers.ModelSerializer):
     def get_group_id(self, obj):
 
         group = obj.groups.first() 
-        return group.id if group else None
+        return str(group.id) if group else None
+    
+    def to_representation(self, instance):
+        """Override to ensure all IDs are strings."""
+        representation = super().to_representation(instance)
+        representation['id'] = str(representation['id'])  # Convert the `id` to a string
+        return representation

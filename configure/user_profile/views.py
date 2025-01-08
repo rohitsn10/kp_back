@@ -269,13 +269,13 @@ class LoginAPIView(ViewSet):
             if not login_type or login_type not in ['mobile', 'desktop']:
                 return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
             
-            # if login_type == 'mobile':
-            #     if not device_id:
-            #         return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
-            #     if not device_type:
-            #         return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
-            #     if not device_token:
-            #         return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
+            if login_type == 'mobile':
+                if not device_id:
+                    return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
+                if not device_type:
+                    return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
+                if not device_token:
+                    return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
 
 
             # Check if user exists
@@ -284,9 +284,9 @@ class LoginAPIView(ViewSet):
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
 
            # Authenticate user
-            user = authenticate_user_by_email(email, password)
-            if not user:
-                return Response({"status": False, "message": "Invalid email or password!", "data": []})
+            auth_user = authenticate_user_by_email(email, password)
+            if not auth_user:
+                return Response({"status": False, "message": "Invalid email or password!"})
             
             if login_type == 'mobile':
                 user.device_id = device_id
@@ -295,15 +295,15 @@ class LoginAPIView(ViewSet):
                 user.save()
 
             # Successful login - generate JWT token
-            refresh = RefreshToken.for_user(user)
-            serializer = LoginUserSerializer(user, context={'request': request})
+            refresh = RefreshToken.for_user(auth_user)
+            serializer = LoginUserSerializer(auth_user, context={'request': request})
             data = serializer.data
             data['token'] = str(refresh.access_token)
             
              # If type is mobile, encode all data into a JWT token
             if login_type == 'mobile':
                 encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
-                return Response({"status": True, "message": "You are logged in!", "data": {"token": encoded_data}})
+                return Response({"status": True, "message": "You are logged in!","token": encoded_data})
 
             return Response({"status": True, "message": "You are logged in!", "data": data})
         
@@ -367,36 +367,70 @@ class CreateUserViewSet(viewsets.ModelViewSet):
         
         
 
+# class SplashScreenViewSet(viewsets.ModelViewSet):
+
+#     def create(self, request, *args, **kwargs):
+#         try:
+#             token = request.data.get('token', '').strip()
+
+#             if not token:
+#                 return Response({"status": False, "message": "Token is required!", "data": []})
+
+#             try:
+#                 decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+#             except jwt.ExpiredSignatureError:
+#                 return Response({"status": False, "message": "Token has expired!", "data": []})
+#             except jwt.InvalidTokenError:
+#                 return Response({"status": False, "message": "Invalid token!", "data": []})
+
+#             user_id = decoded_data.get("id")
+#             if not user_id:
+#                 return Response({"status": False, "message": "Invalid token payload!", "data": []})
+
+#             user = CustomUser.objects.filter(id=user_id).first()
+#             if not user:
+#                 return Response({"status": False, "message": "User does not exist!", "data": []})
+
+#             return Response({"status": True, "message": "Token validated successfully!", "data": {"token": token}})
+
+#         except Exception as e:
+#             import logging
+#             logger = logging.getLogger(__name__)
+#             logger.error(f"Splash screen error: {str(e)}", exc_info=True)
+#             return Response({"status": False, "message": "Something went wrong!", "data": []})
+
 class SplashScreenViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            token = request.data.get('token', '').strip()
+            # Get token from the Authorization header
+            auth_header = request.headers.get('authorization', '')
+            # if not auth_header.startswith("Bearer "):
+            #     return Response({"status": False, "message": "Authorization token is required!", "data": []})
 
-            if not token:
-                return Response({"status": False, "message": "Token is required!", "data": []})
+            # token = auth_header.split(" ")[1].strip()
 
+            # Decode and validate the token
             try:
-                decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+                decoded_data = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
             except jwt.ExpiredSignatureError:
                 return Response({"status": False, "message": "Token has expired!", "data": []})
             except jwt.InvalidTokenError:
                 return Response({"status": False, "message": "Invalid token!", "data": []})
 
+            # Extract user_id from the token payload
             user_id = decoded_data.get("id")
             if not user_id:
                 return Response({"status": False, "message": "Invalid token payload!", "data": []})
 
+            # Validate user exists in the database
             user = CustomUser.objects.filter(id=user_id).first()
             if not user:
                 return Response({"status": False, "message": "User does not exist!", "data": []})
 
-            return Response({"status": True, "message": "Token validated successfully!", "data": {"token": token}})
+            return Response({"status": True, "message": "Token validated successfully!", "data": {"token": auth_header}})
 
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Splash screen error: {str(e)}", exc_info=True)
             return Response({"status": False, "message": "Something went wrong!", "data": []})        
         
         
