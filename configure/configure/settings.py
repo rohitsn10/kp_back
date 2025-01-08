@@ -28,10 +28,10 @@ SECRET_KEY = 'django-insecure--4w1yd!wjxqkva$*x$o_0x7o2@@2f9e$f*t!e7+&i$w7k-)#0p
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'e0a3-2401-4900-8899-3af-3c9a-c370-33f8-ccbf.ngrok-free.app',  # Replace with your Ngrok domain
-    'f776-2401-4900-8899-3af-3c9a-c370-33f8-ccbf.ngrok-free.app', 
+    # '127.0.0.1',
+    # 'localhost',
+    # 'e0a3-2401-4900-8899-3af-3c9a-c370-33f8-ccbf.ngrok-free.app',  # Replace with your Ngrok domain
+    # 'f776-2401-4900-8899-3af-3c9a-c370-33f8-ccbf.ngrok-free.app', 
 ]
 
 
