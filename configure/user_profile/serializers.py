@@ -30,7 +30,7 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'first_name', 'group_name', 'group_id']
+        fields = ['id', 'full_name', 'group_name', 'group_id']
 
     def get_group_name(self, obj):
 
@@ -41,3 +41,38 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
         group = obj.groups.first() 
         return group.id if group else None
+    
+class CustomUserSerializer(serializers.ModelSerializer):
+    group_name = serializers.SerializerMethodField()
+    group_id = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = ['id','full_name','email','phone','address','device_id','device_type','device_token','is_staff','is_active','is_superuser','group_name', 'group_id']
+
+    def get_group_name(self, obj):
+
+        group = obj.groups.first() 
+        return group.name if group else None
+
+    def get_group_id(self, obj):
+
+        group = obj.groups.first() 
+        return group.id if group else None
+
+class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
+    group_name = serializers.SerializerMethodField()
+    group_id = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = ['id','full_name','email','phone','address','device_id','device_type','device_token','is_staff','is_active','is_superuser','group_name', 'group_id']
+
+    def get_group_name(self, obj):
+
+        group = obj.groups.first() 
+        return group.name if group else None
+
+    def get_group_id(self, obj):
+
+        group = obj.groups.first() 
+        return group.id if group else None
+

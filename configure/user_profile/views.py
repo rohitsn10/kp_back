@@ -255,7 +255,7 @@ class LoginAPIView(ViewSet):
         try:
             email = request.data.get('email', '').strip()
             password = request.data.get('password', '').strip()
-            login_type = request.data.get('type', '').strip() 
+            login_type = request.data.get('login_type', '').strip() 
             device_id = request.data.get('device_id', '').strip()
             device_type = request.data.get('device_type', '').strip()
             device_token = request.data.get('device_token', '').strip()
@@ -284,8 +284,8 @@ class LoginAPIView(ViewSet):
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
 
            # Authenticate user
-            user = authenticate_user_by_email(email, password)
-            if not user:
+            user_auth = authenticate_user_by_email(email, password)
+            if not user_auth:
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
             
             if login_type == 'mobile':
@@ -295,8 +295,8 @@ class LoginAPIView(ViewSet):
                 user.save()
 
             # Successful login - generate JWT token
-            refresh = RefreshToken.for_user(user)
-            serializer = LoginUserSerializer(user, context={'request': request})
+            refresh = RefreshToken.for_user(user_auth)
+            serializer = LoginUserSerializer(user_auth, context={'request': request})
             data = serializer.data
             data['token'] = str(refresh.access_token)
             
@@ -314,20 +314,28 @@ class LoginAPIView(ViewSet):
             return Response({"status": False, 'message': "Something went wrong!", 'data': []})
 
 class CreateUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.all().exclude(is_superuser=True)
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         try:
             email = request.data.get('email')
-            username = request.data.get('username')
+            full_name = request.data.get('full_name')
+            phone = request.data.get('phone')
+            address = request.data.get('address')
             password = request.data.get('password')
             group_ids = request.data.get('user_role',[])  # List of group IDs
             
             # Validate required fields
             if not email:
                 return Response({"status": False, "message": "Email is required", "data": []})
-            if not username:
+            if not full_name:
                 return Response({"status": False, "message": "Username is required", "data": []})
+            if not phone:
+                return Response({"status": False, "message": "Phone is required", "data": []})
+            if not address:
+                return Response({"status": False, "message": "Address is required", "data": []})
             if not password:
                 return Response({"status": False, "message": "Password is required", "data": []})
             if not group_ids or not isinstance(group_ids, list):
@@ -336,8 +344,8 @@ class CreateUserViewSet(viewsets.ModelViewSet):
             # Check for duplicate email or username
             if CustomUser.objects.filter(email=email).exists():
                 return Response({"status": False, "message": "Email already exists", "data": []})
-            if CustomUser.objects.filter(username=username).exists():
-                return Response({"status": False, "message": "Username already exists", "data": []})
+            # if CustomUser.objects.filter(username=username).exists():
+            #     return Response({"status": False, "message": "Username already exists", "data": []})
             
             # Validate groups
             groups = []
@@ -351,7 +359,9 @@ class CreateUserViewSet(viewsets.ModelViewSet):
             # Create user
             user = CustomUser.objects.create(
                 email=email,
-                username=username,
+                full_name=full_name,
+                phone=phone,
+                address=address
             )
             user.set_password(password)
             user.save()
@@ -359,13 +369,21 @@ class CreateUserViewSet(viewsets.ModelViewSet):
             # Assign user to groups
             for group in groups:
                 user.groups.add(group)
-
-
+            user.save()
             return Response({"status": True, "message": "User created successfully!"})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "User List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
         
+
 
 class SplashScreenViewSet(viewsets.ModelViewSet):
 
@@ -397,7 +415,51 @@ class SplashScreenViewSet(viewsets.ModelViewSet):
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Splash screen error: {str(e)}", exc_info=True)
-            return Response({"status": False, "message": "Something went wrong!", "data": []})        
+            return Response({"status": False, "message": "Something went wrong!", "data": []})
+
+
+
+class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserUpdateOwnProfileDataSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            full_name = request.data.get('full_name')
+            phone = request.data.get('phone')
+            address = request.data.get('address')
+            if not full_name:
+                return Response({"status": False, "message": "First name is required", "data": []})
+            if not phone:
+                return Response({"status": False, "message": "Phone number is required", "data": []})
+
+            user_data = CustomUser.objects.get(id=user.id)
+            if full_name is not None:
+                user_data.full_name = full_name
+            if phone is not None:
+                user_data.phone = phone
+            if address:
+                user_data.address = address
+
+            user_data.save()
+            serializer = self.serializer_class(user)
+            data = serializer.data
+            return Response({"status": True, "message": "Profile updated successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+    def list(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            serializer = self.serializer_class(user)
+            data = serializer.data
+            return Response({"status": True, "message": "Profile data fetched successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
         
         
         
