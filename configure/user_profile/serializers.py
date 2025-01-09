@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import authenticate
-
+from rest_framework_simplejwt.tokens import AccessToken
 class GroupSerializer(serializers.ModelSerializer):
     # permission_list = serializers.SerializerMethodField()
     permission_list = serializers.SerializerMethodField()
