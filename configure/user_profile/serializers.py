@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import authenticate
-
+from rest_framework_simplejwt.tokens import AccessToken
 class GroupSerializer(serializers.ModelSerializer):
     # permission_list = serializers.SerializerMethodField()
     permission_list = serializers.SerializerMethodField()
@@ -30,7 +30,7 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'first_name', 'group_name', 'group_id']
+        fields = ['id', 'full_name', 'group_name', 'group_id']
 
     def get_group_name(self, obj):
 
@@ -40,10 +40,39 @@ class LoginUserSerializer(serializers.ModelSerializer):
     def get_group_id(self, obj):
 
         group = obj.groups.first() 
-        return str(group.id) if group else None
+        return group.id if group else None
     
-    def to_representation(self, instance):
-        """Override to ensure all IDs are strings."""
-        representation = super().to_representation(instance)
-        representation['id'] = str(representation['id'])  # Convert the `id` to a string
-        return representation
+class CustomUserSerializer(serializers.ModelSerializer):
+    group_name = serializers.SerializerMethodField()
+    group_id = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = ['id','full_name','email','phone','address','device_id','device_type','device_token','is_staff','is_active','is_superuser','group_name', 'group_id']
+
+    def get_group_name(self, obj):
+
+        group = obj.groups.first() 
+        return group.name if group else None
+
+    def get_group_id(self, obj):
+
+        group = obj.groups.first() 
+        return group.id if group else None
+
+class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
+    group_name = serializers.SerializerMethodField()
+    group_id = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = ['id','full_name','email','phone','address','device_id','device_type','device_token','is_staff','is_active','is_superuser','group_name', 'group_id']
+
+    def get_group_name(self, obj):
+
+        group = obj.groups.first() 
+        return group.name if group else None
+
+    def get_group_id(self, obj):
+
+        group = obj.groups.first() 
+        return group.id if group else None
+

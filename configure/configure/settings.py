@@ -41,7 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'user_profile'
+    'user_profile',
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+
 ]
 
 MIDDLEWARE = [
@@ -92,7 +95,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "kpi_db",
         "USER": "kpi_user",
-        "PASSWORD": "12345678",
+        "PASSWORD": "Vd2rp85ovSHlYpP",
         "HOST": "localhost",
         "PORT": "5432",
         }

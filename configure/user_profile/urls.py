@@ -11,6 +11,7 @@ urlpatterns = [
 
     path('login', LoginAPIView.as_view({'post':'create'}), name='login'),
     path('splash_screen', SplashScreenViewSet.as_view({'post':'create'}), name='splash_screen'),
-    path('user_create', CreateUserViewSet.as_view({'post':'create'}), name='user_create'),
+    path('user_create', CreateUserViewSet.as_view({'post':'create','get':'list'}), name='user_create'),
+    path('user_update_own_profile_data', UserUpdateOwnProfileDataViewset.as_view({'put':'update','get':'list'}), name='user_update_own_profile_data'),
     
 ]
