@@ -3,6 +3,8 @@ from .models import *
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import AccessToken
+
+
 class GroupSerializer(serializers.ModelSerializer):
     # permission_list = serializers.SerializerMethodField()
     permission_list = serializers.SerializerMethodField()
@@ -23,6 +25,11 @@ class GroupSerializer(serializers.ModelSerializer):
         
         permission_list = [{model: perms} for model, perms in grouped_permissions.items()]
         return permission_list
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id','department_name','created_at']
 
 class LoginUserSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
@@ -45,9 +52,10 @@ class LoginUserSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
     group_id = serializers.SerializerMethodField()
+    department_name = serializers.CharField(source='department.department_name', read_only=True)
     class Meta:
         model = CustomUser
-        fields = ['id','full_name','email','phone','address','device_id','device_type','device_token','is_staff','is_active','is_superuser','group_name', 'group_id']
+        fields = ['id','full_name','email','dob','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
 
     def get_group_name(self, obj):
 
@@ -62,9 +70,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
     group_id = serializers.SerializerMethodField()
+    department_name = serializers.CharField(source='department.department_name', read_only=True)
     class Meta:
         model = CustomUser
-        fields = ['id','full_name','email','phone','address','device_id','device_type','device_token','is_staff','is_active','is_superuser','group_name', 'group_id']
+        fields = ['id','full_name','email','dob','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
 
     def get_group_name(self, obj):
 

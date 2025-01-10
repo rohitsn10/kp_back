@@ -1,6 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
 
+
+
+class Department(models.Model):
+    department_name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class CustomUserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
@@ -22,7 +28,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.CharField(null=True, blank=True,unique=True, max_length=255)
     full_name = models.CharField(max_length=30, null=True, blank=True)
     phone = models.CharField(max_length=10, null=True, blank=True)
+    dob = models.DateField(null=True, blank=True)
     address = models.CharField(max_length=5000, null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
+    designation = models.CharField(max_length=255, null=True, blank=True)
     device_id = models.CharField(max_length=255, null=True, blank=True)
     device_type = models.CharField(max_length=50, null=True, blank=True)
     device_token = models.TextField(null=True, blank=True)
