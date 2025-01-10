@@ -31,6 +31,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     dob = models.DateField(null=True, blank=True)
     address = models.CharField(max_length=5000, null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
+    profile_image = models.FileField(upload_to='profile_image', null=True, blank=True,default='profile_image/default_profile.jpeg')
     designation = models.CharField(max_length=255, null=True, blank=True)
     device_id = models.CharField(max_length=255, null=True, blank=True)
     device_type = models.CharField(max_length=50, null=True, blank=True)

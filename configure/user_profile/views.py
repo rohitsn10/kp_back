@@ -318,14 +318,14 @@ class UpdateGroupWithPermissionViewSet(viewsets.ModelViewSet):
 class CreateUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
     serializer_class = CustomUserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         try:
-            email = request.data.get('email')
-            full_name = request.data.get('full_name')
-            phone = request.data.get('phone')
-            address = request.data.get('address')
+            email = request.data.get('email','')
+            full_name = request.data.get('full_name','')
+            phone = request.data.get('phone','')
+            address = request.data.get('address','')
             password = request.data.get('password')
             group_ids = request.data.get('user_role',[])  # List of group IDs
             
@@ -336,8 +336,6 @@ class CreateUserViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Username is required", "data": []})
             if not phone:
                 return Response({"status": False, "message": "Phone is required", "data": []})
-            if not address:
-                return Response({"status": False, "message": "Address is required", "data": []})
             if not password:
                 return Response({"status": False, "message": "Password is required", "data": []})
             if not group_ids or not isinstance(group_ids, list):
@@ -378,7 +376,7 @@ class CreateUserViewSet(viewsets.ModelViewSet):
         
     def list(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset())
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "User List Successfully", "data": data})
@@ -427,6 +425,7 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
             phone = request.data.get('phone', '')
             address = request.data.get('address', '')
             dob = request.data.get('dob', '')
+            profile_image = request.data.get('profile_image', '')
 
             if not full_name:
                 return Response({"status": False, "message": "First name is required", "data": []})
@@ -442,6 +441,8 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
                 user_data.dob = dob
             if address:
                 user_data.address = address
+            if profile_image is not None and not isinstance(profile_image, str):
+                user_data.profile_image = profile_image
 
             user_data.save()
             serializer = self.serializer_class(user)

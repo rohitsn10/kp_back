@@ -53,9 +53,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
     group_id = serializers.SerializerMethodField()
     department_name = serializers.CharField(source='department.department_name', read_only=True)
+    profile_image = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['id','full_name','email','dob','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
+        fields = ['id','full_name','email','dob','profile_image','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
 
     def get_group_name(self, obj):
 
@@ -66,14 +67,21 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
         group = obj.groups.first() 
         return group.id if group else None
+    
+    def get_profile_image(self, obj):
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.profile_image.url)
+        return None
 
 class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
     group_id = serializers.SerializerMethodField()
     department_name = serializers.CharField(source='department.department_name', read_only=True)
+    profile_image = serializers.SerializerMethodField() 
     class Meta:
         model = CustomUser
-        fields = ['id','full_name','email','dob','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
+        fields = ['id','full_name','email','dob','profile_image','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
 
     def get_group_name(self, obj):
 
@@ -84,4 +92,10 @@ class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
 
         group = obj.groups.first() 
         return group.id if group else None
+    
+    def get_profile_image(self, obj):
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.profile_image.url)
+        return None
 
