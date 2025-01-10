@@ -423,9 +423,11 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         try:
             user = self.request.user
-            full_name = request.data.get('full_name')
-            phone = request.data.get('phone')
-            address = request.data.get('address')
+            full_name = request.data.get('full_name', '')
+            phone = request.data.get('phone', '')
+            address = request.data.get('address', '')
+            dob = request.data.get('dob', '')
+
             if not full_name:
                 return Response({"status": False, "message": "First name is required", "data": []})
             if not phone:
@@ -436,6 +438,8 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
                 user_data.full_name = full_name
             if phone is not None:
                 user_data.phone = phone
+            if dob is not None:
+                user_data.dob = dob
             if address:
                 user_data.address = address
 
@@ -505,7 +509,7 @@ class LoginAPIView(viewsets.ModelViewSet):
                 data['device_type'] = device_type
                 data['device_token'] = device_token
 
-                return Response({"status": True, "message": "You are logged in!", "data": {"token": access_token}})
+                return Response({"status": True, "message": "You are logged in!", "data": data})
 
             return Response({"status": True, "message": "You are logged in!", "data": data})
         
