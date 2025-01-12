@@ -17,6 +17,10 @@ import ipdb
 from user_profile.function_call import *
 from django.conf import settings
 import jwt 
+from django.contrib.auth.hashers import make_password
+import random
+
+
 
 
 
@@ -517,3 +521,82 @@ class LoginAPIView(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+
+class UserDeactivateViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        # Get the list of user IDs to be updated from the request
+        user_ids = request.data.get('user_ids', [])
+
+        if not user_ids:
+            return Response({
+                    "status": False,
+                    "message": "No user IDs provided."
+                })
+
+        users = CustomUser.objects.filter(id__in=user_ids)
+
+        if not users.exists():
+            return Response({
+                    "status": False,
+                    "message": "No matching users found."
+                })
+
+        users.update(is_active=False)
+
+        return Response({
+                "status": True,
+                "message": "user have been deactivated."
+            })
+
+
+class ResetPasswordAPIView(viewsets.ModelViewSet):
+    def update(self, request):
+        user = self.request.user
+        if user.is_anonymous:
+            return Response({"status": False, "message": "User is not authenticated", "data": []})
+
+        old_password = request.data.get('old_password')
+
+        if not check_password(old_password, user.password):
+            return Response({"status": False, "message": "Old password is incorrect", "data": []})
+
+        try:
+            otp = str(random.randint(100000, 999999))
+            user.otp = otp
+            user.save()
+
+            return Response({"status": True,"message": "Otp genrate successfully", "data": []})
+        except CustomUser.DoesNotExist:
+            return Response({"status": False,"message": "User not found", "data": []})
+
+class ConfirmOTPAndSetPassword(viewsets.ModelViewSet):
+    def update(self, request):
+        user = self.request.user
+        if user.is_anonymous:
+            return Response({"status": False, "message": "User is not authenticated", "data": []})
+
+        otp_data = request.data.get('otp')
+        new_password = request.data.get('password')
+        confirm_password = request.data.get('confirm_password')
+
+        if not otp_data or not new_password or not confirm_password:
+            return Response({"status": False, "message": "OTP, new password, and confirm password are required", "data": []})
+
+        if otp_data != user.otp:
+            return Response({"status": False, "message": "Invalid OTP", "data": []})
+
+        if new_password != confirm_password:
+            return Response({"status": False, "message": "Password and confirm password do not match", "data": []})
+
+        if check_password(new_password, user.old_password):
+            return Response({"status": False, "message": "New password cannot be the same as the old password", "data": []})
+
+        user.old_password = new_password
+        user.password = make_password(new_password)
+        user.otp = None
+        user.save()
+
+        return Response({"status": True, "message": "Password reset successfully", "data": []})
+
