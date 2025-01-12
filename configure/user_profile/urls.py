@@ -13,5 +13,9 @@ urlpatterns = [
     path('splash_screen', SplashScreenViewSet.as_view({'post':'create'}), name='splash_screen'),
     path('user_create', CreateUserViewSet.as_view({'post':'create','get':'list'}), name='user_create'),
     path('user_update_own_profile_data', UserUpdateOwnProfileDataViewset.as_view({'put':'update','get':'list'}), name='user_update_own_profile_data'),
+    path('user_deactivate', UserDeactivateViewSet.as_view({'put':'update'}), name='user_deactivate'),
+    path('reset_password', ResetPasswordAPIView.as_view({'put':'update'}), name='reset_password'),
+    path('otp_resetpassword', ConfirmOTPAndSetPassword.as_view({'put':'update'}), name='otp_resetpassword'),
+
     
 ]
