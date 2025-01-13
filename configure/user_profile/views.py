@@ -250,70 +250,71 @@ class UpdateGroupWithPermissionViewSet(viewsets.ModelViewSet):
         
         
 
-# class LoginAPIView(ViewSet):
-#     def create(self, request):
-#         try:
-#             email = request.data.get('email', '').strip()
-#             password = request.data.get('password', '').strip()
-#             login_type = request.data.get('login_type', '').strip() 
-#             device_id = request.data.get('device_id', '').strip()
-#             device_type = request.data.get('device_type', '').strip()
-#             device_token = request.data.get('device_token', '').strip()
+class LoginAPIView(ViewSet):
+    def create(self, request):
+        try:
+            email = request.data.get('email', '').strip()
+            password = request.data.get('password', '').strip()
+            login_type = request.data.get('login_type', '').strip() 
+            device_id = request.data.get('device_id', '').strip()
+            device_type = request.data.get('device_type', '').strip()
+            device_token = request.data.get('device_token', '').strip()
 
 
-#             # Validate email and password inputs
-#             if not email:
-#                 return Response({"status": False, 'message': 'Email is required', "data": []})
-#             if not password:
-#                 return Response({"status": False, 'message': 'Password is required', "data": []})
-#             if not login_type or login_type not in ['mobile', 'desktop']:
-#                 return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
+            # Validate email and password inputs
+            if not email:
+                return Response({"status": False, 'message': 'Email is required', "data": []})
+            if not password:
+                return Response({"status": False, 'message': 'Password is required', "data": []})
+            if not login_type or login_type not in ['mobile', 'desktop']:
+                return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
             
-#             # if login_type == 'mobile':
-#             #     if not device_id:
-#             #         return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
-#             #     if not device_type:
-#             #         return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
-#             #     if not device_token:
-#             #         return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
+            # if login_type == 'mobile':
+            #     if not device_id:
+            #         return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
+            #     if not device_type:
+            #         return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
+            #     if not device_token:
+            #         return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
 
 
-#             # Check if user exists
-#             user = CustomUser.objects.filter(email=email).first()
-#             if not user:
-#                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
+            # Check if user exists
+            user = CustomUser.objects.filter(email=email).first()
+            if not user:
+                return Response({"status": False, "message": "Invalid email or password!", "data": []})
 
-#            # Authenticate user
-#             user_auth = authenticate_user_by_email(email, password)
-#             if not user_auth:
-#                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
+           # Authenticate user
+            user_auth = authenticate_user_by_email(email, password)
+            if not user_auth:
+                return Response({"status": False, "message": "Invalid email or password!", "data": []})
             
-#             if login_type == 'mobile':
-#                 user.device_id = device_id
-#                 user.device_type = device_type
-#                 user.device_token = device_token
-#                 user.save()
+            if login_type == 'mobile':
+                user.device_id = device_id
+                user.device_type = device_type
+                user.device_token = device_token
+                user.save()
 
-#             # Successful login - generate JWT token
-#             refresh = RefreshToken.for_user(user_auth)
-#             access_token = str(refresh.access_token)
+            # Successful login - generate JWT token
+            refresh = RefreshToken.for_user(user_auth)
+            access_token = str(refresh.access_token)
             
-#             serializer = LoginUserSerializer(user_auth, context={'request': request})
-#             data = serializer.data
-#             data['token'] = access_token
+            serializer = LoginUserSerializer(user_auth, context={'request': request})
+            data = serializer.data
+            data['token'] = access_token
             
-#              # If type is mobile, encode all data into a JWT token
-#             if login_type == 'mobile':
-#                 encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
-#                 return Response({"status": True, "message": "You are logged in!", "data": {"token": encoded_data}})
+             # If type is mobile, encode all data into a JWT token
+            if login_type == 'mobile':
+                encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
+                print(encoded_data,"============================")
+                return Response({"status": True, "message": "You are logged in!", "token": encoded_data})
 
-#             return Response({"status": True, "message": "You are logged in!", "data": data})
+            return Response({"status": True, "message": "You are logged in!", "data": data})
         
-#         except Exception as e:
-#             import logging
-#             logger = logging.getLogger(__name__)
-#             logger.error(f"Login error: {str(e)}", exc_info=True)
-#             return Response({"status": False, 'message': "Something went wrong!", 'data': []})
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Login error: {str(e)}", exc_info=True)
+            return Response({"status": False, 'message': "Something went wrong!", 'data': []})
 
 class CreateUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
@@ -386,30 +387,36 @@ class CreateUserViewSet(viewsets.ModelViewSet):
 
 
 class SplashScreenViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = LoginUserSerializer
-    # permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         try:
-            access_token = request.data.get('token', None)
+            token = request.headers.get('token', '').strip()
+            if not token:
+                return Response({"status": False, "message": "Login required!", "data": []})
+            try:
+                decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            except jwt.ExpiredSignatureError:
+                return Response({"status": False, "message": "Token has expired!", "data": []})
+            except jwt.InvalidTokenError:
+                return Response({"status": False, "message": "Invalid token!", "data": []})
 
-            if access_token:
-                try:
-                    token = AccessToken(access_token)
-                    user_id = token['user_id']
-                    user = CustomUser.objects.get(id=user_id)
-                except Exception as e:
-                    return Response({"status": False, "message": "Invalid token", "data": []})
-                
-                serializer = self.serializer_class(user, context={'request': request})
-                data = serializer.data
+            # Extract user_id from the token payload
+            user_id = decoded_data.get("id")
+            if not user_id:
+                return Response({"status": False, "message": "Invalid token payload!", "data": []})
 
-                return Response({"status": True, "message": "Splash Screen data retrieved successfully", "data": data})
-            return Response({"status": False, "message": "Token is required", "data": []})
+            # Validate user exists in the database
+            user = CustomUser.objects.filter(id=user_id).first()
+            if not user:
+                return Response({"status": False, "message": "User does not exist!", "data": []})
+
+            return Response({"status": True, "message": "Token validated successfully!", "data": {"token": token}})
 
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Splash screen error: {str(e)}", exc_info=True)
+            return Response({"status": False, "message": "Something went wrong!", "data": []})
 
 
 
@@ -445,7 +452,7 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
                 user_data.profile_image = profile_image
 
             user_data.save()
-            serializer = self.serializer_class(user)
+            serializer = self.serializer_class(user, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Profile updated successfully!", "data": data})
         except Exception as e:
@@ -455,65 +462,11 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             user = self.request.user
-            serializer = self.serializer_class(user)
+            serializer = self.serializer_class(user, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Profile data fetched successfully!", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
         
-        
-        
-class LoginAPIView(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = LoginUserSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def create(self, request):
-        try:
-            email = request.data.get('email', '').strip()
-            password = request.data.get('password', '').strip()
-            login_type = request.data.get('login_type', '').strip() 
-            device_id = request.data.get('device_id', '').strip()
-            device_type = request.data.get('device_type', '').strip()
-            device_token = request.data.get('device_token', '').strip()
-
-            if not email:
-                return Response({"status": False, 'message': 'Email is required', "data": []})
-            if not password:
-                return Response({"status": False, 'message': 'Password is required', "data": []})
-            if not login_type or login_type not in ['mobile', 'desktop']:
-                return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
-
-            user = CustomUser.objects.filter(email=email).first()
-            if not user:
-                return Response({"status": False, "message": "Invalid email or password!", "data": []})
-
-            user_auth = authenticate(email=email, password=password)
-            if not user_auth:
-                return Response({"status": False, "message": "Invalid email or password!", "data": []})
-
-            if login_type == 'mobile':
-                user.device_id = device_id
-                user.device_type = device_type
-                user.device_token = device_token
-                user.save()
-
-            refresh = RefreshToken.for_user(user_auth)
-            access_token = str(refresh.access_token)
-            serializer = LoginUserSerializer(user_auth, context={'request': request})
-            data = serializer.data
-            data['token'] = access_token
-
-            if login_type == 'mobile':
-                data['device_id'] = device_id
-                data['device_type'] = device_type
-                data['device_token'] = device_token
-
-                return Response({"status": True, "message": "You are logged in!", "data": data})
-
-            return Response({"status": True, "message": "You are logged in!", "data": data})
-        
-        except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
         

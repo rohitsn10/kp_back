@@ -47,7 +47,13 @@ class LoginUserSerializer(serializers.ModelSerializer):
     def get_group_id(self, obj):
 
         group = obj.groups.first() 
-        return group.id if group else None
+        return str(group.id) if group else None
+    
+    def to_representation(self, instance):
+        """Override to ensure all IDs are strings."""
+        representation = super().to_representation(instance)
+        representation['id'] = str(representation['id'])  # Convert the `id` to a string
+        return representation
     
 class CustomUserSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
@@ -98,4 +104,16 @@ class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
             request = self.context.get('request')
             return request.build_absolute_uri(obj.profile_image.url)
         return None
+    
+    def to_representation(self, instance):
+        """Override to ensure all IDs are strings."""
+        representation = super().to_representation(instance)
+        representation['id'] = str(representation['id'])
+        representation['group_id'] = str(representation['group_id'])
+        representation['department'] = str(representation['department'])
+        representation['is_staff'] = str(representation['is_staff']).lower()
+        representation['is_active'] = str(representation['is_active']).lower()
+        representation['is_superuser'] = str(representation['is_superuser']).lower()
+
+        return representation
 
