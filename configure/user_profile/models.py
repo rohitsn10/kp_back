@@ -36,6 +36,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     device_id = models.CharField(max_length=255, null=True, blank=True)
     device_type = models.CharField(max_length=50, null=True, blank=True)
     device_token = models.TextField(null=True, blank=True)
+    old_password = models.CharField(max_length=128, null=True, blank=True)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

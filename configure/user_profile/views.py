@@ -17,6 +17,10 @@ import ipdb
 from user_profile.function_call import *
 from django.conf import settings
 import jwt 
+from django.contrib.auth.hashers import make_password
+import random
+
+
 
 
 
@@ -470,3 +474,137 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
 
         
         
+
+  
+class LoginAPIView(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = LoginUserSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request):
+        try:
+            email = request.data.get('email', '').strip()
+            password = request.data.get('password', '').strip()
+            login_type = request.data.get('login_type', '').strip() 
+            device_id = request.data.get('device_id', '').strip()
+            device_type = request.data.get('device_type', '').strip()
+            device_token = request.data.get('device_token', '').strip()
+
+            if not email:
+                return Response({"status": False, 'message': 'Email is required', "data": []})
+            if not password:
+                return Response({"status": False, 'message': 'Password is required', "data": []})
+            if not login_type or login_type not in ['mobile', 'desktop']:
+                return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
+
+            user = CustomUser.objects.filter(email=email).first()
+            if not user:
+                return Response({"status": False, "message": "Invalid email or password!", "data": []})
+
+            user_auth = authenticate(email=email, password=password)
+            if not user_auth:
+                return Response({"status": False, "message": "Invalid email or password!", "data": []})
+
+            if login_type == 'mobile':
+                user.device_id = device_id
+                user.device_type = device_type
+                user.device_token = device_token
+                user.save()
+
+            refresh = RefreshToken.for_user(user_auth)
+            access_token = str(refresh.access_token)
+            serializer = LoginUserSerializer(user_auth, context={'request': request})
+            data = serializer.data
+            data['token'] = access_token
+
+            if login_type == 'mobile':
+                data['device_id'] = device_id
+                data['device_type'] = device_type
+                data['device_token'] = device_token
+
+                return Response({"status": True, "message": "You are logged in!", "data": data})
+
+            return Response({"status": True, "message": "You are logged in!", "data": data})
+        
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class UserDeactivateViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        # Get the list of user IDs to be updated from the request
+        user_ids = request.data.get('user_ids', [])
+
+        if not user_ids:
+            return Response({
+                    "status": False,
+                    "message": "No user IDs provided."
+                })
+
+        users = CustomUser.objects.filter(id__in=user_ids)
+
+        if not users.exists():
+            return Response({
+                    "status": False,
+                    "message": "No matching users found."
+                })
+
+        users.update(is_active=False)
+
+        return Response({
+                "status": True,
+                "message": "user have been deactivated."
+            })
+
+
+class ResetPasswordAPIView(viewsets.ModelViewSet):
+    def update(self, request):
+        user = self.request.user
+        if user.is_anonymous:
+            return Response({"status": False, "message": "User is not authenticated", "data": []})
+
+        old_password = request.data.get('old_password')
+
+        if not check_password(old_password, user.password):
+            return Response({"status": False, "message": "Old password is incorrect", "data": []})
+
+        try:
+            otp = str(random.randint(100000, 999999))
+            user.otp = otp
+            user.save()
+
+            return Response({"status": True,"message": "Otp genrate successfully", "data": []})
+        except CustomUser.DoesNotExist:
+            return Response({"status": False,"message": "User not found", "data": []})
+
+class ConfirmOTPAndSetPassword(viewsets.ModelViewSet):
+    def update(self, request):
+        user = self.request.user
+        if user.is_anonymous:
+            return Response({"status": False, "message": "User is not authenticated", "data": []})
+
+        otp_data = request.data.get('otp')
+        new_password = request.data.get('password')
+        confirm_password = request.data.get('confirm_password')
+
+        if not otp_data or not new_password or not confirm_password:
+            return Response({"status": False, "message": "OTP, new password, and confirm password are required", "data": []})
+
+        if otp_data != user.otp:
+            return Response({"status": False, "message": "Invalid OTP", "data": []})
+
+        if new_password != confirm_password:
+            return Response({"status": False, "message": "Password and confirm password do not match", "data": []})
+
+        if check_password(new_password, user.old_password):
+            return Response({"status": False, "message": "New password cannot be the same as the old password", "data": []})
+
+        user.old_password = new_password
+        user.password = make_password(new_password)
+        user.otp = None
+        user.save()
+
+        return Response({"status": True, "message": "Password reset successfully", "data": []})
+
