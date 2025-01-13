@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'user_profile',
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "land_module"
 
 ]
 

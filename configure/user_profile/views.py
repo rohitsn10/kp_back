@@ -473,9 +473,6 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
         
-        
-
-  
 class LoginAPIView(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = LoginUserSerializer
@@ -607,4 +604,7 @@ class ConfirmOTPAndSetPassword(viewsets.ModelViewSet):
         user.save()
 
         return Response({"status": True, "message": "Password reset successfully", "data": []})
+
+
+
 
