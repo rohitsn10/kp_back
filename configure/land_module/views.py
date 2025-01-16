@@ -5,7 +5,7 @@ from user_profile.models import *
 from land_module.models import *
 from land_module.serializers import *
 import ipdb
-
+from user_profile.function_call import *
 
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
@@ -189,8 +189,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
-            land_id = self.kwargs.get('land_id')
-            land = LandBankMaster.objects.get(id=land_id)
+            land_bank_id = self.kwargs.get('land_bank_id')
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
             solar_or_winds = request.data.get('solar_or_winds')
@@ -202,7 +201,27 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_co_ordinates_files = request.FILES.getlist('land_co_ordinates_files') or []
             land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files') or []
             land_transmission_line_files = request.FILES.getlist('land_transmission_line_files') or []
+            
 
+            land_location_files_to_remove = request.data.get('land_location_files_to_remove', [])
+            land_survey_number_files_to_remove = request.data.get('land_survey_number_files_to_remove', [])
+            land_key_plan_files_to_remove = request.data.get('land_key_plan_files_to_remove', [])
+            land_attach_approval_report_files_to_remove = request.data.get('land_attach_approval_report_files_to_remove', [])
+            land_approach_road_files_to_remove = request.data.get('land_approach_road_files_to_remove', [])
+            land_co_ordinates_files_to_remove = request.data.get('land_co_ordinates_files_to_remove', [])
+            land_proposed_gss_files_to_remove = request.data.get('land_proposed_gss_files_to_remove', [])
+            land_transmission_line_files_to_remove = request.data.get('land_transmission_line_files_to_remove', [])
+            approved_report_files_to_remove = request.data.get('approved_report_files_to_remove', [])
+
+            land_location_files_to_remove = process_file_ids(land_location_files_to_remove)
+            land_survey_number_files_to_remove = process_file_ids(land_survey_number_files_to_remove)
+            land_key_plan_files_to_remove = process_file_ids(land_key_plan_files_to_remove)
+            land_attach_approval_report_files_to_remove = process_file_ids(land_attach_approval_report_files_to_remove)
+            land_approach_road_files_to_remove = process_file_ids(land_approach_road_files_to_remove)
+            land_co_ordinates_files_to_remove = process_file_ids(land_co_ordinates_files_to_remove)
+            land_proposed_gss_files_to_remove = process_file_ids(land_proposed_gss_files_to_remove)
+            land_transmission_line_files_to_remove = process_file_ids(land_transmission_line_files_to_remove)
+            approved_report_files_to_remove = process_file_ids(approved_report_files_to_remove)
 
             if not land_category_id:
                 return Response({"status": False, "message": "Land category is required", "data": []})
@@ -212,16 +231,307 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
 
             if not solar_or_winds:
                 return Response({"status": False, "message": "Please select solar or wind", "data": []})
-
+            
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            if not land_bank:
+                return Response({"status": False, "message": "Land Bank data not found", "data": []})
+            
             if land_category_id:
                 land_category = LandCategory.objects.get(id=land_category_id)
+                land_bank.land_category = land_category
+            if land_name:
+                land_bank.land_name = land_name
+            if solar_or_winds:
+                land_bank.solar_or_winds = solar_or_winds
+            land_bank.save()
 
-            land.land_category = land_category
-            land.land_name = land_name
-            land.solar_or_winds = solar_or_winds
-            land.save()
+            if land_location_files_to_remove:
+                for file_id in land_location_files_to_remove:
+                    try:
+                        file_instance = LandLocationAttachment.objects.get(id=file_id)
+                        land_bank.land_location_file.remove(file_instance)
+                        file_instance.delete()
+                    except LandLocationAttachment.DoesNotExist:
+                        continue
 
+            if land_survey_number_files_to_remove:
+                for file_id in land_survey_number_files_to_remove:
+                    try:
+                        file_instance = LandSurveyNumbeAttachment.objects.get(id=file_id)
+                        land_bank.land_survey_number_file.remove(file_instance)
+                        file_instance.delete()  
+                    except LandSurveyNumbeAttachment.DoesNotExist:
+                        continue  
+
+            if land_key_plan_files_to_remove:
+                for file_id in land_key_plan_files_to_remove:
+                    try:
+                        file_instance = LandKeyPlanAttachment.objects.get(id=file_id)
+                        land_bank.land_key_plan_file.remove(file_instance) 
+                        file_instance.delete()  
+                    except LandKeyPlanAttachment.DoesNotExist:
+                        continue  
+
+            if land_attach_approval_report_files_to_remove:
+                for file_id in land_attach_approval_report_files_to_remove:
+                    try:
+                        file_instance = LandAttachApprovalReportAttachment.objects.get(id=file_id)
+                        land_bank.land_attach_approval_report_file.remove(file_instance) 
+                        file_instance.delete() 
+                    except LandAttachApprovalReportAttachment.DoesNotExist:
+                        continue 
+
+            if land_approach_road_files_to_remove:
+                for file_id in land_approach_road_files_to_remove:
+                    try:
+                        file_instance = LandApproachRoadAttachment.objects.get(id=file_id)
+                        land_bank.land_approach_road_file.remove(file_instance)
+                        file_instance.delete()  
+                    except LandApproachRoadAttachment.DoesNotExist:
+                        continue  
+
+            if land_co_ordinates_files_to_remove:
+                for file_id in land_co_ordinates_files_to_remove:
+                    try:
+                        file_instance = LandCoOrdinatesAttachment.objects.get(id=file_id)
+                        land_bank.land_co_ordinates_file.remove(file_instance)
+                        file_instance.delete()  
+                    except LandCoOrdinatesAttachment.DoesNotExist:
+                        continue  
+
+            if land_proposed_gss_files_to_remove:
+                for file_id in land_proposed_gss_files_to_remove:
+                    try:
+                        file_instance = LandProposedGssAttachment.objects.get(id=file_id)
+                        land_bank.land_proposed_gss_file.remove(file_instance)
+                        file_instance.delete()
+                    except LandProposedGssAttachment.DoesNotExist:
+                        continue
+
+            if land_transmission_line_files_to_remove:
+                for file_id in land_transmission_line_files_to_remove:
+                    try:
+                        file_instance = LandTransmissionLineAttachment.objects.get(id=file_id)
+                        land_bank.land_transmission_line_file.remove(file_instance)
+                        file_instance.delete()  
+                    except LandTransmissionLineAttachment.DoesNotExist:
+                        continue  
+            
+            if approved_report_files_to_remove:
+                for file_id in approved_report_files_to_remove:
+                    try:
+                        file_instance = LandApprovedReportAttachment.objects.get(id=file_id)
+                        land_bank.approved_report_file.remove(file_instance)
+                        file_instance.delete()  
+                    except LandApprovedReportAttachment.DoesNotExist:
+                        continue
+
+            if land_location_files:
+                for file in land_location_files:
+                    land_location_attachments = LandLocationAttachment.objects.create(user=land_bank.user, land_location_file=file)
+                    land_bank.land_location_file.add(land_location_attachments)
+
+            if land_survey_number_files:
+                for file in land_survey_number_files:
+                    land_survey_number_attachments = LandSurveyNumbeAttachment.objects.create(user=land_bank.user, land_survey_number_file=file)
+                    land_bank.land_survey_number_file.add(land_survey_number_attachments)
+
+            if land_key_plan_files:
+                for file in land_key_plan_files:
+                    land_key_plan_attachments = LandKeyPlanAttachment.objects.create(user=land_bank.user, land_key_plan_file=file)
+                    land_bank.land_key_plan_file.add(land_key_plan_attachments)
+
+            if land_attach_approval_report_files:
+                for file in land_attach_approval_report_files:
+                    land_attach_approval_report_attachments = LandAttachApprovalReportAttachment.objects.create(user=land_bank.user, land_attach_approval_report_file=file)
+                    land_bank.land_attach_approval_report_file.add(land_attach_approval_report_attachments)
+
+            if land_approach_road_files:
+                for file in land_approach_road_files:
+                    land_approach_road_attachments = LandApproachRoadAttachment.objects.create(user=land_bank.user, land_approach_road_file=file)
+                    land_bank.land_approach_road_file.add(land_approach_road_attachments)
+
+            if land_co_ordinates_files:
+                for file in land_co_ordinates_files:
+                    land_co_ordinates_attachments = LandCoOrdinatesAttachment.objects.create(user=land_bank.user, land_co_ordinates_file=file)
+                    land_bank.land_co_ordinates_file.add(land_co_ordinates_attachments)
+
+            if land_proposed_gss_files:
+                for file in land_proposed_gss_files:
+                    land_proposed_gss_attachments = LandProposedGssAttachment.objects.create(user=land_bank.user, land_proposed_gss_file=file)
+                    land_bank.land_proposed_gss_file.add(land_proposed_gss_attachments)
+
+            if land_transmission_line_files:
+                for file in land_transmission_line_files:
+                    land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=land_bank.user, land_transmission_line_file=file)
+                    land_bank.land_transmission_line_file.add(land_transmission_line_attachments)
+
+            land_bank.save()
+            serializer = LandBankSerializer(land_bank, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land updated successfully", "data": data})
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []}) 
+            return Response({"status": False, "message": str(e), "data": []})
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            land_bank_id = self.kwargs.get('land_bank_id')
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            land_bank.delete()
+            return Response({"status": True, "message": "Land deleted successfully", "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+ 
 
 
+class ApproveLandBankDataByHODViewset(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_id = self.kwargs.get('land_bank_id')
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            land_bank_status = request.data.get('land_bank_status')
+            approved_report_files = request.FILES.get('approved_report_files') or []
+            if not land_bank_status:
+                return Response({"status": False, "message": "Land bank status is required", "data": []})
+            if not approved_report_files:
+                return Response({"status": False, "message": "Approval Report Files are required", "data": []})
+            
+            if land_bank_status == "Approved":
+                land_bank.land_bank_status = land_bank_status
+                for file in approved_report_files:
+                    approved_report_attachments = LandApprovedReportAttachment.objects.create(user=land_bank.user, approved_report_file=file)
+                    land_bank.approved_report_file.add(approved_report_attachments)
+                    land_bank.save()
+                approved_obj = LandBankApproveAction.objects.create(land_bank=land_bank, approved_by=user)
+                approved_obj.save()
+                land_bank.save()
+                serializer = LandBankSerializer(land_bank, context={'request': request})
+                data = serializer.data
+                return Response({"status": True, "message": "Land approved successfully", "data": data})
+            
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
+    queryset = LandBankAfterApprovedData.objects.all()
+    serializer_class = LandBankAfterApprovalSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_id = request.data.get('land_bank_id')
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            dilr_attachment_file = request.FILES.get('dilr_attachment_file') or []
+            na_65b_permission_attachment_file = request.FILES.get('na_65b_permission_attachment_file') or []
+            revenue_7_12_records_attachment = request.FILES.get('revenue_7_12_records_attachment') or []
+            noc_from_forest_and_amp_attachment_file = request.FILES.get('noc_from_forest_and_amp_attachment_file') or []
+            noc_from_geology_and_mining_office_attachment_file = request.FILES.get('noc_from_geology_and_mining_office_attachment_file') or []
+            approvals_required_for_transmission_attachment_file = request.FILES.get('approvals_required_for_transmission_attachment_file') or []
+            canal_crossing_attachment_file = request.FILES.get('canal_crossing_attachment_file') or []
+            lease_deed_attachment_file = request.FILES.get('lease_deed_attachment_file') or []
+            railway_crossing_attachment_file = request.FILES.get('railway_crossing_attachment_file') or []
+            any_gas_pipeline_crossing_attachment_file = request.FILES.get('any_gas_pipeline_crossing_attachment_file') or []
+            road_crossing_permission_attachment_file = request.FILES.get('road_crossing_permission_attachment_file') or []
+            any_transmission_line_crossing_permission_attachment_file = request.FILES.get('any_transmission_line_crossing_permission_attachment_file') or []
+            any_transmission_line_shifting_permission_attachment_file = request.FILES.get('any_transmission_line_shifting_permission_attachment_file') or []
+            gram_panchayat_permission_attachment_file = request.FILES.get('gram_panchayat_permission_attachment_file') or []
+
+            land_bank_after_approved_data = LandBankAfterApprovedData.objects.create(land_bank=land_bank, user=user)
+            if not land_bank_id:
+                return Response({"status": False, "message": "Land bank id is required", "data": []})
+            if not land_bank:
+                return Response({"status": False, "message": "Land bank not found", "data": []})
+
+            if dilr_attachment_file:
+                for file in dilr_attachment_file:
+                    dilr_attachments = DILRAttachment.objects.create(user=user, dilr_file=file)
+                    land_bank_after_approved_data.dilr_attachment_file.add(dilr_attachments)
+
+            if na_65b_permission_attachment_file:
+                for file in na_65b_permission_attachment_file:
+                    na_65b_permission_attachments = NA_65B_Permission_Attachment.objects.create(user=user, na_65b_permission_file=file)
+                    land_bank_after_approved_data.na_65b_permission_attachment_file.add(na_65b_permission_attachments)
+
+            if revenue_7_12_records_attachment:
+                for file in revenue_7_12_records_attachment:
+                    revenue_7_12_records_attachments = Revenue_7_12_Records_Attachment.objects.create(user=user, revenue_7_12_records_file=file)
+                    land_bank_after_approved_data.revenue_7_12_records_attachment.add(revenue_7_12_records_attachments)
+
+            if noc_from_forest_and_amp_attachment_file:
+                for file in noc_from_forest_and_amp_attachment_file:
+                    noc_from_forest_and_amp_attachments = NOCfromForestAndAmpAttachment.objects.create(user=user, noc_from_forest_and_amp_file=file)
+                    land_bank_after_approved_data.noc_from_forest_and_amp_attachment_file.add(noc_from_forest_and_amp_attachments)
+
+            if noc_from_geology_and_mining_office_attachment_file:
+                for file in noc_from_geology_and_mining_office_attachment_file:
+                    noc_from_geology_and_mining_office_attachments = NOCfromGeologyAndMiningOfficeAttachment.objects.create(user=user, noc_from_geology_and_mining_office_file=file)
+                    land_bank_after_approved_data.noc_from_geology_and_mining_office_attachment_file.add(noc_from_geology_and_mining_office_attachments)
+
+            if approvals_required_for_transmission_attachment_file:
+                for file in approvals_required_for_transmission_attachment_file:
+                    approvals_required_for_transmission_attachments = ApprovalsRequiredForTransmissionAttachment.objects.create(user=user, approvals_required_for_transmission_file=file)
+                    land_bank_after_approved_data.approvals_required_for_transmission_attachment_file.add(approvals_required_for_transmission_attachments)
+
+            if canal_crossing_attachment_file:
+                for file in canal_crossing_attachment_file:
+                    canal_crossing_attachments = CanalCrossingAttachment.objects.create(user=user, canal_crossing_file=file)
+                    land_bank_after_approved_data.canal_crossing_attachment_file.add(canal_crossing_attachments)
+
+            if lease_deed_attachment_file:
+                for file in lease_deed_attachment_file:
+                    lease_deed_attachments = LeaseDeedAttachment.objects.create(user=user, lease_deed_file=file)
+                    land_bank_after_approved_data.lease_deed_attachment_file.add(lease_deed_attachments)
+
+            if railway_crossing_attachment_file:
+                for file in railway_crossing_attachment_file:
+                    railway_crossing_attachments = RailwayCrossingAttachment.objects.create(user=user, railway_crossing_file=file)
+                    land_bank_after_approved_data.railway_crossing_attachment_file.add(railway_crossing_attachments)
+
+            if any_gas_pipeline_crossing_attachment_file:
+                for file in any_gas_pipeline_crossing_attachment_file:
+                    any_gas_pipeline_crossing_attachments = AnyGasPipelineCrossingAttachment.objects.create(user=user, any_gas_pipeline_crossing_file=file)
+                    land_bank_after_approved_data.any_gas_pipeline_crossing_attachment_file.add(any_gas_pipeline_crossing_attachments)
+
+            if road_crossing_permission_attachment_file:
+                for file in road_crossing_permission_attachment_file:
+                    road_crossing_permission_attachments = RoadCrossingPermissionAttachment.objects.create(user=user, road_crossing_permission_file=file)
+                    land_bank_after_approved_data.road_crossing_permission_attachment_file.add(road_crossing_permission_attachments)
+
+            if any_transmission_line_crossing_permission_attachment_file:
+                for file in any_transmission_line_crossing_permission_attachment_file:
+                    any_transmission_line_crossing_permission_attachment_files = AnyTransmissionLineCrossingPermissionAttachment.objects.create(user=user, any_transmission_line_crossing_permission_file=file)
+                    land_bank_after_approved_data.any_transmission_line_crossing_permission_attachment_file.add(any_transmission_line_crossing_permission_attachment_files)
+            
+            if any_transmission_line_shifting_permission_attachment_file:
+                for file in any_transmission_line_shifting_permission_attachment_file:
+                    any_transmission_line_shifting_permission_attachment_files = AnyTransmissionLineShiftingPermissionAttachment.objects.create(user = user,any_transmission_line_shifting_permission_file = file)
+                    land_bank_after_approved_data.any_transmission_line_shifting_permission_attachment_file.add(any_transmission_line_shifting_permission_attachment_files)
+
+            if gram_panchayat_permission_attachment_file:
+                for file in gram_panchayat_permission_attachment_file:
+                    gram_panchayat_permission_attachments = GramPanchayatPermissionAttachment.objects.create(user=user, gram_panchayat_permission_file=file)
+                    land_bank_after_approved_data.gram_panchayat_permission_attachment_file.add(gram_panchayat_permission_attachments)
+
+            land_bank_after_approved_data.save()
+            serializer = LandBankAfterApprovalSerializer(land_bank_after_approved_data, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank after approval updated successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+    def list(self,request,*args,**kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank after approval list successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})

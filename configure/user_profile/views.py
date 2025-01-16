@@ -323,7 +323,7 @@ class LoginAPIView(ViewSet):
 class CreateUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
     serializer_class = CustomUserSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -394,7 +394,8 @@ class SplashScreenViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            token = request.headers.get('token', '').strip()
+            token = request.data.get('token', '').strip()
+            print(token,"==================")
             # Get token from the Authorization header
             # if not auth_header.startswith("Bearer "):
             #     return Response({"status": False, "message": "Authorization token is required!", "data": []})
