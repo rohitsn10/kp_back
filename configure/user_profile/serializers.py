@@ -117,3 +117,11 @@ class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
 
         return representation
 
+class GetDepartmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Department
+        fields = ['id', 'department_name', 'department_created_at']
+
+
+
