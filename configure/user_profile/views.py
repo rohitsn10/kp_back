@@ -629,6 +629,91 @@ class ConfirmOTPAndSetPassword(viewsets.ModelViewSet):
 
         return Response({"status": True, "message": "Password reset successfully", "data": []})
 
+class DepartmentAddView(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = GetDepartmentSerializer
+    queryset = Department.objects.all().order_by('-id')
+    filter_backends = [filters.SearchFilter,filters.OrderingFilter]  # Add the filter backend for search functionality
+    ordering_fields = ['department_name']
+    search_fields = ['department_name']
+
+    def create(self,request):
+            try:
+                user = self.request.user
+                department_name = request.data.get('department_name')
+
+                if not department_name:
+                    return Response({'status': False,'message': 'Department name is required'})
+
+                department_obj = Department.objects.create(user=user,department_name=department_name)
+                department_obj.save()
+                return Response({'status': True,'message':"Department created successfully"})
+            except Exception as e:
+                return Response({"status": False,'message': 'Something went wrong','error': str(e)})
+      
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        try:
+            if queryset.exists():
+                serializer_data = []
+                for obj in queryset:
+                    context = {'request': request} 
+                    serializer = GetDepartmentSerializer(obj, context=context)
+                    serializer_data.append(serializer.data)
+
+                count = len(serializer_data)
+                return Response({
+                    "status": True,
+                    "message": "Department data fetched successfully",
+                    'total_page': 1,
+                    'total': count,
+                    'data': serializer_data
+                })
+            else:
+                return Response({
+                    "status": True,
+                    "message": "No Department found",
+                    "total_page": 0,
+                    "total": 0,
+                    "data": []
+                })
+        except Exception as e:
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
 
 
+            
+class DepartmentUpdatesViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'department_id'
+
+    def update(self, request, *args, **kwargs):
+    
+        try:
+            department_id = self.kwargs.get("department_id")
+            department_name = request.data.get('department_name')
+    
+            if not Department.objects.filter(id=department_id).exists():
+                return Response({"status": False, "message": "Department id not found"})
+    
+            department_object = Department.objects.get(id=department_id)
+            if department_name:
+                department_object.department_name = department_name
+            department_object.save()
+    
+            return Response({"status": True, "message": "Department updated successfully"})
+        except Exception as e:
+            return Response({"status": False, "message": "Something went wrong", "error": str(e)})    
+            
+    def destroy(self, request, *args, **kwargs):
+        try:
+            department_id = request.data.get('department_id')   
+            if not Department.objects.filter(id=department_id):
+                return Response({"status":False, "message":"Department id not found"})
+                     
+            department_object = Department.objects.get(id=department_id)
+            department_object.delete()
+            return Response({"status":True, "message":"Department deleted succesfully"})
+        except Exception as e:
+                return Response({"status": False,'message': 'Something went wrong','error': str(e)})
 
