@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from user_profile.models import *
 from land_module.models import *
 from land_module.serializers import *
+import ipdb
+
 
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
@@ -96,14 +98,16 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
             solar_or_winds = request.data.get('solar_or_winds')
-            land_location_files = request.FILES.getlist('land_location_files',[])
-            land_survey_number_files = request.FILES.getlist('land_survey_number_files',[])
-            land_key_plan_files = request.FILES.getlist('land_key_plan_files',[])
-            land_attach_approval_report_files = request.FILES.getlist('land_attach_approval_report_files',[])
-            land_approach_road_files = request.FILES.getlist('land_approach_road_files',[])
-            land_co_ordinates_files = request.FILES.getlist('land_co_ordinates_files',[])
-            land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files',[])
-            land_transmission_line_files = request.FILES.getlist('land_transmission_line_files',[])
+
+            # Ensure files default to empty lists if not present
+            land_location_files = request.FILES.getlist('land_location_files') or []
+            land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
+            land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
+            land_attach_approval_report_files = request.FILES.getlist('land_attach_approval_report_files') or []
+            land_approach_road_files = request.FILES.getlist('land_approach_road_files') or []
+            land_co_ordinates_files = request.FILES.getlist('land_co_ordinates_files') or []
+            land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files') or []
+            land_transmission_line_files = request.FILES.getlist('land_transmission_line_files') or []
 
             if not land_category_id:
                 return Response({"status": False, "message": "Land category is required", "data": []})
@@ -112,18 +116,21 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Land name is required", "data": []})
 
             if not solar_or_winds:
-                return Response({"status": False, "message": "please select solar or winds", "data": []})
-            
+                return Response({"status": False, "message": "Please select solar or wind", "data": []})
+
             if land_category_id:
                 land_category = LandCategory.objects.get(id=land_category_id)
 
+            # Create the LandBankMaster instance
             land = LandBankMaster.objects.create(user=user, land_category=land_category, land_name=land_name, solar_or_winds=solar_or_winds)
+
+            # Attach the files if provided
             if land_location_files:
                 for file in land_location_files:
                     land_location_attachments = LandLocationAttachment.objects.create(user=user, land_location_file=file)
                     land.land_location_file.add(land_location_attachments)
             if land_survey_number_files:
-                for file in land_key_plan_files:
+                for file in land_survey_number_files:
                     land_survey_number_attachments = LandSurveyNumbeAttachment.objects.create(user=user, land_survey_number_file=file)
                     land.land_survey_number_file.add(land_survey_number_attachments)
             if land_key_plan_files:
@@ -151,8 +158,70 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
                     land.land_transmission_line_file.add(land_transmission_line_attachments)
 
-            serializer = LandBankSerializer(land, context={'request': request})
-            data = serializer.data
-            return Response({"status": True, "message": "Land created successfully", "data": data})
+            # Serialize the created LandBankMaster instance
+            # serializer = LandBankSerializer(land, context={'request': request})
+            # data = serializer.data
+
+            return Response({"status": True, "message": "Land Bank created successfully", "data": []})
+
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            if not queryset.exists():
+                return Response({"status": False, "message": "No data found", "data": []})
+
+            serializer = LandBankSerializer(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land Bank List Successfully", "data": data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            land_id = self.kwargs.get('land_id')
+            land = LandBankMaster.objects.get(id=land_id)
+            land_category_id = request.data.get('land_category_id')
+            land_name = request.data.get('land_name')
+            solar_or_winds = request.data.get('solar_or_winds')
+            land_location_files = request.FILES.getlist('land_location_files') or []
+            land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
+            land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
+            land_attach_approval_report_files = request.FILES.getlist('land_attach_approval_report_files') or []
+            land_approach_road_files = request.FILES.getlist('land_approach_road_files') or []
+            land_co_ordinates_files = request.FILES.getlist('land_co_ordinates_files') or []
+            land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files') or []
+            land_transmission_line_files = request.FILES.getlist('land_transmission_line_files') or []
+
+
+            if not land_category_id:
+                return Response({"status": False, "message": "Land category is required", "data": []})
+
+            if not land_name:
+                return Response({"status": False, "message": "Land name is required", "data": []})
+
+            if not solar_or_winds:
+                return Response({"status": False, "message": "Please select solar or wind", "data": []})
+
+            if land_category_id:
+                land_category = LandCategory.objects.get(id=land_category_id)
+
+            land.land_category = land_category
+            land.land_name = land_name
+            land.solar_or_winds = solar_or_winds
+            land.save()
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []}) 
+
+
