@@ -473,11 +473,7 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
         
-class LoginAPIView(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = LoginUserSerializer
-    permission_classes = [permissions.AllowAny]
-
+class LoginAPIView(ViewSet):
     def create(self, request):
         try:
             email = request.data.get('email', '').strip()
@@ -487,6 +483,8 @@ class LoginAPIView(viewsets.ModelViewSet):
             device_type = request.data.get('device_type', '').strip()
             device_token = request.data.get('device_token', '').strip()
 
+
+            # Validate email and password inputs
             if not email:
                 return Response({"status": False, 'message': 'Email is required', "data": []})
             if not password:
@@ -494,13 +492,34 @@ class LoginAPIView(viewsets.ModelViewSet):
             if not login_type or login_type not in ['mobile', 'desktop']:
                 return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
 
+            # if login_type == 'mobile':
+            #     if not device_id:
+            #         return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
+            #     if not device_type:
+            #         return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
+            #     if not device_token:
+            #         return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
+            if login_type == 'mobile':
+                if not device_id:
+                    return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
+                if not device_type:
+                    return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
+                if not device_token:
+                    return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
+
+
+            # Check if user exists
             user = CustomUser.objects.filter(email=email).first()
             if not user:
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
 
-            user_auth = authenticate(email=email, password=password)
-            if not user_auth:
+           # Authenticate user
+            user = authenticate_user_by_email(email, password)
+            if not user:
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
+            auth_user = authenticate_user_by_email(email, password)
+            if not auth_user:
+                return Response({"status": False, "message": "Invalid email or password!"})
 
             if login_type == 'mobile':
                 user.device_id = device_id
@@ -508,23 +527,26 @@ class LoginAPIView(viewsets.ModelViewSet):
                 user.device_token = device_token
                 user.save()
 
-            refresh = RefreshToken.for_user(user_auth)
-            access_token = str(refresh.access_token)
-            serializer = LoginUserSerializer(user_auth, context={'request': request})
+            # Successful login - generate JWT token
+            refresh = RefreshToken.for_user(user)
+            serializer = LoginUserSerializer(user, context={'request': request})
+            refresh = RefreshToken.for_user(auth_user)
+            serializer = LoginUserSerializer(auth_user, context={'request': request})
             data = serializer.data
-            data['token'] = access_token
+            data['token'] = str(refresh.access_token)
 
+             # If type is mobile, encode all data into a JWT token
             if login_type == 'mobile':
-                data['device_id'] = device_id
-                data['device_type'] = device_type
-                data['device_token'] = device_token
-
-                return Response({"status": True, "message": "You are logged in!", "data": data})
+                encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
+                return Response({"status": True, "message": "You are logged in!", "data": encoded_data})
 
             return Response({"status": True, "message": "You are logged in!", "data": data})
-        
+
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Login error: {str(e)}", exc_info=True)
+            return Response({"status": False, 'message': "Something went wrong!", 'data': []})
         
 
 class UserDeactivateViewSet(viewsets.ModelViewSet):
