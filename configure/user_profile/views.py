@@ -395,8 +395,15 @@ class SplashScreenViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             token = request.headers.get('token', '').strip()
+            # Get token from the Authorization header
+            # if not auth_header.startswith("Bearer "):
+            #     return Response({"status": False, "message": "Authorization token is required!", "data": []})
+
             if not token:
-                return Response({"status": False, "message": "Login required!", "data": []})
+                return Response({"status": False, "message": "Token is required!", "data": []})
+            # token = auth_header.split(" ")[1].strip()
+
+            # Decode and validate the token
             try:
                 decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             except jwt.ExpiredSignatureError:
@@ -514,9 +521,6 @@ class LoginAPIView(ViewSet):
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
 
            # Authenticate user
-            user = authenticate_user_by_email(email, password)
-            if not user:
-                return Response({"status": False, "message": "Invalid email or password!", "data": []})
             auth_user = authenticate_user_by_email(email, password)
             if not auth_user:
                 return Response({"status": False, "message": "Invalid email or password!"})
@@ -528,8 +532,6 @@ class LoginAPIView(ViewSet):
                 user.save()
 
             # Successful login - generate JWT token
-            refresh = RefreshToken.for_user(user)
-            serializer = LoginUserSerializer(user, context={'request': request})
             refresh = RefreshToken.for_user(auth_user)
             serializer = LoginUserSerializer(auth_user, context={'request': request})
             data = serializer.data
@@ -538,7 +540,7 @@ class LoginAPIView(ViewSet):
              # If type is mobile, encode all data into a JWT token
             if login_type == 'mobile':
                 encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
-                return Response({"status": True, "message": "You are logged in!", "data": encoded_data})
+                return Response({"status": True, "message": "You are logged in!", "token": encoded_data})
 
             return Response({"status": True, "message": "You are logged in!", "data": data})
 
