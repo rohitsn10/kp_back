@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'user_profile',
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "land_module"
+    "land_module",
+    "activity_module"
 
 ]
 
@@ -96,7 +97,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "kpi_db",
         "USER": "kpi_user",
-        "PASSWORD": "Vd2rp85ovSHlYpP",
+        "PASSWORD": "12345678",
         "HOST": "localhost",
         "PORT": "5432",
         }

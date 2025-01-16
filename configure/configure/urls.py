@@ -24,6 +24,8 @@ urlpatterns = [
     path('admin', admin.site.urls),
     path('user_profile/',include('user_profile.urls')),
     path('land_module/',include('land_module.urls')),
+    path('activity_module/',include('activity_module.urls')),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
