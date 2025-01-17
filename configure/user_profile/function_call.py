@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from user_profile.models import *
+from rest_framework.request import Request
 
 def authenticate_user_by_email(email, password):
     """
@@ -23,4 +24,35 @@ def authenticate_user_by_email(email, password):
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"Authentication error: {str(e)}", exc_info=True)
+    return None
+
+
+def process_file_ids(file_ids):
+    if isinstance(file_ids, str):
+        file_ids = [id.strip() for id in file_ids.split(',') if id.strip()]
+    return [int(id) for id in file_ids if id.isdigit()]
+
+
+def get_file_data(request: Request, obj, field_name: str):
+    field = getattr(obj, field_name, None)
+
+    if field:
+        if isinstance(field, models.Manager):
+            return [
+                {
+                    "id": str(item.id),
+                    "url": request.build_absolute_uri(getattr(item, field_name).url),
+                    "created_at": item.created_at.isoformat(),
+                    "updated_at": item.updated_at.isoformat(),
+                }
+                for item in field.all()
+            ]
+        elif hasattr(field, 'url'):
+            return {
+                "id": str(field.id),
+                "url": request.build_absolute_uri(field.url),
+                "created_at": field.created_at.isoformat(),
+                "updated_at": field.updated_at.isoformat()
+            }
+
     return None

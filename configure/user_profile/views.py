@@ -323,7 +323,7 @@ class LoginAPIView(ViewSet):
 class CreateUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
     serializer_class = CustomUserSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -394,9 +394,17 @@ class SplashScreenViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            token = request.headers.get('token', '').strip()
+            token = request.data.get('token', '').strip()
+            print(token,"==================")
+            # Get token from the Authorization header
+            # if not auth_header.startswith("Bearer "):
+            #     return Response({"status": False, "message": "Authorization token is required!", "data": []})
+
             if not token:
-                return Response({"status": False, "message": "Login required!", "data": []})
+                return Response({"status": False, "message": "Token is required!", "data": []})
+            # token = auth_header.split(" ")[1].strip()
+
+            # Decode and validate the token
             try:
                 decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             except jwt.ExpiredSignatureError:
@@ -473,14 +481,7 @@ class UserUpdateOwnProfileDataViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
         
-        
-
-  
-class LoginAPIView(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = LoginUserSerializer
-    permission_classes = [permissions.AllowAny]
-
+class LoginAPIView(ViewSet):
     def create(self, request):
         try:
             email = request.data.get('email', '').strip()
@@ -490,6 +491,8 @@ class LoginAPIView(viewsets.ModelViewSet):
             device_type = request.data.get('device_type', '').strip()
             device_token = request.data.get('device_token', '').strip()
 
+
+            # Validate email and password inputs
             if not email:
                 return Response({"status": False, 'message': 'Email is required', "data": []})
             if not password:
@@ -497,13 +500,31 @@ class LoginAPIView(viewsets.ModelViewSet):
             if not login_type or login_type not in ['mobile', 'desktop']:
                 return Response({"status": False, 'message': 'Invalid type parameter!', "data": []})
 
+            # if login_type == 'mobile':
+            #     if not device_id:
+            #         return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
+            #     if not device_type:
+            #         return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
+            #     if not device_token:
+            #         return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
+            if login_type == 'mobile':
+                if not device_id:
+                    return Response({"status": False, 'message': 'Device ID is required for mobile login', "data": []})
+                if not device_type:
+                    return Response({"status": False, 'message': 'Device Type is required for mobile login', "data": []})
+                if not device_token:
+                    return Response({"status": False, 'message': 'Device Token is required for mobile login', "data": []})
+
+
+            # Check if user exists
             user = CustomUser.objects.filter(email=email).first()
             if not user:
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
 
-            user_auth = authenticate(email=email, password=password)
-            if not user_auth:
-                return Response({"status": False, "message": "Invalid email or password!", "data": []})
+           # Authenticate user
+            auth_user = authenticate_user_by_email(email, password)
+            if not auth_user:
+                return Response({"status": False, "message": "Invalid email or password!"})
 
             if login_type == 'mobile':
                 user.device_id = device_id
@@ -511,23 +532,24 @@ class LoginAPIView(viewsets.ModelViewSet):
                 user.device_token = device_token
                 user.save()
 
-            refresh = RefreshToken.for_user(user_auth)
-            access_token = str(refresh.access_token)
-            serializer = LoginUserSerializer(user_auth, context={'request': request})
+            # Successful login - generate JWT token
+            refresh = RefreshToken.for_user(auth_user)
+            serializer = LoginUserSerializer(auth_user, context={'request': request})
             data = serializer.data
-            data['token'] = access_token
+            data['token'] = str(refresh.access_token)
 
+             # If type is mobile, encode all data into a JWT token
             if login_type == 'mobile':
-                data['device_id'] = device_id
-                data['device_type'] = device_type
-                data['device_token'] = device_token
-
-                return Response({"status": True, "message": "You are logged in!", "data": data})
+                encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
+                return Response({"status": True, "message": "You are logged in!", "token": encoded_data})
 
             return Response({"status": True, "message": "You are logged in!", "data": data})
-        
+
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Login error: {str(e)}", exc_info=True)
+            return Response({"status": False, 'message': "Something went wrong!", 'data': []})
         
 
 class UserDeactivateViewSet(viewsets.ModelViewSet):
@@ -652,3 +674,92 @@ class PrivacyPolicyViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": "error","message": str(e),"data": []})
+
+class DepartmentAddView(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = GetDepartmentSerializer
+    queryset = Department.objects.all().order_by('-id')
+    filter_backends = [filters.SearchFilter,filters.OrderingFilter]  # Add the filter backend for search functionality
+    ordering_fields = ['department_name']
+    search_fields = ['department_name']
+
+    def create(self,request):
+            try:
+                user = self.request.user
+                department_name = request.data.get('department_name')
+
+                if not department_name:
+                    return Response({'status': False,'message': 'Department name is required'})
+
+                department_obj = Department.objects.create(user=user,department_name=department_name)
+                department_obj.save()
+                return Response({'status': True,'message':"Department created successfully"})
+            except Exception as e:
+                return Response({"status": False,'message': 'Something went wrong','error': str(e)})
+      
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        try:
+            if queryset.exists():
+                serializer_data = []
+                for obj in queryset:
+                    context = {'request': request} 
+                    serializer = GetDepartmentSerializer(obj, context=context)
+                    serializer_data.append(serializer.data)
+
+                count = len(serializer_data)
+                return Response({
+                    "status": True,
+                    "message": "Department data fetched successfully",
+                    'total_page': 1,
+                    'total': count,
+                    'data': serializer_data
+                })
+            else:
+                return Response({
+                    "status": True,
+                    "message": "No Department found",
+                    "total_page": 0,
+                    "total": 0,
+                    "data": []
+                })
+        except Exception as e:
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+
+
+            
+class DepartmentUpdatesViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'department_id'
+
+    def update(self, request, *args, **kwargs):
+    
+        try:
+            department_id = self.kwargs.get("department_id")
+            department_name = request.data.get('department_name')
+    
+            if not Department.objects.filter(id=department_id).exists():
+                return Response({"status": False, "message": "Department id not found"})
+    
+            department_object = Department.objects.get(id=department_id)
+            if department_name:
+                department_object.department_name = department_name
+            department_object.save()
+    
+            return Response({"status": True, "message": "Department updated successfully"})
+        except Exception as e:
+            return Response({"status": False, "message": "Something went wrong", "error": str(e)})    
+            
+    def destroy(self, request, *args, **kwargs):
+        try:
+            department_id = request.data.get('department_id')   
+            if not Department.objects.filter(id=department_id):
+                return Response({"status":False, "message":"Department id not found"})
+                     
+            department_object = Department.objects.get(id=department_id)
+            department_object.delete()
+            return Response({"status":True, "message":"Department deleted succesfully"})
+        except Exception as e:
+                return Response({"status": False,'message': 'Something went wrong','error': str(e)})
+
