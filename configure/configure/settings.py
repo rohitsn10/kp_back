@@ -97,7 +97,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "kpi_db",
         "USER": "kpi_user",
-        "PASSWORD": "12345678",
+        "PASSWORD": "Vd2rp85ovSHlYpP",
         "HOST": "localhost",
         "PORT": "5432",
         }
