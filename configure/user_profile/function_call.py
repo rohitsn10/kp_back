@@ -56,3 +56,55 @@ def get_file_data(request: Request, obj, field_name: str):
             }
 
     return None
+
+
+def get_expense_project_attachments_file_data(request: Request, obj, field_name: str):
+    field = getattr(obj, field_name, None)
+
+    if field:
+        if isinstance(field, models.Manager):  
+            return [
+                {
+                    "id": str(item.id),
+                    "url": request.build_absolute_uri(item.expense_project_attachments.url),
+                    "created_at": item.created_at.isoformat(),
+                }
+                for item in field.all()
+            ]
+        elif hasattr(field, 'url'):
+            return {
+                "id": str(field.id),
+                "url": request.build_absolute_uri(field.url),
+                "created_at": field.created_at.isoformat(),
+            }
+
+    return None
+
+
+def get_client_details_file_data(request: Request, obj, field_name: str):
+    field = getattr(obj, field_name, None)
+
+    if field:
+        # Handle ManyToManyField relationships
+        if isinstance(field, models.Manager):
+            return [
+                {
+                    "id": str(item.id),
+                    "url": request.build_absolute_uri(getattr(item, field_name).url) if hasattr(getattr(item, field_name), 'url') else None,
+                    "created_at": item.created_at.isoformat(),
+                    "updated_at": item.updated_at.isoformat(),
+                }
+                for item in field.all()
+            ]
+        
+        # Handle single FileField relationships (e.g., AdharCard, PanCard, etc.)
+        elif hasattr(field, 'url'):
+            return {
+                "id": str(field.id),
+                "url": request.build_absolute_uri(field.url) if hasattr(field, 'url') else None,
+                "created_at": field.created_at.isoformat(),
+                "updated_at": field.updated_at.isoformat()
+            }
+
+    return None
+

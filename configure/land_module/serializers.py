@@ -3,6 +3,7 @@ from land_module.models import *
 from user_profile.models import *
 import ipdb
 from user_profile.function_call import *
+
 class LandCategorySerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name',read_only=True)
     class Meta:
@@ -185,4 +186,6 @@ class LandBankLocationSerializer(serializers.ModelSerializer):
     def get_land_survey_number_data(self, obj):
         land_survey_numbers = LandSurveyNumber.objects.filter(location_name=obj)
         return LandSurveyNumberSerializer(land_survey_numbers, many=True).data
+
+
 

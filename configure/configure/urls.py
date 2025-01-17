@@ -27,7 +27,6 @@ urlpatterns = [
     path('activity_module/',include('activity_module.urls')),
     path('project_module/',include('project_module.urls')),
 
-
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

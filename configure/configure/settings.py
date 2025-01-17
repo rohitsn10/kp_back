@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "land_module",
     "activity_module",
+    "django_filters",
     "project_module"
 
 ]
