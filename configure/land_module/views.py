@@ -384,7 +384,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
  
 
 
-class ApproveLandBankDataByHODViewset(viewsets.ModelViewSet):
+class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -413,6 +413,15 @@ class ApproveLandBankDataByHODViewset(viewsets.ModelViewSet):
                 serializer = LandBankSerializer(land_bank, context={'request': request})
                 data = serializer.data
                 return Response({"status": True, "message": "Land approved successfully", "data": data})
+            
+            if land_bank_status == "Rejected":
+                land_bank.land_bank_status = land_bank_status
+                approved_obj = LandBankRejectAction.objects.create(land_bank=land_bank, approved_by=user)
+                approved_obj.save()
+                land_bank.save()
+                serializer = LandBankSerializer(land_bank, context={'request': request})
+                data = serializer.data
+                return Response({"status": True, "message": "Land rejected successfully", "data": data})
             
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
@@ -533,5 +542,110 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land bank after approval list successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+
+class CrateLandBankLocationViewset(viewsets.ModelViewSet):
+    queryset = LandBankLocation.objects.all().order_by('-id')
+    serializer_class = LandBankLocationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_id = request.data.get('land_bank_id')
+            land_bank_location_name = request.data.get('land_bank_location_name')
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+
+            if not land_bank:
+                return Response({"status": False, "message": "Land bank not found", "data": []})
+
+            land_bank_location = LandBankLocation.objects.create(user=user, land_bank=land_bank, land_bank_location_name = land_bank_location_name)
+            serializer = LandBankLocationSerializer(land_bank_location, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank location created successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank location list successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
+class LandBankIdWiseLocationViewset(viewsets.ModelViewSet):
+    queryset = LandBankLocation.objects.all().order_by('-id')
+    serializer_class = LandBankLocationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'land_bank_id'
+
+    def list(self, request, *args, **kwargs):
+        try:
+            land_bank_id = self.kwargs.get('land_bank_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            queryset = queryset.filter(land_bank=land_bank_id)
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank location list successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class UpdateLandBankLocationViewset(viewsets.ModelViewSet):
+    queryset = LandBankLocation.objects.all().order_by('-id')
+    serializer_class = LandBankLocationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_location_id = self.kwargs.get('land_bank_location_id')
+            land_bank_location = LandBankLocation.objects.get(id=land_bank_location_id)
+            land_bank_location_name = request.data.get('land_bank_location_name')
+            land_survey_number = request.data.get('land_survey_number')
+            land_bank = land_bank_location.land_bank
+            if land_bank_location_name:
+                land_bank_location.land_bank_location_name = land_bank_location_name
+            if land_survey_number:
+                land_survey_obj = LandSurveyNumber.objects.create(user = user,land_survey_number = land_survey_number,location_name = land_bank_location,land_bank = land_bank)
+                land_survey_obj.save()
+            land_bank_location.save()
+            
+            serializer = LandBankLocationSerializer(land_bank_location, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank location updated successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+    def destroy(self, request, *args, **kwargs):
+        try:
+            land_bank_location_id = self.kwargs.get('land_bank_location_id')
+            land_bank_location = LandBankLocation.objects.get(id=land_bank_location_id)
+            land_bank_location.delete()
+            return Response({"status": True, "message": "Land bank location deleted successfully", "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+class LandLocationIdWiseLandSurveyNumberViewset(viewsets.ModelViewSet):
+    queryset = LandSurveyNumber.objects.all().order_by('-id')
+    serializer_class = LandSurveyNumberSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'location_name_id'
+
+    def list(self, request, *args, **kwargs):
+        try:
+            location_name_id = self.kwargs.get('location_name_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            queryset = queryset.filter(location_name=location_name_id)
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land survey number list successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})

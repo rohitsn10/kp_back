@@ -95,6 +95,11 @@ class LandBankApproveAction(models.Model):
     land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
     approved_at = models.DateTimeField(auto_now_add=True)
 
+class LandBankRejectAction(models.Model):
+    rejected_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
+    rejected_at = models.DateTimeField(auto_now_add=True)
+
 class DILRAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     dilr_file = models.FileField(upload_to='dilr', null=True, blank=True)
@@ -245,5 +250,21 @@ class LandBankAfterApprovedData(models.Model):
     any_transmission_line_crossing_permission_attachment_file = models.ManyToManyField(AnyTransmissionLineCrossingPermissionAttachment)
     any_transmission_line_shifting_permission_attachment_file = models.ManyToManyField(AnyTransmissionLineShiftingPermissionAttachment)
     gram_panchayat_permission_attachment_file = models.ManyToManyField(GramPanchayatPermissionAttachment)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class LandBankLocation(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
+    land_bank_location_name = models.CharField(max_length=255,null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class LandSurveyNumber(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE,null=True, blank=True)
+    location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='land_survey_numbers', null=True, blank=True)
+    land_survey_number = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
