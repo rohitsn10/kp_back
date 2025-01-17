@@ -49,3 +49,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
+
+class PrivacyPolicy(models.Model):
+    privacypolicy_data = models.JSONField()
+    privacypolicy_key = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
