@@ -641,39 +641,63 @@ class PrivacyPolicyViewSet(viewsets.ModelViewSet):
             privacypolicy_data = request.data.get('privacypolicy_data', '').strip()
 
             if not privacypolicy_data:
-                return Response({"status": "error", "message": "Privacy policy data is required", "data": []})
+                return Response({"status": "error", "message": "Privacy policy data is required", "data": {}})
 
             privacypolicy_key = "privacypolicy"  # Key is fixed to "privacypolicy"
 
             privacy_policy = PrivacyPolicy.objects.create(privacypolicy_data=privacypolicy_data, privacypolicy_key=privacypolicy_key)
 
-            return Response({"status": "success", "message": "Privacy Policy created successfully!", "data": []})
+            return Response({"status": "success", "message": "Privacy Policy created successfully!", "data": {}})
 
         except Exception as e:
-            return Response({"status": "error", "message": str(e), "data": []})
+            return Response({"status": "error", "message": str(e), "data": ''})
 
-    def list(self, request , *args , **kwargs):
+    def list(self, request, *args, **kwargs):
         try:
+        # Get the 'privacypolicy_key' from the URL kwargs
             privacypolicy_key = self.kwargs.get('privacypolicy_key', '')
 
             if not privacypolicy_key:
-                return Response({"status": "error","message": "privacypolicy_key is required in the request","data": []})
+                return Response({
+                    "status": "error",
+                    "message": "privacypolicy_key is required in the request",
+                    "data": {}
+                })
 
+        # Query the PrivacyPolicy model based on the privacypolicy_key
             queryset = self.get_queryset().filter(privacypolicy_key=privacypolicy_key)
+        
             if not queryset.exists():
-                return Response({"status": "error","message": "No privacy policy found with the specified key","data": []})
+                return Response({
+                    "status": "error",
+                    "message": "No privacy policy found with the specified key",
+                    "data": {}
+                })
 
+        # Serialize the filtered data
             serializer = self.serializer_class(queryset, many=True)
             privacypolicy_data = serializer.data
 
-            for policy in privacypolicy_data:
-                policy.pop('privacypolicy_key', None)
-                policy.pop('created_at', None) 
+        # If there are matching policies, use the first item
+            if privacypolicy_data:
+                privacypolicy_data = privacypolicy_data[0]  # Get the first entry from the list
 
-            return Response({"status": "success","message": "Page fetched successfully.","data": privacypolicy_data})
+            # Remove unwanted fields from the data
+                privacypolicy_data.pop('privacypolicy_key', None)
+                privacypolicy_data.pop('created_at', None)
+
+            return Response({
+                "status": "success",
+                "message": "Page fetched successfully.",
+                "data": privacypolicy_data  # Return the data as a single dictionary
+            })
 
         except Exception as e:
-            return Response({"status": "error","message": str(e),"data": []})
+            return Response({
+                "status": "error",
+                "message": str(e),
+                "data": {}
+            })
 
 class DepartmentAddView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -763,3 +787,39 @@ class DepartmentUpdatesViewSet(viewsets.ModelViewSet):
         except Exception as e:
                 return Response({"status": False,'message': 'Something went wrong','error': str(e)})
 
+class LogoutViewSet(viewsets.ModelViewSet):
+    def create(self, request, *args, **kwargs):
+        try:
+            # Get the token from the Authorization header
+            token = request.data.get('token')
+        
+
+            if not token:
+                return Response({"status": False, "message": "Token is required!"})
+
+            # Decode and validate the token
+            try:
+                decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            except jwt.ExpiredSignatureError:
+                return Response({"status": False, "message": "Token has expired!"})
+            except jwt.InvalidTokenError:
+                return Response({"status": False, "message": "Invalid token!"})
+
+            # Extract user_id from the token payload
+            user_id = decoded_data.get("id")
+            if not user_id:
+                return Response({"status": False, "message": "Invalid token payload!"})
+
+            # Validate user exists in the database
+            user = CustomUser.objects.filter(id=user_id).first()
+            if not user:
+                return Response({"status": False, "message": "User does not exist!"})
+
+            # Set the device token to None (logout the user)
+            user.device_token = None  # Set the device token to None
+            user.save()  # Save the updated user object
+
+            return Response({"status": True, "message": "Logout successful!"})
+
+        except Exception as e:
+            return Response({"status": False, "message": "Something went wrong!"})
