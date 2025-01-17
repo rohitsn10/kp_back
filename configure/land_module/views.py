@@ -395,7 +395,7 @@ class ApproveLandBankDataByHODViewset(viewsets.ModelViewSet):
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
             land_bank_status = request.data.get('land_bank_status')
-            approved_report_files = request.FILES.get('approved_report_files') or []
+            approved_report_files = request.FILES.getlist('approved_report_files') or []
             if not land_bank_status:
                 return Response({"status": False, "message": "Land bank status is required", "data": []})
             if not approved_report_files:
