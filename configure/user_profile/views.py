@@ -598,7 +598,7 @@ class ConfirmOTPAndSetPassword(viewsets.ModelViewSet):
         if new_password != confirm_password:
             return Response({"status": False, "message": "Password and confirm password do not match", "data": []})
 
-        if check_password(new_password, user.old_password):
+        if check_password(new_password, user.password):    ####user.old_password changed to user.password
             return Response({"status": False, "message": "New password cannot be the same as the old password", "data": []})
 
         user.old_password = new_password
@@ -608,3 +608,47 @@ class ConfirmOTPAndSetPassword(viewsets.ModelViewSet):
 
         return Response({"status": True, "message": "Password reset successfully", "data": []})
 
+
+class PrivacyPolicyViewSet(viewsets.ModelViewSet):
+    queryset = PrivacyPolicy.objects.all()
+    serializer_class = PrivacyPolicySerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request):
+        try:
+            privacypolicy_data = request.data.get('privacypolicy_data', '').strip()
+
+            if not privacypolicy_data:
+                return Response({"status": "error", "message": "Privacy policy data is required", "data": []})
+
+            privacypolicy_key = "privacypolicy"  # Key is fixed to "privacypolicy"
+
+            privacy_policy = PrivacyPolicy.objects.create(privacypolicy_data=privacypolicy_data, privacypolicy_key=privacypolicy_key)
+
+            return Response({"status": "success", "message": "Privacy Policy created successfully!", "data": []})
+
+        except Exception as e:
+            return Response({"status": "error", "message": str(e), "data": []})
+
+    def list(self, request):
+        try:
+            privacypolicy_key = request.data.get('privacypolicy_key', '')
+
+            if not privacypolicy_key:
+                return Response({"status": "error","message": "privacypolicy_key is required in the request","data": []})
+
+            queryset = self.get_queryset().filter(privacypolicy_key=privacypolicy_key)
+            if not queryset.exists():
+                return Response({"status": "error","message": "No privacy policy found with the specified key","data": []})
+
+            serializer = self.serializer_class(queryset, many=True)
+            privacypolicy_data = serializer.data
+
+            for policy in privacypolicy_data:
+                policy.pop('privacypolicy_key', None)
+                policy.pop('created_at', None) 
+
+            return Response({"status": "success","message": "Page fetched successfully.","data": privacypolicy_data})
+
+        except Exception as e:
+            return Response({"status": "error","message": str(e),"data": []})

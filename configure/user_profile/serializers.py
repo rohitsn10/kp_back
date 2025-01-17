@@ -117,3 +117,7 @@ class UserUpdateOwnProfileDataSerializer(serializers.ModelSerializer):
 
         return representation
 
+class PrivacyPolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivacyPolicy
+        fields = ['privacypolicy_data', 'privacypolicy_key', 'created_at']
