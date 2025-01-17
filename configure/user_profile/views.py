@@ -652,9 +652,9 @@ class PrivacyPolicyViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": "error", "message": str(e), "data": []})
 
-    def list(self, request):
+    def list(self, request , *args , **kwargs):
         try:
-            privacypolicy_key = request.data.get('privacypolicy_key', '')
+            privacypolicy_key = self.kwargs.get('privacypolicy_key', '')
 
             if not privacypolicy_key:
                 return Response({"status": "error","message": "privacypolicy_key is required in the request","data": []})

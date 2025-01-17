@@ -16,7 +16,7 @@ urlpatterns = [
     path('user_deactivate', UserDeactivateViewSet.as_view({'put':'update'}), name='user_deactivate'),
     path('reset_password', ResetPasswordAPIView.as_view({'put':'update'}), name='reset_password'),
     path('otp_resetpassword', ConfirmOTPAndSetPassword.as_view({'put':'update'}), name='otp_resetpassword'),
-    path('privacy_policy', PrivacyPolicyViewSet.as_view({'post':'create', 'get':'list'}), name='privacy_policy'),
+    path('privacy_policy/<privacypolicy_key>', PrivacyPolicyViewSet.as_view({'post':'create', 'get':'list'}), name='privacy_policy'),
 
     path('create_get_department', DepartmentAddView.as_view({'post': 'create', 'get': 'list'}), name='create_get_department'),
     path('get_department', DepartmentAddView.as_view({'post': 'create', 'get': 'list'}), name='get_department'),
