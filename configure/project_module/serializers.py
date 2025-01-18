@@ -99,3 +99,8 @@ class Wo_PoSerializer(serializers.ModelSerializer):
     
     def get_omm_contact(self, obj):
         return get_client_details_file_data(self.context.get('request'), obj, 'omm_contact_attachments')
+    
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['user','company_name', 'id', 'created_at', 'updated_at']

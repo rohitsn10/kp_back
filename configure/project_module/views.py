@@ -518,3 +518,80 @@ class Wo_Po_DataUpdateViewset(viewsets.ModelViewSet):
             return Response({"status": True, "message": "WO/PO deleted successfully", "data": []})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
+class CompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def create(self, request, *args, **kwargs):
+        company_name = request.data.get('company_name')
+        user = request.user
+
+        if not company_name:
+            return Response({"status": False, "message": "company_name is required"})
+        if Company.objects.filter(company_name=company_name).exists():
+            return Response({"status": False, "message": "A company with this name already exists"})
+        try:
+            company_obj = Company.objects.create(user=user, company_name=company_name)
+
+            serializer = self.serializer_class(company_obj)
+            data = {'id':serializer.data['id'],
+                    company_name:serializer.data['company_name'],
+                    'created_at':serializer.data['created_at'],
+                    }
+            return Response({"status": True, "message": "Company Created Successfully", "data": data})
+    
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+        serializer = self.serializer_class(queryset, many=True)
+        data = serializer.data
+        return Response({"status": True, "message": "Company List Successfully", "data": data})
+    
+    def update(self, request, *args, **kwargs):
+        
+        try:
+
+            company_id = self.kwargs.get('id')
+            if not company_id:
+                return Response({"status": False, "message": "companyid not found."})
+            
+            company_obj = self.get_object()
+            company_name = request.data.get('company_name')
+
+            if not company_name:
+                return Response({"status": False, "message": "company_name is required"})
+            
+            if Company.objects.filter(company_name=company_name).exclude(id=company_obj.id).exists():
+                return Response({"status": False, "message": "A company with this name already exists"})
+
+            company_obj.company_name = company_name
+            company_obj.save()
+
+            serializer = self.serializer_class(company_obj)
+            data = {'id':serializer.data['id'],
+                    company_name:serializer.data['company_name'],
+                    'updated_at':serializer.data['updated_at'],
+                    }
+            return Response({"status": True, "message": "Company Updated Successfully", "data": data})
+
+        except Company.DoesNotExist:
+            return Response({"status": False, "message": "Company not found"})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            company_obj = self.get_object()
+            company_obj.delete()
+
+            return Response({"status": True, "message": "Company Deleted Successfully"})
+
+        except Company.DoesNotExist:
+            return Response({"status": False, "message": "Company not found"})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
