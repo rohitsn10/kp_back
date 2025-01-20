@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from user_profile.models import *
 from rest_framework.request import Request
+from dateutil import parser
+from django.utils.timezone import make_aware
 
 def authenticate_user_by_email(email, password):
     """
@@ -107,4 +109,18 @@ def get_client_details_file_data(request: Request, obj, field_name: str):
             }
 
     return None
+
+
+
+
+def parse_date(date_value):
+    if date_value:
+        try:
+            parsed_date = parser.parse(date_value)
+            # Make the datetime timezone-aware
+            if parsed_date.tzinfo is None:
+                return make_aware(parsed_date)
+            return parsed_date
+        except Exception:
+            return None  # Return None if parsing fails
 

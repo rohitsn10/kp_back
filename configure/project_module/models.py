@@ -32,11 +32,11 @@ class Project(models.Model):
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='projects')
-    company_name = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects')
+    company_name = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
     project_name = models.CharField(max_length=255)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='projects_location')
+    location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='projects_location',null=True, blank=True)
     location_survey = models.ManyToManyField(LandSurveyNumber, related_name='projects_survey')
     cod_commission_date = models.DateTimeField(null=True, blank=True)
     total_area_of_project = models.TextField(null=True, blank=True)
@@ -45,7 +45,7 @@ class Project(models.Model):
     cpp_or_ipp = models.CharField(max_length=10, choices=CPP_IPP_CHOICES)
     project_choice_activity = models.CharField(max_length=20, choices=PROJECT_ACTIVITY_CHOICES)
     electricity_line = models.CharField(max_length=5, choices=ELECTRICITY_LINE_CHOICES)
-    spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects')
+    spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',null=True, blank=True)
     project_predication_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
