@@ -14,4 +14,6 @@ urlpatterns = [
 
     path('create_main_project', ProjectViewSet.as_view({'post':'create','get':'list'}), name='create_main_project'),
 
+    path('company', CompanyViewSet.as_view({'post':'create','get':'list'}), name='company'),
+    path('company/<int:id>', CompanyViewSet.as_view({'put':'update','delete':'destroy'}), name='company'),
 ]
