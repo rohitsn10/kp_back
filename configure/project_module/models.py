@@ -164,6 +164,18 @@ class WO_PO(models.Model):
     omm_contact_attachments = models.ManyToManyField(OMMContactAttachments)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+
+class ProjectMilestone(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    milestone_name = models.TextField(null=True, blank=True)
+    milestone_description = models.TextField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 

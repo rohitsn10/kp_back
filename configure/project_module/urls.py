@@ -18,5 +18,12 @@ urlpatterns = [
     path('company/<int:id>', CompanyViewSet.as_view({'put':'update','delete':'destroy'}), name='company'),
     
     path('create_main_project', ProjectViewSet.as_view({'post':'create','get':'list'}), name='create_main_project'),
+    
+    path('create_milestone', ProjectMilestoneViewSet.as_view({'post': 'create'}), name='create_milestone'),
+    path('get_milestone', ProjectMilestoneViewSet.as_view({'get': 'list'}), name='get_milestone'),
+    path('update_milestone/<int:milestone_id>', ProjectMilestoneUpdateViewSet.as_view({'put': 'update'}), name='update_milestone'),
+
+    
+    
 
 ]
