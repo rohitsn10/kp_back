@@ -6,6 +6,7 @@ from project_module.models import *
 from project_module.serializers import *
 import ipdb
 from user_profile.function_call import *
+from .function_call import *
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
@@ -518,6 +519,126 @@ class Wo_Po_DataUpdateViewset(viewsets.ModelViewSet):
             return Response({"status": True, "message": "WO/PO deleted successfully", "data": []})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+class ProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            # Extract data from the request
+            user = self.request.user
+            company_id = request.data.get('company_id')
+            project_name = request.data.get('project_name')
+            start_date = parse_date(request.data.get('start_date'))
+            end_date = parse_date(request.data.get('end_date'))
+            location_id = request.data.get('location_id')
+            location_survey = request.data.get('location_survey', [])
+            cod_commission_date = parse_date(request.data.get('cod_commission_date'))
+            total_area_of_project = request.data.get('total_area_of_project')
+            capacity = request.data.get('capacity')
+            ci_or_utility = request.data.get('ci_or_utility')
+            cpp_or_ipp = request.data.get('cpp_or_ipp')
+            project_choice_activity = request.data.get('project_choice_activity')
+            electricity_line = request.data.get('electricity_line')
+            spoc_user = request.data.get('spoc_user')
+            project_predication_date = parse_date(request.data.get('project_predication_date'))
+
+            # Validate individual fields
+            # if not company_id:
+            #     return Response({"status": False, "message": "Company ID is required."})
+
+            if not project_name:
+                return Response({"status": False, "message": "Project name is required."})
+
+            if not start_date:
+                return Response({"status": False, "message": "Start date is required."})
+
+            if not end_date:
+                return Response({"status": False, "message": "End date is required."})
+
+            # if not location_id:
+            #     return Response({"status": False, "message": "Location is required."})
+
+            if not cod_commission_date:
+                return Response({"status": False, "message": "COD commission date is required."})
+
+            if not total_area_of_project:
+                return Response({"status": False, "message": "Total area of project is required."})
+
+            if not capacity:
+                return Response({"status": False, "message": "Capacity is required."})
+
+            if not ci_or_utility:
+                return Response({"status": False, "message": "CI or utility is required."})
+
+            if not cpp_or_ipp:
+                return Response({"status": False, "message": "CPP or IPP is required."})
+
+            if not project_choice_activity:
+                return Response({"status": False, "message": "Project choice activity is required."})
+
+            if not electricity_line:
+                return Response({"status": False, "message": "Electricity line is required."})
+
+            # if not spoc_user:
+            #     return Response({"status": False, "message": "SPOC user is required."})
+
+            if not project_predication_date:
+                return Response({"status": False, "message": "Project predication date is required."})
+
+            # try:
+            #     company = Company.objects.get(id=company_id)
+            # except Company.DoesNotExist:
+            #     return Response({"status": False, "message": "Invalid company."})
+            
+            # try:
+            #     location = LandBankLocation.objects.get(id=location_id)
+            # except LandBankLocation.DoesNotExist:
+            #     return Response({"status": False, "message": "Invalid location."})
+            
+            # try:
+            #     by_spoc_user = CustomUser.objects.get(id=spoc_user)
+            # except CustomUser.DoesNotExist:
+            #     return Response({"status":False,"message":"User not found"})
+
+            # Create the Project instance
+            project = Project.objects.create(
+                user=user,
+                # company=company,
+                project_name=project_name,
+                start_date=start_date,
+                end_date=end_date,
+                # location=location,
+                cod_commission_date=cod_commission_date,
+                total_area_of_project=total_area_of_project,
+                capacity=capacity,
+                ci_or_utility=ci_or_utility,
+                cpp_or_ipp=cpp_or_ipp,
+                project_choice_activity=project_choice_activity,
+                electricity_line=electricity_line,
+                # spoc_user=by_spoc_user,
+                project_predication_date=project_predication_date,
+            )
+
+            # Add ManyToMany relationships
+            if location_survey:
+                project.location_survey.set(location_survey)
+
+            return Response(
+                {
+                    "status": True,
+                    "message": "Project created successfully",
+                })
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "message": f"Error creating project: {str(e)}",
+                    "data": [],
+                })
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
@@ -719,3 +840,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     "message": f"Error creating project: {str(e)}",
                     "data": [],
                 })
+
