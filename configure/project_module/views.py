@@ -750,6 +750,87 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
 
 
+class ProjectUpdateViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    lookup_field = 'project_id'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            project_id = self.kwargs.get("project_id")
+            project_name = request.data.get('project_name')
+            start_date = parse_date(request.data.get('start_date'))
+            end_date = parse_date(request.data.get('end_date'))
+            location_id = request.data.get('location_id', '')
+            location_survey = request.data.get('location_survey', '')
+            if isinstance(location_survey, str):
+                location_survey = [int(loc_id.strip()) for loc_id in location_survey.split(',') if loc_id.strip()]
+            cod_commission_date = parse_date(request.data.get('cod_commission_date'))
+            total_area_of_project = request.data.get('total_area_of_project')
+            capacity = request.data.get('capacity')
+            ci_or_utility = request.data.get('ci_or_utility')
+            cpp_or_ipp = request.data.get('cpp_or_ipp')
+            project_choice_activity = request.data.get('project_choice_activity')
+            electricity_line = request.data.get('electricity_line')
+            spoc_user = request.data.get('spoc_user')
+            project_predication_date = parse_date(request.data.get('project_predication_date'))
+
+            if not Project.objects.filter(id=project_id).exists():
+                return Response({"status": False, "message": "Project ID not found"})
+
+            project_object = Project.objects.get(id=project_id)
+
+            if project_name:
+                project_object.project_name = project_name
+            if start_date:
+                project_object.start_date = start_date
+            if end_date:
+                project_object.end_date = end_date
+            if location_id:
+                try:
+                    location = LandBankLocation.objects.get(id=location_id)
+                    project_object.location_name = location
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location."})
+            if cod_commission_date:
+                project_object.cod_commission_date = cod_commission_date
+            if total_area_of_project:
+                project_object.total_area_of_project = total_area_of_project
+            if capacity:
+                project_object.capacity = capacity
+            if ci_or_utility:
+                project_object.ci_or_utility = ci_or_utility
+            if cpp_or_ipp:
+                project_object.cpp_or_ipp = cpp_or_ipp
+            if project_choice_activity:
+                project_object.project_choice_activity = project_choice_activity
+            if electricity_line:
+                project_object.electricity_line = electricity_line
+            if spoc_user:
+                try:
+                    spoc_user_object = CustomUser.objects.get(id=spoc_user)
+                    project_object.spoc_user = spoc_user_object
+                except CustomUser.DoesNotExist:
+                    return Response({"status": False, "message": "User not found"})
+
+            if project_predication_date:
+                project_object.project_predication_date = project_predication_date
+
+            # Update the project instance
+            project_object.save()
+
+            # Update ManyToMany relationships
+            if location_survey:
+                project_object.location_survey.set(location_survey)
+
+            return Response({"status": True, "message": "Project updated successfully"})
+
+        except Exception as e:
+            return Response({"status": False, "message": f"Error updating project: {str(e)}", "data": []})
+
+
+
 
 class ProjectMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
