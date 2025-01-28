@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     "land_module",
     "activity_module",
     "django_filters",
-    "project_module"
+    "project_module",
+    "document_control"
 
 ]
 
