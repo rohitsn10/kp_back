@@ -612,11 +612,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             end_date = parse_date(request.data.get('end_date'))
             location_id = request.data.get('location_id','')
             location_survey = request.data.get('location_survey', '')
+            alloted_land_area = request.data.get('alloted_land_area')
+            available_land_area = request.data.get('available_land_area')
+
             if isinstance(location_survey, str):
                 location_survey = [int(loc_id.strip()) for loc_id in location_survey.split(',') if loc_id.strip()]  
           
             cod_commission_date = parse_date(request.data.get('cod_commission_date'))
-            total_area_of_project = request.data.get('total_area_of_project')
+            # total_area_of_project = request.data.get('total_area_of_project')
             capacity = request.data.get('capacity')
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
@@ -644,7 +647,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not cod_commission_date:
                 return Response({"status": False, "message": "COD commission date is required."})
 
-            if not total_area_of_project:
+            # if not total_area_of_project:
                 return Response({"status": False, "message": "Total area of project is required."})
 
             if not capacity:
@@ -692,7 +695,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 end_date=end_date,
                 location_name=location,
                 cod_commission_date=cod_commission_date,
-                total_area_of_project=total_area_of_project,
+                # total_area_of_project=total_area_of_project,
                 capacity=capacity,
                 ci_or_utility=ci_or_utility,
                 cpp_or_ipp=cpp_or_ipp,
@@ -700,6 +703,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 electricity_line=electricity_line,
                 spoc_user_id=by_spoc_user.id,
                 project_predication_date=project_predication_date,
+                alloted_land_area=alloted_land_area,
+                available_land_area=available_land_area
             )
 
             # Add ManyToMany relationships
@@ -764,10 +769,12 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
             end_date = parse_date(request.data.get('end_date'))
             location_id = request.data.get('location_id', '')
             location_survey = request.data.get('location_survey', '')
+            available_land_area = request.data.get('available_land_area')
+            alloted_land_area = request.data.get('alloted_land_area')
             if isinstance(location_survey, str):
                 location_survey = [int(loc_id.strip()) for loc_id in location_survey.split(',') if loc_id.strip()]
             cod_commission_date = parse_date(request.data.get('cod_commission_date'))
-            total_area_of_project = request.data.get('total_area_of_project')
+            # total_area_of_project = request.data.get('total_area_of_project')
             capacity = request.data.get('capacity')
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
@@ -783,6 +790,10 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
 
             if project_name:
                 project_object.project_name = project_name
+            if available_land_area:
+                project_object.available_land_area = available_land_area
+            if alloted_land_area:
+                project_object.alloted_land_area = alloted_land_area
             if start_date:
                 project_object.start_date = start_date
             if end_date:
@@ -795,8 +806,8 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
                     return Response({"status": False, "message": "Invalid location."})
             if cod_commission_date:
                 project_object.cod_commission_date = cod_commission_date
-            if total_area_of_project:
-                project_object.total_area_of_project = total_area_of_project
+            # if total_area_of_project:
+                # project_object.total_area_of_project = total_area_of_project
             if capacity:
                 project_object.capacity = capacity
             if ci_or_utility:
