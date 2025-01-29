@@ -28,5 +28,5 @@ class DocumentManagement(models.Model):
     document_attachments = models.ManyToManyField(DocumentManagementAttachments)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     assign_users = models.ManyToManyField(CustomUser, related_name="assigned_documents", blank=True)
+    updated_at = models.DateTimeField(auto_now=True)

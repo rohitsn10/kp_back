@@ -24,6 +24,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
             comments = request.data.get('comments')
             document_attachments = request.FILES.getlist('document_attachments', [])
             assigned_user = request.data.get('assigned_users', '')
+
             user = request.user
 
             if not document_name:
@@ -110,12 +111,10 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         if not request.user.groups.filter(name='Admin').exists():
                 return Response({"status": False, "message": "You do not have permission to perform this action."})
-        
         try:
             document_id = self.kwargs.get('document_id')
             if not document_id:
                 return Response({"status": False, "message": "document_id not found."}, )
-
             document_obj = DocumentManagement.objects.get(id = document_id)
             if not document_obj:
                 return Response({"status": True, "message": "Documents Data is not found", "data": data})
@@ -163,9 +162,8 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
             document_obj = DocumentManagement.objects.get(id = document_id)
             if not document_obj:
                 return Response({"status": True, "message": "Documents Data is not found"})
-            
-            document_obj.delete()
 
+            document_obj.delete()
             return Response({"status": True, "message": "Document Deleted Successfully"})
 
         except DocumentManagement.DoesNotExist:
