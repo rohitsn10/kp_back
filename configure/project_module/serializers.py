@@ -32,7 +32,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     class Meta:
         model = Project
-        fields = ['id','user','user_full_name','project_name']
+        fields = ['id','user','user_full_name','project_name', 'alloted_land_area', 'available_land_area']
 
 
 class ClientDetailsSerializer(serializers.ModelSerializer):

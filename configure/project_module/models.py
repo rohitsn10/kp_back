@@ -49,6 +49,8 @@ class Project(models.Model):
     project_predication_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    available_land_area = models.CharField(null=True, blank=True)
+    alloted_land_area = models.CharField(null=True, blank=True)
 
 class ExpenseProjectAttachments(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
