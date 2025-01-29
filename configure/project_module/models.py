@@ -32,25 +32,25 @@ class Project(models.Model):
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='projects')
-    company_name = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects')
+    company_name = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
     project_name = models.CharField(max_length=255)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='projects_location')
+    location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='projects_location',null=True, blank=True)
     location_survey = models.ManyToManyField(LandSurveyNumber, related_name='projects_survey')
     cod_commission_date = models.DateTimeField(null=True, blank=True)
     total_area_of_project = models.TextField(null=True, blank=True)
     capacity = models.TextField(null=True, blank=True)
-    ci_or_utility = models.CharField(max_length=10, choices=CI_UTILITY_CHOICES)
-    cpp_or_ipp = models.CharField(max_length=10, choices=CPP_IPP_CHOICES)
-    project_choice_activity = models.CharField(max_length=20, choices=PROJECT_ACTIVITY_CHOICES)
-    electricity_line = models.CharField(max_length=5, choices=ELECTRICITY_LINE_CHOICES)
-    spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects')
+    ci_or_utility = models.CharField(max_length=10, choices=CI_UTILITY_CHOICES, null=True, blank=True)
+    cpp_or_ipp = models.CharField(max_length=10, choices=CPP_IPP_CHOICES, null=True, blank=True)
+    project_choice_activity = models.CharField(max_length=20, choices=PROJECT_ACTIVITY_CHOICES, null=True, blank=True)
+    electricity_line = models.CharField(max_length=5, choices=ELECTRICITY_LINE_CHOICES, null=True, blank=True)
+    spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
     project_predication_date = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     available_land_area = models.CharField(null=True, blank=True)
     alloted_land_area = models.CharField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class ExpenseProjectAttachments(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
@@ -164,6 +164,18 @@ class WO_PO(models.Model):
     loa_po_attachments = models.ManyToManyField(Loa_PoAttachments)
     epc_contract_attachments = models.ManyToManyField(Epc_ContractAttachments)
     omm_contact_attachments = models.ManyToManyField(OMMContactAttachments)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+
+class ProjectMilestone(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    milestone_name = models.TextField(null=True, blank=True)
+    milestone_description = models.TextField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
