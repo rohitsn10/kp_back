@@ -557,12 +557,15 @@ class CrateLandBankLocationViewset(viewsets.ModelViewSet):
             user = self.request.user
             land_bank_id = request.data.get('land_bank_id')
             land_bank_location_name = request.data.get('land_bank_location_name')
+            total_land_area = request.data.get('total_land_area')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
 
             if not land_bank:
                 return Response({"status": False, "message": "Land bank not found", "data": []})
-
-            land_bank_location = LandBankLocation.objects.create(user=user, land_bank=land_bank, land_bank_location_name = land_bank_location_name)
+            if not total_land_area:
+                return Response({"status": False, "message": "Total Land Area is required"})
+            
+            land_bank_location = LandBankLocation.objects.create(user=user, land_bank=land_bank, land_bank_location_name = land_bank_location_name,total_land_area=total_land_area)
             serializer = LandBankLocationSerializer(land_bank_location, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land bank location created successfully", "data": data})
@@ -610,11 +613,12 @@ class UpdateLandBankLocationViewset(viewsets.ModelViewSet):
             land_bank_location = LandBankLocation.objects.get(id=land_bank_location_id)
             land_bank_location_name = request.data.get('land_bank_location_name')
             land_survey_number = request.data.get('land_survey_number')
+            total_land_area = request.data.get('total_land_area')
             land_bank = land_bank_location.land_bank
             if land_bank_location_name:
                 land_bank_location.land_bank_location_name = land_bank_location_name
             if land_survey_number:
-                land_survey_obj = LandSurveyNumber.objects.create(user = user,land_survey_number = land_survey_number,location_name = land_bank_location,land_bank = land_bank)
+                land_survey_obj = LandSurveyNumber.objects.create(user = user,land_survey_number = land_survey_number,location_name = land_bank_location,land_bank = land_bank, total_land_area=total_land_area)
                 land_survey_obj.save()
             land_bank_location.save()
             

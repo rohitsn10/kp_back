@@ -181,7 +181,7 @@ class LandBankLocationSerializer(serializers.ModelSerializer):
         model = LandBankLocation
         fields = [
             'id', 'user', 'user_full_name', 'land_bank', 'land_bank_name',
-            'land_bank_location_name', 'created_at', 'updated_at', 'land_survey_number_data'
+            'land_bank_location_name', 'created_at', 'updated_at', 'land_survey_number_data', 'total_land_area'
         ]
     def get_land_survey_number_data(self, obj):
         land_survey_numbers = LandSurveyNumber.objects.filter(location_name=obj)

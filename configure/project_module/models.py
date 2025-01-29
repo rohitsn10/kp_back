@@ -47,6 +47,8 @@ class Project(models.Model):
     electricity_line = models.CharField(max_length=5, choices=ELECTRICITY_LINE_CHOICES, null=True, blank=True)
     spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
     project_predication_date = models.DateTimeField(null=True, blank=True)
+    available_land_area = models.CharField(null=True, blank=True)
+    alloted_land_area = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
