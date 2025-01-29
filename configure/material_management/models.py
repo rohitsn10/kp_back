@@ -1,4 +1,6 @@
 from django.db import models
+from project_module.models import *
+from activity_module.models import *
 
 class MaterialManagement(models.Model):
     PAYMENT_STATUS = [
@@ -11,4 +13,21 @@ class MaterialManagement(models.Model):
         ('completed', 'Completed')
     ]
 
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user =  models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    projectactivity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE,null=True, blank=True)
+    subactivity = models.ForeignKey(SubActivityName, on_delete=models.CASCADE,null=True, blank=True)
+    subsubactivity = models.ForeignKey(SubSubActivityName, on_delete=models.CASCADE,null=True, blank=True)
+    vendor_name = models.CharField(max_length=100,null=True, blank=True)
+    material_name = models.CharField(max_length=100,null=True, blank=True)
+    uom = models.CharField(max_length=80,null=True, blank=True)
+    price = models.CharField(max_length=100,null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    PR_number = models.CharField(max_length=100,null=True, blank=True)
+    PO_number = models.CharField(max_length=100,null=True, blank=True)
+    quantity = models.CharField(max_length=100,null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS, null=True, blank=True)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, null=True, blank=True)
     
