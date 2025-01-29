@@ -119,10 +119,15 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
             if not document_obj:
                 return Response({"status": True, "message": "Documents Data is not found", "data": data})
             document_attachments = request.data.get('document_attachments', [])
+            replace_attachments = request.data.get('replace_attachments', False)
             attachment_instances = []
             for attachment in document_attachments:
                 attachment_obj = DocumentManagementAttachments.objects.create(document_attachments=attachment)
                 attachment_instances.append(attachment_obj)
+            if replace_attachments:
+                document_obj.document_attachments.clear()
+            if attachment_instances:
+                document_obj.document_attachments.add(*attachment_instances)
 
             document_obj.documentname = request.data.get('document_name', document_obj.documentnumber)
             document_obj.documentnumber = request.data.get('documentnumber', document_obj.documentnumber)
@@ -139,7 +144,6 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
                 assigned_users = CustomUser.objects.filter(id__in=assigned_user_ids)
                 document_obj.assign_users.set(assigned_users)
 
-            document_obj.document_attachments.set(attachment_instances)
             document_obj.save()
 
             serializer = self.serializer_class(document_obj)
