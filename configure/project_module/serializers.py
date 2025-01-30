@@ -31,7 +31,7 @@ class ExpenseTrackingSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ['id','user','company_name','start_date','end_date','location_name','cod_commission_date','total_area_of_project','capacity','project_name','ci_or_utility','cpp_or_ipp','project_choice_activity','electricity_line','project_predication_date','created_at', 'available_land_area', 'alloted_land_area']
+        fields = ['id','user','company_name','start_date','end_date','location_name','cod_commission_date','total_area_of_project','capacity','project_name','ci_or_utility','cpp_or_ipp','project_choice_activity','electricity_line','project_predication_date','created_at', 'available_land_area', 'alloted_land_area', 'is_active']
 
 
 class ClientDetailsSerializer(serializers.ModelSerializer):
@@ -107,4 +107,4 @@ class CompanySerializer(serializers.ModelSerializer):
 class ProjectMilestoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectMilestone
-        fields = ['id','project','start_date','end_date','milestone_name','milestone_description']
+        fields = ['id','project','start_date','end_date','milestone_name','milestone_description', 'is_active']
