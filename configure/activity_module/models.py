@@ -23,6 +23,7 @@ class SubActivityName(models.Model):
     sub_activity = models.ManyToManyField(SubActivity)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
     
 class SubsubActivity(models.Model):
     name = models.CharField(max_length=255)
@@ -33,6 +34,7 @@ class SubSubActivityName(models.Model):
     sub_sub_activity = models.ManyToManyField(SubsubActivity)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
 
 
 
