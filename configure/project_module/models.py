@@ -51,6 +51,8 @@ class Project(models.Model):
     alloted_land_area = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
+
 
 class ExpenseProjectAttachments(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
@@ -178,6 +180,7 @@ class ProjectMilestone(models.Model):
     is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
 
 
 

@@ -820,6 +820,59 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
 
 
 
+class ActiveDeactiveProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectSerializer
+    lookup_field = 'project_id'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            project_id = self.kwargs.get("project_id")
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required."})
+            
+            project_data = Project.objects.get(id=project_id)
+
+            if not project_data:
+                return Response({"status": False, "message": "Project not found."})
+            
+            if project_data.is_active:
+                project_data.is_active = False
+                project_data.save()
+                return Response({"status": True, "message": "Project deactivated successfully."})
+            elif not project_data.is_active:
+                project_data.is_active = True
+                project_data.save()
+                return Response({"status": True, "message": "Project activated successfully."})
+            else:
+                return Response({"status": False, "message": "Project status is not valid."})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error updating project status: {str(e)}", "data": []})
+
+
+class GetActiveProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = Project.objects.filter(is_active=True)
+            project_data = []
+            for obj in queryset:
+                serializer = self.get_serializer(obj)
+                project_data.append(serializer.data)
+            
+            count = len(project_data)
+            return Response({
+                "status": True,
+                "message": "Active project data fetched successfully",
+                'total': count,
+                'data': project_data
+            })
+        except Exception as e:
+            return Response({"status": False, "message": f"Error fetching active projects: {str(e)}", "data": []})
+
+
 
 class ProjectMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -907,6 +960,55 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
                 })
         except Exception as e:
             return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+
+
+class ActiveDeactiveMilestoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectMilestoneSerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            milestone_id = self.kwargs.get("milestone_id")
+            if not milestone_id:
+                return Response({"status": False, "message": "Milestone ID is required."})
+            
+            milestone_data = ProjectMilestone.objects.get(id=milestone_id)
+            if not milestone_data:
+                return Response({"status": False, "message": "Milestone not found."})
+            
+            if milestone_data.is_active:
+                milestone_data.is_active = False
+                milestone_data.save()
+                return Response({"status": True, "message": "Milestone deactivated successfully."})
+            elif not milestone_data.is_active:
+                milestone_data.is_active = True
+                milestone_data.save()
+                return Response({"status": True, "message": "Milestone activated successfully."})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error updating milestone status: {str(e)}", "data": []})
+        
+
+class GetActiveMilestoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectMilestoneSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = ProjectMilestone.objects.filter(is_active=True)
+            
+            if queryset.exists():
+                projectmilstone_data = []
+                for obj in queryset:
+                    context = {'request': request}
+                    serializer = ProjectMilestoneSerializer(obj, context=context)
+                    projectmilstone_data.append(serializer.data)
+                    
+                count = len(projectmilstone_data)
+                return Response({"status": True,"message": "Milestone data fetched successfully",'total': count,'data': projectmilstone_data})
+            else:
+                return Response({"status": True,"message": "No active milestone found","total_page": 0,"total": 0,"data": []})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error fetching active milestones: {str(e)}", "data": []})
 
 
 class ProjectMilestoneUpdateViewSet(viewsets.ModelViewSet):
