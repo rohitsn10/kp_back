@@ -29,14 +29,13 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
             project_id = request.data.get('project_id')
             projectactivity_id = request.data.get('projectactivity_id')
             sub_activity_id = request.data.get('subactivity_id')
-            sub_sub_activity_id = request.data.get('subsubactivity_id')
-            project_id = request.data.get('project_id')
+            sub_sub_activity_id = request.data.get('sub_sub_activity_id')
 
 
             project = Project.objects.get(id=project_id)
             projectactivity = ProjectActivity.objects.get(id=projectactivity_id)
             subactivity = SubActivityName.objects.get(id=sub_activity_id)
-            sub_sub_activity = SubActivityName.objects.get(id=sub_sub_activity_id)
+            sub_sub_activity = SubSubActivityName.objects.get(id=sub_sub_activity_id)
 
             if not project:
                 return Response({"status": False, "message": "Project not found."})
@@ -92,4 +91,76 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+    
+    def list(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name='Admin').exists():
+            return Response({"status": False, "message": "You do not have permission to perform this action."})
+        queryset = MaterialManagement.objects.filter(user=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        data = serializer.data
+        return Response({"status": True, "message": "Material Management List Successfully.", "data": data})
+    
         
+class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MaterialManagementSerializer
+    
+    def update(self, request, *args, **kwargs):
+        user = self.request.user
+        if not request.user.groups.filter(name='Admin').exists():
+            return Response({"status": False, "message": "You do not have permission to perform this action."})
+        try:
+            material_id = self.kwargs.get('material_id')
+            if not material_id:
+                return Response({"status": False, "message": "Material ID not found."})
+            
+            material_obj = MaterialManagement.objects.get(id=material_id)
+            if not material_obj:
+                return Response({"status": True, "message": "Material Management Data is not found"})
+            
+            vendor_name = request.data.get('vendor_name')
+            material_name = request.data.get('material_name')
+            uom = request.data.get('uom')
+            price = request.data.get('price')
+            end_date = request.data.get('end_date')
+            PR_number = request.data.get('PR_number')
+            PO_number = request.data.get('PO_number')
+            quantity = request.data.get('quantity')
+            status = request.data.get('status')
+            payment_status = request.data.get('payment_status')
+            project_id = request.data.get('project_id')
+            projectactivity_id = request.data.get('projectactivity_id')
+            sub_activity_id = request.data.get('subactivity_id')
+            sub_sub_activity_id = request.data.get('subsubactivity_id')
+
+            material_obje = LandSurveyNumber.objects.create(vendor_name=vendor_name, material_name=material_name, uom=uom, price=price, 
+                                                            end_date=end_date, PR_number=PR_number, PO_number=PO_number, quantity=quantity,
+                                                            status=status, payment_status=payment_status, project_id=project_id,
+                                                            projectactivity_id=projectactivity_id, sub_activity_id=sub_activity_id,
+                                                            sub_sub_activity_id=sub_sub_activity_id)
+            material_obje.save()
+            
+            serializer = self.serializer_class(material_obje)
+            data = serializer.data
+            return Response({"status": True, "message": "Material Management updated successfully.", "data": data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+    def destroy(self, request, *args, **kwargs):
+        user = self.request.user
+        if not request.user.groups.filter(name='Admin').exists():
+            return Response({"status": False, "message": "You do not have permission to perform this action."})
+        try:
+            material_id = self.kwargs.get('material_id')
+            if not material_id:
+                return Response({"status": False, "message": "Material ID not found."})
+            
+            material_obj = MaterialManagement.objects.get(id=material_id)
+            if not material_obj:
+                return Response({"status": True, "message": "Material Management Data is not found"})
+            
+            material_obj.delete()
+            return Response({"status": True, "message": "Material Management deleted successfully."})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})

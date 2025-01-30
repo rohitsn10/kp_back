@@ -12,8 +12,6 @@ urlpatterns = [
     path('create_wo_po_data', Wo_Po_DataCreateViewset.as_view({'post':'create','get':'list'}), name='create_wo_po_data'),
     path('update_wo_po_data/<int:wo_po_id>', Wo_Po_DataUpdateViewset.as_view({'put':'update','delete':'destroy'}), name='update_wo_po_data'),
 
-    path('create_main_project', ProjectViewSet.as_view({'post':'create','get':'list'}), name='create_main_project'),
-
     path('company', CompanyViewSet.as_view({'post':'create','get':'list'}), name='company'),
     path('company/<int:id>', CompanyViewSet.as_view({'put':'update','delete':'destroy'}), name='company'),
     

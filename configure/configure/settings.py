@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     "activity_module",
     "django_filters",
     "project_module",
-    "document_control"
+    "document_control",
+    "material_management",
 
 ]
 
