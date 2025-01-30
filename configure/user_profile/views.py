@@ -621,7 +621,27 @@ class UserDeactivateViewSet(viewsets.ModelViewSet):
         else:
             return Response({"status": False,"message": "User not found."})
 
+class AdminResetLoginCountAPIView(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'user_id' 
 
+    def update(self, request, *args, **kwargs):
+        user_id = self.kwargs.get("user_id")
+        password = request.data.get('password')
+
+        if not CustomUser.objects.filter(id = user_id).exists():
+                return Response({"status": False,'message': 'User not found','data':[]})
+
+        if not password:
+            return Response({"status": False,"message": "password are required", "data": []})
+        try:
+            user = CustomUser.objects.get(id = user_id)
+            user.password = make_password(password)
+            user.save()
+            return Response({"status": True,"message": "Password reset successfully", "data": []})
+        except CustomUser.DoesNotExist:
+            return Response({"status": False,"message": "User not found", "data": []})
+        
 class ResetPasswordAPIView(viewsets.ModelViewSet):
     def update(self, request):
         user = self.request.user
