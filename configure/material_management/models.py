@@ -17,7 +17,7 @@ class MaterialManagement(models.Model):
     user =  models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
     projectactivity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE,null=True, blank=True)
     subactivity = models.ForeignKey(SubActivityName, on_delete=models.CASCADE,null=True, blank=True)
-    subsubactivity = models.ForeignKey(SubSubActivityName, on_delete=models.CASCADE,null=True, blank=True)
+    sub_sub_activity = models.ForeignKey(SubSubActivityName, on_delete=models.CASCADE,null=True, blank=True)
     vendor_name = models.CharField(max_length=100,null=True, blank=True)
     material_name = models.CharField(max_length=100,null=True, blank=True)
     uom = models.CharField(max_length=80,null=True, blank=True)

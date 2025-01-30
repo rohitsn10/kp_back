@@ -44,7 +44,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             'project_sub_activity', 'project_sub_sub_activity'
         ]
 
-
 class ClientDetailsSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     project_name = serializers.CharField(source='project.project_name', read_only=True)
@@ -118,4 +117,4 @@ class CompanySerializer(serializers.ModelSerializer):
 class ProjectMilestoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectMilestone
-        fields = ['id','project','start_date','end_date','milestone_name','milestone_description']
+        fields = ['id','project','start_date','end_date','milestone_name','milestone_description', 'is_active']

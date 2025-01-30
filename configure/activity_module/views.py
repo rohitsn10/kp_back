@@ -91,7 +91,71 @@ class ProjectActivityUpdateViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
+
+class ActiveDeactiveActivityProjectViewSet(viewsets.ModelViewSet):
+    queryset = ProjectActivity.objects.all()
+    serializer_class = ProjectMainActivitySerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            activity_id = self.kwargs.get('activity_id')
+            if not activity_id:
+                return Response({"status": False, "message": "Activity not found."})
+            
+            project_activity_data = ProjectActivity.objects.get(id=activity_id)
+            if not project_activity_data:
+                return Response({"status": False, "message": "Activity not found."})
+            
+            if project_activity_data.is_active:
+                project_activity_data.is_active = False
+                project_activity_data.save()
+                
+                project_sub_activity_data = SubActivityName.objects.filter(project_main_activity=project_activity_data)
+                if project_sub_activity_data.exists():
+                    for sub_activity in project_sub_activity_data:
+                        sub_activity.is_active = False
+                        sub_activity.save()
+                    
+                    project_sub_sub_activity_data = SubSubActivityName.objects.filter(sub_activity_id__in=project_sub_activity_data)
+                    if project_sub_sub_activity_data.exists():
+                        for sub_sub_activity in project_sub_sub_activity_data:
+                            sub_sub_activity.is_active = False
+                            sub_sub_activity.save()
+
+                return Response({"status": True, "message": "Activity and related sub-activities deactivated successfully."})
+            
+            else:
+                project_activity_data.is_active = True
+                project_activity_data.save()
+                return Response({"status": True, "message": "Activity reactivated successfully."})
+            
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
         
+class GetActiveActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectMainActivitySerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = ProjectActivity.objects.filter(is_active=True)
+            if queryset.exists():
+                serializer_data = []
+                for obj in queryset:
+                    context = {'request' : request}
+                    serializer = ProjectMainActivitySerializer(obj,context=context)
+                    serializer_data.append(serializer.data)
+
+                count = len(serializer_data)
+                return Response({
+                    "status": True,
+                    "message": "Department data fetched successfully",
+                    'total': count,
+                    'data': serializer_data
+                })
+        except Exception as e:
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+
         
 class SubActivityNameViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -203,6 +267,66 @@ class SubActivityUpdateViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
+class GetActiveSubActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubActivityNameSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = SubActivityName.objects.filter(is_active=True)
+            if queryset.exists():
+                serialized_subactivitydata = []
+                for obj in queryset:
+                    context = {'request' : request}
+                    serializer = SubActivityNameSerializer(obj,context=context)
+                    serialized_subactivitydata.append(serializer.data)
+                    return Response({
+                        "status": True,
+                        "message": "Active SubActivityName data fetched successfully.",
+                        "total": len(serialized_subactivitydata),
+                        "data": serialized_subactivitydata,
+                    })
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+
+
+class ActiveDeactiveSubActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubActivityNameSerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            sub_activity_id = self.kwargs.get('sub_activity_id')
+            if not sub_activity_id:
+                return Response({"status": False, "message": "SubActivity not found."})
+            
+            sub_activity_data = SubActivityName.objects.get(id=sub_activity_id)
+            if not sub_activity_data:
+                return Response({"status": False, "message": "SubActivity not found."})
+            
+            sub_sub_activity_data = SubSubActivityName.objects.filter(sub_activity_id=sub_activity_data)
+            if not sub_sub_activity_data.exists():
+                return Response({"status": False, "message": "Sub Sub Activity not found."})
+            
+            if sub_activity_data.is_active:
+                sub_activity_data.is_active = False
+                sub_activity_data.save()
+                
+                for sub_sub_activity in sub_sub_activity_data:
+                    sub_sub_activity.is_active = False
+                    sub_sub_activity.save()
+                    
+                return Response({"status": True, "message": "Sub Activity and Sub Sub Activity deactivated successfully."})
+            
+            elif not sub_activity_data.is_active:
+                sub_activity_data.is_active = True
+                sub_activity_data.save()
+                return Response({"status": True, "message": "Sub Activity reactivated successfully."})
+        
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
 
 class SubSubActivityNameViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -317,7 +441,49 @@ class SubSubActivityUpdateViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
         
         
-        
-        
-        
-        
+class ActiveDeactiveSubSubActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubSubActivityNameSerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            sub_sub_activity_id = self.kwargs.get('sub_sub_activity_id')
+            if not sub_sub_activity_id:
+                return Response({"status": False, "message": "SubSubActivity not found."})
+            
+            sub_sub_activity_data = SubSubActivityName.objects.get(id=sub_sub_activity_id)
+            if not sub_sub_activity_data:
+                return Response({"status": False, "message": "SubSubActivity not found."})
+            
+            if sub_sub_activity_data.is_active:
+                sub_sub_activity_data.is_active = False
+                sub_sub_activity_data.save()
+                return Response({"status": True, "message": "SubSubActivity deactivated successfully."})
+            elif not sub_sub_activity_data.is_active:
+                sub_sub_activity_data.is_active = True
+                sub_sub_activity_data.save()
+                return Response({"status": True, "message": "SubSubActivity reactivated successfully."})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+    
+
+class GetActiveSubSubActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubSubActivityNameSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = SubSubActivityName.objects.filter(is_active=True)
+            if queryset.exists():
+                serialized_data = []
+                for obj in queryset:
+                    serializer = SubSubActivityNameSerializer(obj, context={'request': request})
+                    serialized_data.append(serializer.data)
+                return Response({
+                    "status": True,
+                    "message": "Active SubSubActivity data fetched successfully.",
+                    "total": len(serialized_data),
+                    "data": serialized_data,
+                })
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
