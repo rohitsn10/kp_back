@@ -15,6 +15,7 @@ urlpatterns = [
     path('admin_can_update_user/<int:user_id>', AdminCanUpdateUser.as_view({'put':'update','get':'list'}), name='admin_can_update_user'),
     path('user_update_own_profile_data', UserUpdateOwnProfileDataViewset.as_view({'put':'update','get':'list'}), name='user_update_own_profile_data'),
     path('user_activate_or_deactivate/<int:user_id>', UserDeactivateViewSet.as_view({'put':'update'}), name='user_deactivate'),
+    path('admin_can_reset_passowrd/<int:user_id>', AdminResetLoginCountAPIView.as_view({'put':'update'}), name='admin_reset_login_count'),
     path('reset_password', ResetPasswordAPIView.as_view({'put':'update'}), name='reset_password'),
     path('otp_resetpassword', ConfirmOTPAndSetPassword.as_view({'put':'update'}), name='otp_resetpassword'),
     path('privacy_policy/<privacypolicy_key>', PrivacyPolicyViewSet.as_view({'post':'create', 'get':'list'}), name='privacy_policy'),
