@@ -588,23 +588,25 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
-            location_id = request.data.get('location_id','')
+            location_id = request.data.get('location_id', '')
             location_survey = request.data.get('location_survey', '')
             alloted_land_area = request.data.get('alloted_land_area')
             available_land_area = request.data.get('available_land_area')
 
             if isinstance(location_survey, str):
                 location_survey = [int(loc_id.strip()) for loc_id in location_survey.split(',') if loc_id.strip()]  
-          
+
             cod_commission_date = parse_date(request.data.get('cod_commission_date'))
             # total_area_of_project = request.data.get('total_area_of_project')
             capacity = request.data.get('capacity')
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
-            project_choice_activity = request.data.get('project_choice_activity')
+            project_activity_id = request.data.get('project_activity_id')
             electricity_line = request.data.get('electricity_line')
             spoc_user = request.data.get('spoc_user')
             project_predication_date = parse_date(request.data.get('project_predication_date'))
+            project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
+            project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
 
             # Validate individual fields
             if not company_id:
@@ -626,7 +628,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "COD commission date is required."})
 
             # if not total_area_of_project:
-                return Response({"status": False, "message": "Total area of project is required."})
+                # return Response({"status": False, "message": "Total area of project is required."})
 
             if not capacity:
                 return Response({"status": False, "message": "Capacity is required."})
@@ -637,7 +639,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not cpp_or_ipp:
                 return Response({"status": False, "message": "CPP or IPP is required."})
 
-            if not project_choice_activity:
+            if not project_activity_id:
                 return Response({"status": False, "message": "Project choice activity is required."})
 
             if not electricity_line:
@@ -664,10 +666,26 @@ class ProjectViewSet(viewsets.ModelViewSet):
             except CustomUser.DoesNotExist:
                 return Response({"status":False,"message":"User not found"})
 
+            # Fetch the related ProjectActivity, SubActivityName, and SubSubActivityName
+            try:
+                project_activity = ProjectActivity.objects.get(id=project_activity_id)
+            except ProjectActivity.DoesNotExist:
+                return Response({"status": False, "message": "Invalid Project Activity."})
+
+            try:
+                sub_activity_names = SubActivityName.objects.filter(id__in=project_sub_activity_ids)
+            except SubActivityName.DoesNotExist:
+                return Response({"status": False, "message": "Invalid SubActivity names."})
+
+            try:
+                sub_sub_activity_names = SubSubActivityName.objects.filter(id__in = project_sub_sub_activity_ids)
+            except SubSubActivityName.DoesNotExist:
+                return Response({"status": False, "message": "Invalid SubSubActivity names."})
+
             # Create the Project instance
             project = Project.objects.create(
                 user=user,
-                company_name=company,
+                company=company,
                 project_name=project_name,
                 start_date=start_date,
                 end_date=end_date,
@@ -677,7 +695,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 capacity=capacity,
                 ci_or_utility=ci_or_utility,
                 cpp_or_ipp=cpp_or_ipp,
-                project_choice_activity=project_choice_activity,
+                project_activity=project_activity,
                 electricity_line=electricity_line,
                 spoc_user_id=by_spoc_user.id,
                 project_predication_date=project_predication_date,
@@ -689,19 +707,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if location_survey:
                 project.location_survey.set(location_survey)
 
-            return Response(
-                {
-                    "status": True,
-                    "message": "Project created successfully",
-                })
+            # Set the Many-to-Many relationships for sub-activities and sub-sub-activities
+            if sub_activity_names:
+                project.project_sub_activity.set(sub_activity_names)
+
+            if sub_sub_activity_names:
+                project.project_sub_sub_activity.set(sub_sub_activity_names)
+
+            return Response({"status": True,"message": "Project created successfully","data": []})
 
         except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "message": f"Error creating project: {str(e)}",
-                    "data": [],
-                })
+            return Response({"status": False,"message": f"Error creating project: {str(e)}","data": []})
+        
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         
@@ -716,7 +733,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 count = len(project_data)
                 return Response({
                     "status": True,
-                    "message": "milestone data fetched successfully",
+                    "message": "Project data fetched successfully",
                     'total_page': 1,
                     'total': count,
                     'data': project_data
