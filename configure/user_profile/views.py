@@ -406,6 +406,7 @@ class AdminCanUpdateUser(viewsets.ModelViewSet):
             department_id = request.data.get('department_id', user_data.department)
             designation = request.data.get('designation', user_data.designation)
             profile_image = request.data.get('profile_image', user_data.profile_image)
+            dob = request.data.get('dob', user_data.dob)
 
             if full_name:
                 user_data.full_name = full_name
@@ -420,6 +421,8 @@ class AdminCanUpdateUser(viewsets.ModelViewSet):
                 user_data.department = department_obj
             if designation:
                 user_data.designation = designation
+            if dob:
+                user_data.dob = dob
             if profile_image is not None and not isinstance(profile_image, str):
                 user_data.profile_image = profile_image
             user_data.save()

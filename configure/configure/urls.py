@@ -21,7 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('user_profile/',include('user_profile.urls')),
     path('land_module/',include('land_module.urls')),
     path('activity_module/',include('activity_module.urls')),
