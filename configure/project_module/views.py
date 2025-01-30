@@ -859,7 +859,7 @@ class GetActiveProjectViewSet(viewsets.ModelViewSet):
             queryset = Project.objects.filter(is_active=True)
             project_data = []
             for obj in queryset:
-                serializer = self.get_serializer(obj)
+                serializer = self.serializer_class(obj)
                 project_data.append(serializer.data)
             
             count = len(project_data)
