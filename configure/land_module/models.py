@@ -2,11 +2,23 @@ from django.db import models
 from user_profile.models import *
 
 class LandCategory(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     category_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+class SFRAttachment(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    sfr_file = models.FileField(upload_to='land_sfr_file', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class SFRforTransmissionLineGSSAttachment(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    sfr_for_transmission_line_gss_file = models.FileField(upload_to='sfr_for_transmission_line_gss_file', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
 class LandLocationAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     land_location_file = models.FileField(upload_to='land_location', null=True, blank=True)
@@ -75,6 +87,8 @@ class LandBankMaster(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     land_category = models.ForeignKey(LandCategory, on_delete=models.CASCADE)
     land_name = models.TextField()
+    land_sfr_file = models.ManyToManyField(SFRAttachment)
+    sfr_for_transmission_line_gss_file = models.ManyToManyField(SFRforTransmissionLineGSSAttachment)
     land_location_file = models.ManyToManyField(LandLocationAttachment)
     land_survey_number_file = models.ManyToManyField(LandSurveyNumbeAttachment)
     land_key_plan_file = models.ManyToManyField(LandKeyPlanAttachment)
@@ -89,6 +103,13 @@ class LandBankMaster(models.Model):
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
 
+
+
+class LandSFRAData(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class LandBankApproveAction(models.Model):
     approved_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

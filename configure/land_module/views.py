@@ -181,7 +181,35 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+class LandBankStatusUpdateViewset(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def update(self, request, *args, **kwargs):
+        try:
+            land_bank_id = self.kwargs.get('land_bank_id')
+            status = request.data.get('status')
+
+            if not land_bank_id:
+                return Response({"status": False, "message": "Land bank id is required", "data": []})
+
+            if not status:
+                return Response({"status": False, "message": "Status is required", "data": []})
+
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+
+            land_bank.land_bank_status = status
+            land_bank.save()
+
+            serializer = LandBankSerializer(land_bank, context={'request': request})
+            data = serializer.data
+
+            return Response({"status": True, "message": "Land Bank status updated successfully", "data": data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
 class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
@@ -382,7 +410,36 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
  
+class AddFSALandBankDataViewset(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_id = self.kwargs.get('land_bank_id')
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            
+            land_sfr_files = request.FILES.getlist('land_sfr_file') or []
+            sfr_for_transmission_line_gss_files = request.FILES.getlist('sfr_for_transmission_line_gss_file') or []
+ 
+            for file in land_sfr_files:
+                land_bank.land_sfr_file.add(file)
+            
+            for file in sfr_for_transmission_line_gss_files:
+                land_bank.sfr_for_transmission_line_gss_file.add(file)
+
+            land_bank.save()
+
+            land_sfra_data = LandSFRAData.objects.create(user=user,land_bank=land_bank)
+            land_sfra_data.save()
+
+            serializer = LandBankSerializer(land_bank, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land updated successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
 
 class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()

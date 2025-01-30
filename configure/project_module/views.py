@@ -272,7 +272,6 @@ class ProjectClientUpdateViewset(viewsets.ModelViewSet):
             if not client_obj:
                 return Response({"status": False, "message": "Client not found", "data": []})
 
-            # Fields from request data
             client_name = request.data.get('client_name')
             contact_number = request.data.get('contact_number')
             email = request.data.get('email')
@@ -295,7 +294,6 @@ class ProjectClientUpdateViewset(viewsets.ModelViewSet):
             moa_partnership = request.data.get('moa_partnership')
             board_authority_signing = request.data.get('board_authority_signing')
 
-            # Update regular fields
             client_obj.client_name = client_name
             client_obj.contact_number = contact_number
             client_obj.email = email
@@ -312,53 +310,36 @@ class ProjectClientUpdateViewset(viewsets.ModelViewSet):
             client_obj.board_authority_signing = board_authority_signing
             client_obj.save()
 
-            # Handle file field updates
-            # Update msme_certificate files
             if msme_certificate:
-                # Clear existing files
                 client_obj.msme_certificate.clear()
-                # Add new files
                 for file in msme_certificate:
                     attachment = MsMeCertificateAttachments.objects.create(user=request.user, msme_certificate_attachments=file)
                     client_obj.msme_certificate.add(attachment)
 
-            # Update adhar_card files
             if adhar_card:
-                # Clear existing files
                 client_obj.adhar_card.clear()
-                # Add new files
                 for file in adhar_card:
                     attachment = AdharCardAttachments.objects.create(user=request.user, adhar_card_attachments=file)
                     client_obj.adhar_card.add(attachment)
 
-            # Update pan_card files
             if pan_card:
-                # Clear existing files
                 client_obj.pan_card.clear()
-                # Add new files
                 for file in pan_card:
                     attachment = PanCardAttachments.objects.create(user=request.user, pan_card_attachments=file)
                     client_obj.pan_card.add(attachment)
 
-            # Update third_authority_adhar_card_attachments
             if third_authority_adhar_card_attachments:
-                # Clear existing files
                 client_obj.third_authority_adhar_card_attachments.clear()
-                # Add new files
                 for file in third_authority_adhar_card_attachments:
                     attachment = ThirdAuthorityAdharCardAttachments.objects.create(user=request.user, third_authority_adhar_card_attachments=file)
                     client_obj.third_authority_adhar_card_attachments.add(attachment)
 
-            # Update third_authortity_pan_card_attachments
             if third_authortity_pan_card_attachments:
-                # Clear existing files
                 client_obj.third_authortity_pan_card_attachments.clear()
-                # Add new files
                 for file in third_authortity_pan_card_attachments:
                     attachment = ThirdAuthorityPanCardAttachments.objects.create(user=request.user, third_authority_pan_card_attachments=file)
                     client_obj.third_authortity_pan_card_attachments.add(attachment)
 
-            # Serialize and return response
             serializer = self.serializer_class(client_obj, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Client Updated Successfully", "data": data})
@@ -403,7 +384,6 @@ class Wo_Po_DataCreateViewset(viewsets.ModelViewSet):
 
             wo_po_obj = WO_PO.objects.create(user=user, project=project_obj)
 
-            # Update loi_attachments files
             if loi_attachments:
                 for file in loi_attachments:
                     attachment = LOIAttachments.objects.create(user=request.user, loi_attachments=file)
@@ -475,7 +455,6 @@ class Wo_Po_DataUpdateViewset(viewsets.ModelViewSet):
             if not wo_po_obj:
                 return Response({"status": False, "message": "WO/PO not found", "data": []})
             
-            # Update loi_attachments files
             if loi_attachments:
                 wo_po_obj.loi_attachments.clear()
                 for file in loi_attachments:
@@ -500,7 +479,6 @@ class Wo_Po_DataUpdateViewset(viewsets.ModelViewSet):
                     attachment = OMMContactAttachments.objects.create(user=request.user, omm_contact_attachments=file)
                     wo_po_obj.omm_contact_attachments.add(attachment)
 
-            # Serialize and return response
             serializer = self.serializer_class(wo_po_obj, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "WO/PO Updated Successfully", "data": data})
