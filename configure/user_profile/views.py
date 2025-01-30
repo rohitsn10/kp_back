@@ -388,7 +388,46 @@ class CreateUserViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+class AdminCanUpdateUser(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all().exclude(is_superuser=True)
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def update(self, request, *args, **kwargs):
+        try:
+            user_id = self.kwargs.get('user_id')
+            user_data = CustomUser.objects.get(id=user_id)
+            if not user_data:
+                return Response({"status": False, "message": "User does not exist!", "data": []})
+            
+            full_name = request.data.get('full_name', user_data.full_name)
+            phone = request.data.get('phone', user_data.phone)
+            address = request.data.get('address', user_data.address)
+            department_id = request.data.get('department_id', user_data.department)
+            designation = request.data.get('designation', user_data.designation)
+            profile_image = request.data.get('profile_image', user_data.profile_image)
+
+            if full_name:
+                user_data.full_name = full_name
+            if phone:
+                user_data.phone = phone
+            if address:
+                user_data.address = address
+            if department_id:
+                department_obj = Department.objects.get(id=department_id)
+                if not department_obj:
+                    return Response({"status": False, "message": "Department does not exist!", "data": []})
+                user_data.department = department_obj
+            if designation:
+                user_data.designation = designation
+            if profile_image is not None and not isinstance(profile_image, str):
+                user_data.profile_image = profile_image
+            user_data.save()
+            serializer = self.serializer_class(user_data, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "User updated successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
 
 class SplashScreenViewSet(viewsets.ModelViewSet):
 
@@ -554,31 +593,30 @@ class LoginAPIView(ViewSet):
 
 class UserDeactivateViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
-
+    serializer_class = CustomUserSerializer
+    lookup_field = 'user_id'
     def update(self, request, *args, **kwargs):
         # Get the list of user IDs to be updated from the request
-        user_ids = request.data.get('user_ids', [])
+        user_id = kwargs.get('user_id')
 
-        if not user_ids:
-            return Response({
-                    "status": False,
-                    "message": "No user IDs provided."
-                })
+        if not user_id:
+            return Response({"status": False,"message": "No user IDs provided."})
 
-        users = CustomUser.objects.filter(id__in=user_ids)
+        user_data = CustomUser.objects.get(id=user_id)
 
-        if not users.exists():
-            return Response({
-                    "status": False,
-                    "message": "No matching users found."
-                })
-
-        users.update(is_active=False)
-
-        return Response({
-                "status": True,
-                "message": "user have been deactivated."
-            })
+        if not user_data.exists():
+            return Response({"status": False,"message": "No matching users found."})
+        
+        if user_data.is_active:
+            user_data.is_active = False
+            user_data.save()
+            return Response({"status": True,"message": "User deactivated successfully."})
+        elif not user_data.is_active:
+            user_data.is_active = True
+            user_data.save()
+            return Response({"status": True,"message": "User reactivated successfully."})
+        else:
+            return Response({"status": False,"message": "User not found."})
 
 
 class ResetPasswordAPIView(viewsets.ModelViewSet):

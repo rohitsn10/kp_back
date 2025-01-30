@@ -34,6 +34,8 @@ class ApprovedReportAttachmentSerializer(serializers.ModelSerializer):
 
 class LandBankSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    land_sfr_file = serializers.SerializerMethodField()
+    sfr_for_transmission_line_gss_file = serializers.SerializerMethodField()
     land_location_file = serializers.SerializerMethodField()
     land_survey_number_file = serializers.SerializerMethodField()
     land_key_plan_file = serializers.SerializerMethodField()
@@ -46,12 +48,17 @@ class LandBankSerializer(serializers.ModelSerializer):
     class Meta:
         model = LandBankMaster
         fields = [
-            'id', 'user', 'user_full_name', 'created_at', 'updated_at',
+            'id', 'user', 'user_full_name', 'created_at', 'updated_at','land_sfr_file','sfr_for_transmission_line_gss_file',
             'land_location_file', 'land_survey_number_file', 'land_key_plan_file',
             'land_attach_approval_report_file', 'land_approach_road_file', 
             'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file'
         ]
 
+    def get_land_sfr_file(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'land_sfr_file')
+
+    def get_sfr_for_transmission_line_gss_file(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'sfr_for_transmission_line_gss_file')
     def get_land_location_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'land_location_file')
 
