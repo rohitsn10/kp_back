@@ -1,7 +1,7 @@
 from project_module.models import *
 from rest_framework import serializers
 from user_profile.function_call import *
-
+from activity_module.serializers import *
 
 class ExpenseTrackingSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
@@ -29,10 +29,20 @@ class ExpenseTrackingSerializer(serializers.ModelSerializer):
 
     
 class ProjectSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    project_activity = ProjectMainActivitySerializer()
+    project_sub_activity = SubActivityNameSerializer(many=True)
+    project_sub_sub_activity = SubSubActivityNameSerializer(many=True)
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
     class Meta:
         model = Project
-        fields = ['id','user','company_name','start_date','end_date','location_name','cod_commission_date','total_area_of_project','capacity','project_name','ci_or_utility','cpp_or_ipp','project_choice_activity','electricity_line','project_predication_date','created_at', 'available_land_area', 'alloted_land_area', 'is_active']
-
+        fields = [
+            'id', 'user','user_full_name','company','company_name','start_date', 'end_date', 'location_name',
+            'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
+            'ci_or_utility', 'cpp_or_ipp', 'project_activity', 'electricity_line',
+            'project_predication_date', 'created_at', 'available_land_area', 'alloted_land_area',
+            'project_sub_activity', 'project_sub_sub_activity'
+        ]
 
 class ClientDetailsSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)

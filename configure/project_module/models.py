@@ -1,6 +1,7 @@
 from django.db import models
 from land_module.models import *
 from user_profile.models import *
+from activity_module.models import *
 
 class Company(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
@@ -19,12 +20,6 @@ class Project(models.Model):
         ('ipp', 'IPP'),
     ]
 
-    PROJECT_ACTIVITY_CHOICES = [
-        ('wind', 'Wind'),
-        ('solar', 'Solar'),
-        ('hybrid_solar', 'Hybrid Solar'),
-        ('hybrid_wind', 'Hybrid Wind'),
-    ]
 
     ELECTRICITY_LINE_CHOICES = [
         ('11kv', '11KV'),
@@ -32,7 +27,7 @@ class Project(models.Model):
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='projects')
-    company_name = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
     project_name = models.CharField(max_length=255)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -43,7 +38,9 @@ class Project(models.Model):
     capacity = models.TextField(null=True, blank=True)
     ci_or_utility = models.CharField(max_length=10, choices=CI_UTILITY_CHOICES, null=True, blank=True)
     cpp_or_ipp = models.CharField(max_length=10, choices=CPP_IPP_CHOICES, null=True, blank=True)
-    project_choice_activity = models.CharField(max_length=20, choices=PROJECT_ACTIVITY_CHOICES, null=True, blank=True)
+    project_activity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE, null=True, blank=True)
+    project_sub_activity = models.ManyToManyField(SubActivityName)
+    project_sub_sub_activity = models.ManyToManyField(SubSubActivityName)
     electricity_line = models.CharField(max_length=5, choices=ELECTRICITY_LINE_CHOICES, null=True, blank=True)
     spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
     project_predication_date = models.DateTimeField(null=True, blank=True)
