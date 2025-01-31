@@ -5,7 +5,7 @@ urlpatterns = [
 
     path('create_activity', ProjectActivityViewSet.as_view({'post': 'create'}), name='create_activity'),
     path('get_activity', ProjectActivityViewSet.as_view({'get': 'list'}), name='get_activity'),
-    path('update_activity/<int:activity_id>', ProjectActivityUpdateViewSet.as_view({'put': 'update'}), name='update_activity'),
+    path('update_activity/<int:activity_id>', ProjectActivityUpdateViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_activity'),
     
     path('active_deactivate_activity_project/<int:activity_id>', ActiveDeactiveActivityProjectViewSet.as_view({'put': 'update'}), name='activity_project_active_deactivate'),
     path('get_active_activity', GetActiveActivityViewSet.as_view({'get': 'list'}), name='get_active_activity'),

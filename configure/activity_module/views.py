@@ -92,6 +92,22 @@ class ProjectActivityUpdateViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
         
 
+    def destroy(self, request, *args, **kwargs):
+        try:
+            activity_id = self.kwargs.get('activity_id')
+            if not activity_id:
+                return Response({"status": False, "message": "Activity not found."})
+            
+            activity = ProjectActivity.objects.filter(id=activity_id).first()
+            if not activity:
+                return Response({"status": False, "message": "Activity not found."})
+            
+            activity.delete()
+            return Response({"status": True, "message": "Activity deleted successfully."})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+
 class ActiveDeactiveActivityProjectViewSet(viewsets.ModelViewSet):
     queryset = ProjectActivity.objects.all()
     serializer_class = ProjectMainActivitySerializer
@@ -196,65 +212,42 @@ class SubActivityNameViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
+    # Updated list method for fetching the project activity's sub-activity names
     def list(self, request, *args, **kwargs):
         try:
-            project_activity_id = request.data.get("project_activity_id")
-    
-            # Filter based on project_activity_id if provided
-            if project_activity_id:
-                queryset = self.get_queryset().filter(project_main_activity_id=project_activity_id)
-            else:
-                queryset = self.get_queryset()
-    
-            if queryset.exists():
-                grouped_data = {}
-    
-                for obj in queryset:
-                    # Fetch the related project activity
-                    project_activity = obj.project_main_activity
-    
-                    # Prepare sub_activity data (many-to-many relation)
-                    sub_activities = [
-                        {
-                            "sub_activity_name": sub.name,
-                            "sub_activity_id": sub.id,
-                            "created_at": obj.created_at  # Use SubActivityName created_at
-                        }
-                        for sub in obj.sub_activity.all()
-                    ]
-    
-                    # Group sub activities by project_activity_id
-                    if project_activity.id not in grouped_data:
-                        grouped_data[project_activity.id] = {
-                            "project_activity_id": project_activity.id,
-                            "project_activity_name": project_activity.activity_name,
-                            "solar_or_wind": project_activity.solar_or_wind,
-                            "sub_activity": []
-                        }
-    
-                    # Append sub activities to the correct project_activity_id
-                    grouped_data[project_activity.id]["sub_activity"].extend(sub_activities)
-    
-                # Prepare final response data by converting grouped_data dict to a list
-                serialized_subactivitydata = list(grouped_data.values())
-    
-                return Response({
-                    "status": True,
-                    "message": "SubActivityName data fetched successfully.",
-                    "total": len(serialized_subactivitydata),
-                    "data": serialized_subactivitydata,
-                })
-    
-            else:
-                return Response({
-                    "status": True,
-                    "message": "No SubActivityName found.",
-                    "total": 0,
-                    "data": [],
-                })
-    
+            # Fetch the project_activity_id from the query parameters
+            project_activity_id = request.query_params.get("project_activity_id")
+
+            if not project_activity_id:
+                return Response({"status": False, "message": "project_activity_id is required."})
+
+            # Check if the ProjectActivity exists, and if not, return an error
+            try:
+                project_activity = ProjectActivity.objects.get(id=project_activity_id)
+            except ProjectActivity.DoesNotExist:
+                return Response({"status": False, "message": "Invalid project_activity_id."})
+
+            # Retrieve the SubActivityName objects related to the ProjectActivity
+            sub_activity_names = SubActivityName.objects.filter(project_main_activity=project_activity)
+
+            if not sub_activity_names.exists():
+                return Response({"status": False, "message": "No sub activity names found for this project activity."})
+
+            # Serialize the sub activity names, including related sub activities
+            serializer = SubActivityNameSerializer(sub_activity_names, many=True)
+            data = serializer.data
+
+            # Return the success response with the serialized data
+            return Response({
+                "status": True,
+                "message": "SubActivityName List Successfully",
+                "data": data
+            })
+
         except Exception as e:
+            # Catch any exceptions and return an error response
             return Response({"status": False, "message": str(e)})
+
 
 class SubActivityUpdateViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -301,7 +294,7 @@ class SubActivityUpdateViewSet(viewsets.ModelViewSet):
             if not sub_activity_id:
                 return Response({"status": False, "message": "SubActivity ID is required"})
 
-            sub_activity_name_obj = SubActivityName.objects.get(id=sub_activity_id)
+            sub_activity_name_obj = SubActivity.objects.get(id=sub_activity_id)
 
             if not sub_activity_name_obj:
                 return Response({"status": False, "message": "SubActivityName not found"})
