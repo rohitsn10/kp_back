@@ -5,9 +5,9 @@ from activity_module.models import *
 
 class Company(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
-    company_name = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    company_name = models.CharField(max_length=255,null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
     
 class Project(models.Model):
     CI_UTILITY_CHOICES = [

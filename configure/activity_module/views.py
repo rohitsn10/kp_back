@@ -92,6 +92,22 @@ class ProjectActivityUpdateViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
         
 
+    def destroy(self, request, *args, **kwargs):
+        try:
+            activity_id = self.kwargs.get('activity_id')
+            if not activity_id:
+                return Response({"status": False, "message": "Activity not found."})
+            
+            activity = ProjectActivity.objects.filter(id=activity_id).first()
+            if not activity:
+                return Response({"status": False, "message": "Activity not found."})
+            
+            activity.delete()
+            return Response({"status": True, "message": "Activity deleted successfully."})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+
 class ActiveDeactiveActivityProjectViewSet(viewsets.ModelViewSet):
     queryset = ProjectActivity.objects.all()
     serializer_class = ProjectMainActivitySerializer
@@ -196,6 +212,7 @@ class SubActivityNameViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
+    # Updated list method for fetching the project activity's sub-activity names
     def list(self, request, *args, **kwargs):
         try:
             project_activity_id = request.data.get("project_activity_id")
@@ -320,6 +337,7 @@ class DropDownSubActivityNameViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
 
 
+
 class SubActivityUpdateViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = SubActivity.objects.all()  # Make sure you're querying SubActivity, not SubActivityName.
@@ -351,6 +369,26 @@ class SubActivityUpdateViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
+        
+    
+    def destroy(self, request, *args, **kwargs):
+        try:
+            sub_activity_id = self.kwargs.get('sub_activity_id')
+
+            if not sub_activity_id:
+                return Response({"status": False, "message": "SubActivity ID is required"})
+
+            sub_activity_name_obj = SubActivity.objects.get(id=sub_activity_id)
+
+            if not sub_activity_name_obj:
+                return Response({"status": False, "message": "SubActivityName not found"})
+
+            sub_activity_name_obj.delete()
+
+            return Response({"status": True, "message": "SubActivityName deleted successfully"})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
         
 class GetActiveSubActivityViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
