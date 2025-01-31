@@ -10,14 +10,14 @@ class LandCategory(models.Model):
 class SFAAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     sfa_file = models.FileField(upload_to='land_sfa_file', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class SFAforTransmissionLineGSSAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     sfa_for_transmission_line_gss_files = models.FileField(upload_to='sfa_for_transmission_line_gss_files', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
 class LandLocationAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -119,10 +119,10 @@ class LandBankMaster(models.Model):
 
 
 class LandSFAData(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE,null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
 
 class LandBankApproveAction(models.Model):
     approved_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
