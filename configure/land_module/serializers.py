@@ -51,7 +51,7 @@ class LandBankSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_full_name', 'created_at', 'updated_at','solar_or_winds','land_sfr_file','sfr_for_transmission_line_gss_file',
             'land_location_file', 'land_survey_number_file', 'land_key_plan_file',
             'land_attach_approval_report_file', 'land_approach_road_file', 
-            'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file'
+            'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file','land_name'
         ]
 
     def get_land_sfr_file(self, obj):
