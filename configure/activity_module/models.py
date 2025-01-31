@@ -30,7 +30,7 @@ class SubsubActivity(models.Model):
     
     
 class SubSubActivityName(models.Model):
-    project_activity_id = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE, related_name='project_activity_data')
+    project_activity_id = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE, related_name='project_activity_data', null=True, blank=True)
     sub_activity_id = models.ForeignKey(SubActivityName, on_delete=models.CASCADE, related_name='activities_sub_data')
     sub_sub_activity = models.ManyToManyField(SubsubActivity)
     created_at = models.DateTimeField(auto_now_add=True)
