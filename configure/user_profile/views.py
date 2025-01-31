@@ -607,7 +607,7 @@ class UserDeactivateViewSet(viewsets.ModelViewSet):
 
         user_data = CustomUser.objects.get(id=user_id)
 
-        if not user_data.exists():
+        if not user_data:
             return Response({"status": False,"message": "No matching users found."})
         
         if user_data.is_active:
