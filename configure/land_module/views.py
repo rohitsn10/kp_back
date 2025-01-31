@@ -614,6 +614,7 @@ class CrateLandBankLocationViewset(viewsets.ModelViewSet):
             user = self.request.user
             land_bank_id = request.data.get('land_bank_id')
             land_bank_location_name = request.data.get('land_bank_location_name')
+            near_by_area = request.data.get('near_by_area')
             total_land_area = request.data.get('total_land_area')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
 
@@ -622,7 +623,7 @@ class CrateLandBankLocationViewset(viewsets.ModelViewSet):
             if not total_land_area:
                 return Response({"status": False, "message": "Total Land Area is required"})
             
-            land_bank_location = LandBankLocation.objects.create(user=user, land_bank=land_bank, land_bank_location_name = land_bank_location_name,total_land_area=total_land_area)
+            land_bank_location = LandBankLocation.objects.create(user=user, land_bank=land_bank, land_bank_location_name = land_bank_location_name,total_land_area=total_land_area,near_by_area = near_by_area)
             serializer = LandBankLocationSerializer(land_bank_location, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land bank location created successfully", "data": data})

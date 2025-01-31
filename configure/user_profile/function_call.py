@@ -4,7 +4,44 @@ from user_profile.models import *
 from rest_framework.request import Request
 from dateutil import parser
 from django.utils.timezone import make_aware
+from datetime import datetime, timedelta
 
+def validate_dates(start_date, end_date):
+    date_format = '%d-%m-%Y'
+
+    if not start_date or not end_date:
+       if not start_date and not end_date:
+        return None, None, None  # No error, return None for dates
+       if not start_date or not end_date:
+        return None, None, "Both Start Date and End Date are required."
+
+    try:
+        if start_date == end_date:
+            start_date_obj = datetime.strptime(start_date, date_format).date()
+            end_date_obj = start_date_obj + timedelta(days=1)
+        else:
+            start_date_obj = datetime.strptime(start_date, date_format).date()
+            end_date_obj = datetime.strptime(end_date, date_format).date()
+    except ValueError as e:
+        return None, None, str(e)
+
+    if start_date_obj > end_date_obj:
+        return None, None, "start_date cannot be greater than end_date."
+
+    return start_date_obj, end_date_obj, None
+
+
+def parse_date(date_value):
+    if date_value:
+        try:
+            parsed_date = parser.parse(date_value)
+            # Make the datetime timezone-aware
+            if parsed_date.tzinfo is None:
+                return make_aware(parsed_date)
+            return parsed_date
+        except Exception:
+            return None  # Return None if parsing fails
+        
 def authenticate_user_by_email(email, password):
     """
     Authenticate a user based on their email and password.

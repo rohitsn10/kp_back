@@ -6,7 +6,7 @@ from project_module.models import *
 from project_module.serializers import *
 import ipdb
 from user_profile.function_call import *
-from .function_call import *
+from user_profile.function_call import *
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
