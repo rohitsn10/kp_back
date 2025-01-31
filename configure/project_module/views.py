@@ -6,7 +6,6 @@ from project_module.models import *
 from project_module.serializers import *
 import ipdb
 from user_profile.function_call import *
-from .function_call import *
 from datetime import datetime
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
