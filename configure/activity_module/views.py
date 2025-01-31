@@ -271,6 +271,71 @@ class SubActivityNameViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+
+class DropDownSubActivityNameViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = SubActivityName.objects.all()
+    serializer_class = SubActivityNameSerializer
+    def list(self, request, *args, **kwargs):
+        try:
+            project_activity_id = kwargs.get("project_activity_id")
+
+            # Filter based on project_activity_id if provided
+            if project_activity_id:
+                queryset = self.get_queryset().filter(project_main_activity_id=project_activity_id)
+            else:
+                return Response({"status": False, "message": "project_activity_id not found"})
+
+            if queryset.exists():
+                grouped_data = {}
+
+                for obj in queryset:
+                    # Fetch the related project activity
+                    project_activity = obj.project_main_activity
+
+                    # Prepare sub_activity data (many-to-many relation)
+                    sub_activities = [
+                        {
+                            "sub_activity_name": sub.name,
+                            "sub_activity_id": sub.id,
+                            "created_at": obj.created_at  # Use SubActivityName created_at
+                        }
+                        for sub in obj.sub_activity.all()
+                    ]
+
+                    # Group sub activities by project_activity_id
+                    if project_activity.id not in grouped_data:
+                        grouped_data[project_activity.id] = {
+                            "project_activity_id": project_activity.id,
+                            "project_activity_name": project_activity.activity_name,
+                            "solar_or_wind": project_activity.solar_or_wind,
+                            "sub_activity": []
+                        }
+
+                    # Append sub activities to the correct project_activity_id
+                    grouped_data[project_activity.id]["sub_activity"].extend(sub_activities)
+
+                # Prepare final response data by converting grouped_data dict to a list
+                serialized_subactivitydata = list(grouped_data.values())
+
+                return Response({
+                    "status": True,
+                    "message": "SubActivityName data fetched successfully.",
+                    "total": len(serialized_subactivitydata),
+                    "data": serialized_subactivitydata,
+                })
+
+            else:
+                return Response({
+                    "status": True,
+                    "message": "No SubActivityName found.",
+                    "data": [],
+                })
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
 
 
 class SubActivityUpdateViewSet(viewsets.ModelViewSet):
