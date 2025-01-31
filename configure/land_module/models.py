@@ -136,19 +136,19 @@ class LandBankRejectAction(models.Model):
 
 class DILRAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    dilr_file = models.FileField(upload_to='dilr', null=True, blank=True)
+    dilr_attachment_file = models.FileField(upload_to='dilr_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class NA_65B_Permission_Attachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    na_65b_permission_file = models.FileField(upload_to='na_65b_permission', null=True, blank=True)
+    na_65b_permission_attachment_file = models.FileField(upload_to='na_65b_permission_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class Revenue_7_12_Records_Attachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    revenue_7_12_records_file = models.FileField(upload_to='revenue_7_12_records', null=True, blank=True)
+    revenue_7_12_records_attachment = models.FileField(upload_to='revenue_7_12_records_attachment', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -202,67 +202,67 @@ class NOCfromAirportAuthorityOfIndiaAttachment(models.Model):
 
 class NOCfromForestAndAmpAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    noc_from_forest_and_amp_file = models.FileField(upload_to='noc_from_forest_and_amp', null=True, blank=True)
+    noc_from_forest_and_amp_attachment_file = models.FileField(upload_to='noc_from_forest_and_amp_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class NOCfromGeologyAndMiningOfficeAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    noc_from_geology_and_mining_office_file = models.FileField(upload_to='noc_from_geology_and_mining_office', null=True, blank=True)
+    noc_from_geology_and_mining_office_attachment_file = models.FileField(upload_to='noc_from_geology_and_mining_office_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class ApprovalsRequiredForTransmissionAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    approvals_required_for_transmission_file = models.FileField(upload_to='approvals_required_for_transmission', null=True, blank=True)
+    approvals_required_for_transmission_attachment_file = models.FileField(upload_to='approvals_required_for_transmission_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class CanalCrossingAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    canal_crossing_file = models.FileField(upload_to='canal_crossing', null=True, blank=True)
+    canal_crossing_attachment_file = models.FileField(upload_to='canal_crossing_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class LeaseDeedAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    lease_deed_file = models.FileField(upload_to='lease_deed', null=True, blank=True)
+    lease_deed_attachment_file = models.FileField(upload_to='lease_deed_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class RailwayCrossingAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    railway_crossing_file = models.FileField(upload_to='railway_crossing', null=True, blank=True)
+    railway_crossing_attachment_file = models.FileField(upload_to='railway_crossing_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class AnyGasPipelineCrossingAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    any_gas_pipeline_crossing_file = models.FileField(upload_to='any_gas_pipeline_crossing', null=True, blank=True)
+    any_gas_pipeline_crossing_attachment_file = models.FileField(upload_to='any_gas_pipeline_crossing_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class RoadCrossingPermissionAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    road_crossing_permission_file = models.FileField(upload_to='road_crossing_permission', null=True, blank=True)
+    road_crossing_permission_attachment_file = models.FileField(upload_to='road_crossing_permission_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class AnyTransmissionLineCrossingPermissionAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    any_transmission_line_crossing_permission_file = models.FileField(upload_to='any_transmission_line_crossing_permission', null=True, blank=True)
+    any_transmission_line_crossing_permission_attachment_file = models.FileField(upload_to='any_transmission_line_crossing_permission_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class AnyTransmissionLineShiftingPermissionAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    any_transmission_line_shifting_permission_file = models.FileField(upload_to='any_transmission_line_shifting_permission', null=True, blank=True)
+    any_transmission_line_shifting_permission_attachment_file = models.FileField(upload_to='any_transmission_line_shifting_permission_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class GramPanchayatPermissionAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    gram_panchayat_permission_file = models.FileField(upload_to='gram_panchayat_permission', null=True, blank=True)
+    gram_panchayat_permission_attachment_file = models.FileField(upload_to='gram_panchayat_permission_attachment_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

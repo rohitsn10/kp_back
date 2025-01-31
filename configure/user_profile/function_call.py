@@ -72,10 +72,36 @@ def process_file_ids(file_ids):
     return [int(id) for id in file_ids if id.isdigit()]
 
 
+# def get_file_data(request: Request, obj, field_name: str):
+#     field = getattr(obj, field_name, None)
+
+#     if field:
+#         if isinstance(field, models.Manager):
+#             return [
+#                 {
+#                     "id": str(item.id),
+#                     "url": request.build_absolute_uri(getattr(item, field_name).url),
+#                     "created_at": item.created_at.isoformat(),
+#                     "updated_at": item.updated_at.isoformat(),
+#                 }
+#                 for item in field.all()
+#             ]
+#         elif hasattr(field, 'url'):
+#             return {
+#                 "id": str(field.id),
+#                 "url": request.build_absolute_uri(field.url),
+#                 "created_at": field.created_at.isoformat(),
+#                 "updated_at": field.updated_at.isoformat()
+#             }
+
+#     return None
+
 def get_file_data(request: Request, obj, field_name: str):
+    # Get the file field from the object using getattr
     field = getattr(obj, field_name, None)
 
     if field:
+        # If the field is a related field (e.g., ForeignKey, ManyToMany)
         if isinstance(field, models.Manager):
             return [
                 {
@@ -84,8 +110,9 @@ def get_file_data(request: Request, obj, field_name: str):
                     "created_at": item.created_at.isoformat(),
                     "updated_at": item.updated_at.isoformat(),
                 }
-                for item in field.all()
+                for item in field.all() if hasattr(item, field_name) and getattr(item, field_name)
             ]
+        # If the field is a FileField, return the metadata
         elif hasattr(field, 'url'):
             return {
                 "id": str(field.id),
@@ -94,7 +121,9 @@ def get_file_data(request: Request, obj, field_name: str):
                 "updated_at": field.updated_at.isoformat()
             }
 
+    # If no file is associated, return None (or you can return an empty dictionary or custom message)
     return None
+
 
 
 def get_expense_project_attachments_file_data(request: Request, obj, field_name: str):

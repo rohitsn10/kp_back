@@ -542,20 +542,20 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
             user = self.request.user
             land_bank_id = request.data.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
-            dilr_attachment_file = request.FILES.get('dilr_attachment_file') or []
-            na_65b_permission_attachment_file = request.FILES.get('na_65b_permission_attachment_file') or []
-            revenue_7_12_records_attachment = request.FILES.get('revenue_7_12_records_attachment') or []
-            noc_from_forest_and_amp_attachment_file = request.FILES.get('noc_from_forest_and_amp_attachment_file') or []
-            noc_from_geology_and_mining_office_attachment_file = request.FILES.get('noc_from_geology_and_mining_office_attachment_file') or []
-            approvals_required_for_transmission_attachment_file = request.FILES.get('approvals_required_for_transmission_attachment_file') or []
-            canal_crossing_attachment_file = request.FILES.get('canal_crossing_attachment_file') or []
-            lease_deed_attachment_file = request.FILES.get('lease_deed_attachment_file') or []
-            railway_crossing_attachment_file = request.FILES.get('railway_crossing_attachment_file') or []
-            any_gas_pipeline_crossing_attachment_file = request.FILES.get('any_gas_pipeline_crossing_attachment_file') or []
-            road_crossing_permission_attachment_file = request.FILES.get('road_crossing_permission_attachment_file') or []
-            any_transmission_line_crossing_permission_attachment_file = request.FILES.get('any_transmission_line_crossing_permission_attachment_file') or []
-            any_transmission_line_shifting_permission_attachment_file = request.FILES.get('any_transmission_line_shifting_permission_attachment_file') or []
-            gram_panchayat_permission_attachment_file = request.FILES.get('gram_panchayat_permission_attachment_file') or []
+            dilr_attachment_file = request.FILES.getlist('dilr_attachment_file') or []
+            na_65b_permission_attachment_file = request.FILES.getlist('na_65b_permission_attachment_file') or []
+            revenue_7_12_records_attachment = request.FILES.getlist('revenue_7_12_records_attachment') or []
+            noc_from_forest_and_amp_attachment_file = request.FILES.getlist('noc_from_forest_and_amp_attachment_file') or []
+            noc_from_geology_and_mining_office_attachment_file = request.FILES.getlist('noc_from_geology_and_mining_office_attachment_file') or []
+            approvals_required_for_transmission_attachment_file = request.FILES.getlist('approvals_required_for_transmission_attachment_file') or []
+            canal_crossing_attachment_file = request.FILES.getlist('canal_crossing_attachment_file') or []
+            lease_deed_attachment_file = request.FILES.getlist('lease_deed_attachment_file') or []
+            railway_crossing_attachment_file = request.FILES.getlist('railway_crossing_attachment_file') or []
+            any_gas_pipeline_crossing_attachment_file = request.FILES.getlist('any_gas_pipeline_crossing_attachment_file') or []
+            road_crossing_permission_attachment_file = request.FILES.getlist('road_crossing_permission_attachment_file') or []
+            any_transmission_line_crossing_permission_attachment_file = request.FILES.getlist('any_transmission_line_crossing_permission_attachment_file') or []
+            any_transmission_line_shifting_permission_attachment_file = request.FILES.getlist('any_transmission_line_shifting_permission_attachment_file') or []
+            gram_panchayat_permission_attachment_file = request.FILES.getlist('gram_panchayat_permission_attachment_file') or []
 
             land_bank_after_approved_data = LandBankAfterApprovedData.objects.create(land_bank=land_bank, user=user)
             if not land_bank_id:
@@ -565,80 +565,83 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
 
             if dilr_attachment_file:
                 for file in dilr_attachment_file:
-                    dilr_attachments = DILRAttachment.objects.create(user=user, dilr_file=file)
+                    dilr_attachments = DILRAttachment.objects.create(user=user, dilr_attachment_file=file)
                     land_bank_after_approved_data.dilr_attachment_file.add(dilr_attachments)
 
             if na_65b_permission_attachment_file:
                 for file in na_65b_permission_attachment_file:
-                    na_65b_permission_attachments = NA_65B_Permission_Attachment.objects.create(user=user, na_65b_permission_file=file)
+                    na_65b_permission_attachments = NA_65B_Permission_Attachment.objects.create(user=user, na_65b_permission_attachment_file=file)
                     land_bank_after_approved_data.na_65b_permission_attachment_file.add(na_65b_permission_attachments)
 
             if revenue_7_12_records_attachment:
                 for file in revenue_7_12_records_attachment:
-                    revenue_7_12_records_attachments = Revenue_7_12_Records_Attachment.objects.create(user=user, revenue_7_12_records_file=file)
+                    revenue_7_12_records_attachments = Revenue_7_12_Records_Attachment.objects.create(user=user, revenue_7_12_records_attachment=file)
                     land_bank_after_approved_data.revenue_7_12_records_attachment.add(revenue_7_12_records_attachments)
 
             if noc_from_forest_and_amp_attachment_file:
                 for file in noc_from_forest_and_amp_attachment_file:
-                    noc_from_forest_and_amp_attachments = NOCfromForestAndAmpAttachment.objects.create(user=user, noc_from_forest_and_amp_file=file)
+                    noc_from_forest_and_amp_attachments = NOCfromForestAndAmpAttachment.objects.create(user=user, noc_from_forest_and_amp_attachment_file=file)
                     land_bank_after_approved_data.noc_from_forest_and_amp_attachment_file.add(noc_from_forest_and_amp_attachments)
 
             if noc_from_geology_and_mining_office_attachment_file:
                 for file in noc_from_geology_and_mining_office_attachment_file:
-                    noc_from_geology_and_mining_office_attachments = NOCfromGeologyAndMiningOfficeAttachment.objects.create(user=user, noc_from_geology_and_mining_office_file=file)
+                    noc_from_geology_and_mining_office_attachments = NOCfromGeologyAndMiningOfficeAttachment.objects.create(user=user, noc_from_geology_and_mining_office_attachment_file=file)
                     land_bank_after_approved_data.noc_from_geology_and_mining_office_attachment_file.add(noc_from_geology_and_mining_office_attachments)
 
             if approvals_required_for_transmission_attachment_file:
                 for file in approvals_required_for_transmission_attachment_file:
-                    approvals_required_for_transmission_attachments = ApprovalsRequiredForTransmissionAttachment.objects.create(user=user, approvals_required_for_transmission_file=file)
+                    approvals_required_for_transmission_attachments = ApprovalsRequiredForTransmissionAttachment.objects.create(user=user, approvals_required_for_transmission_attachment_file=file)
                     land_bank_after_approved_data.approvals_required_for_transmission_attachment_file.add(approvals_required_for_transmission_attachments)
 
             if canal_crossing_attachment_file:
                 for file in canal_crossing_attachment_file:
-                    canal_crossing_attachments = CanalCrossingAttachment.objects.create(user=user, canal_crossing_file=file)
+                    canal_crossing_attachments = CanalCrossingAttachment.objects.create(user=user, canal_crossing_attachment_file=file)
                     land_bank_after_approved_data.canal_crossing_attachment_file.add(canal_crossing_attachments)
 
             if lease_deed_attachment_file:
                 for file in lease_deed_attachment_file:
-                    lease_deed_attachments = LeaseDeedAttachment.objects.create(user=user, lease_deed_file=file)
+                    lease_deed_attachments = LeaseDeedAttachment.objects.create(user=user, lease_deed_attachment_file=file)
                     land_bank_after_approved_data.lease_deed_attachment_file.add(lease_deed_attachments)
 
             if railway_crossing_attachment_file:
                 for file in railway_crossing_attachment_file:
-                    railway_crossing_attachments = RailwayCrossingAttachment.objects.create(user=user, railway_crossing_file=file)
+                    railway_crossing_attachments = RailwayCrossingAttachment.objects.create(user=user, railway_crossing_attachment_file=file)
                     land_bank_after_approved_data.railway_crossing_attachment_file.add(railway_crossing_attachments)
 
             if any_gas_pipeline_crossing_attachment_file:
                 for file in any_gas_pipeline_crossing_attachment_file:
-                    any_gas_pipeline_crossing_attachments = AnyGasPipelineCrossingAttachment.objects.create(user=user, any_gas_pipeline_crossing_file=file)
+                    any_gas_pipeline_crossing_attachments = AnyGasPipelineCrossingAttachment.objects.create(user=user, any_gas_pipeline_crossing_attachment_file=file)
                     land_bank_after_approved_data.any_gas_pipeline_crossing_attachment_file.add(any_gas_pipeline_crossing_attachments)
 
             if road_crossing_permission_attachment_file:
                 for file in road_crossing_permission_attachment_file:
-                    road_crossing_permission_attachments = RoadCrossingPermissionAttachment.objects.create(user=user, road_crossing_permission_file=file)
+                    road_crossing_permission_attachments = RoadCrossingPermissionAttachment.objects.create(user=user, road_crossing_permission_attachment_file=file)
                     land_bank_after_approved_data.road_crossing_permission_attachment_file.add(road_crossing_permission_attachments)
 
             if any_transmission_line_crossing_permission_attachment_file:
                 for file in any_transmission_line_crossing_permission_attachment_file:
-                    any_transmission_line_crossing_permission_attachment_files = AnyTransmissionLineCrossingPermissionAttachment.objects.create(user=user, any_transmission_line_crossing_permission_file=file)
+                    any_transmission_line_crossing_permission_attachment_files = AnyTransmissionLineCrossingPermissionAttachment.objects.create(user=user, any_transmission_line_crossing_permission_attachment_file=file)
                     land_bank_after_approved_data.any_transmission_line_crossing_permission_attachment_file.add(any_transmission_line_crossing_permission_attachment_files)
             
             if any_transmission_line_shifting_permission_attachment_file:
                 for file in any_transmission_line_shifting_permission_attachment_file:
-                    any_transmission_line_shifting_permission_attachment_files = AnyTransmissionLineShiftingPermissionAttachment.objects.create(user = user,any_transmission_line_shifting_permission_file = file)
+                    any_transmission_line_shifting_permission_attachment_files = AnyTransmissionLineShiftingPermissionAttachment.objects.create(user = user,any_transmission_line_shifting_permission_attachment_file = file)
                     land_bank_after_approved_data.any_transmission_line_shifting_permission_attachment_file.add(any_transmission_line_shifting_permission_attachment_files)
 
             if gram_panchayat_permission_attachment_file:
                 for file in gram_panchayat_permission_attachment_file:
-                    gram_panchayat_permission_attachments = GramPanchayatPermissionAttachment.objects.create(user=user, gram_panchayat_permission_file=file)
+                    gram_panchayat_permission_attachments = GramPanchayatPermissionAttachment.objects.create(user=user, gram_panchayat_permission_attachment_file=file)
                     land_bank_after_approved_data.gram_panchayat_permission_attachment_file.add(gram_panchayat_permission_attachments)
 
             land_bank_after_approved_data.save()
             serializer = LandBankAfterApprovalSerializer(land_bank_after_approved_data, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land bank after approval updated successfully!", "data": data})
+
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
+
         
 
     def list(self,request,*args,**kwargs):

@@ -110,7 +110,7 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     class Meta:
         model = LandBankAfterApprovedData
         fields = [
-            'user','user_full_name','land_bank','dilr_attachment_file','na_65b_permission_attachment_file',
+            'id','user','user_full_name','land_bank','dilr_attachment_file','na_65b_permission_attachment_file',
             'revenue_7_12_records_attachment','noc_from_forest_and_amp_attachment_file',
             'noc_from_geology_and_mining_office_attachment_file','approvals_required_for_transmission_attachment_file',
             'canal_crossing_attachment_file','lease_deed_attachment_file','railway_crossing_attachment_file',
@@ -123,6 +123,7 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     def get_dilr_attachment_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'dilr_attachment_file')
 
+
     def get_na_65b_permission_attachment_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'na_65b_permission_attachment_file')
 
@@ -132,8 +133,10 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     def get_noc_from_forest_and_amp_attachment_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'noc_from_forest_and_amp_attachment_file')
 
+
     def get_noc_from_geology_and_mining_office_attachment_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'noc_from_geology_and_mining_office_attachment_file')
+
 
     def get_approvals_required_for_transmission_attachment_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'approvals_required_for_transmission_attachment_file')
