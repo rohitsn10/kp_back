@@ -209,9 +209,26 @@ class SubActivityNameViewSet(viewsets.ModelViewSet):
             if queryset.exists():
                 serialized_subactivitydata = []
                 for obj in queryset:
-                    context = {'request' : request}
-                    serializer = SubActivityNameSerializer(obj,context=context)
-                    serialized_subactivitydata.append(serializer.data)
+                    # Fetch the related project activity
+                    project_activity = obj.project_main_activity
+
+                    # Prepare sub_activity data (many-to-many relationship)
+                    sub_activities = [
+                        {
+                            "sub_activity_name": sub.name,
+                            "sub_activity_id": sub.id,
+                            "created_at": obj.created_at
+                        }
+                        for sub in obj.sub_activity.all()
+                    ]
+
+                    # Prepare the data structure for each project activity with its sub activities
+                    serialized_subactivitydata.append({
+                        "project_activity_id": project_activity.id,
+                        "project_activity_name": project_activity.activity_name,
+                        "solar_or_wind": project_activity.solar_or_wind,
+                        "sub_activity": sub_activities
+                    })
 
                 return Response({
                     "status": True,
@@ -219,6 +236,7 @@ class SubActivityNameViewSet(viewsets.ModelViewSet):
                     "total": len(serialized_subactivitydata),
                     "data": serialized_subactivitydata,
                 })
+
             else:
                 return Response({
                     "status": True,
