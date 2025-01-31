@@ -7,6 +7,7 @@ from project_module.serializers import *
 import ipdb
 from user_profile.function_call import *
 from .function_call import *
+from datetime import datetime
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
@@ -949,34 +950,44 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
                 })
     
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        
         try:
+            project_id = request.query_params.get('project_id')
+            start_date = request.query_params.get('start_date')
+            end_date = request.query_params.get('end_date')
+            
+            queryset = self.filter_queryset(self.get_queryset())
+            
+            if project_id:
+                queryset = queryset.filter(project_id=project_id)
+            
+            if start_date:
+                try:
+                    start_date = datetime.strptime(start_date, "%Y-%m-%d")
+                    queryset = queryset.filter(created_at__gte=start_date)
+                except ValueError:
+                    return Response({"status": False, "message": "Invalid start_date format. Please use YYYY-MM-DD."})
+            
+            if end_date:
+                try:
+                    end_date = datetime.strptime(end_date, "%Y-%m-%d")
+                    queryset = queryset.filter(created_at__lte=end_date)
+                except ValueError:
+                    return Response({"status": False, "message": "Invalid end_date format. Please use YYYY-MM-DD."})
+
             if queryset.exists():
                 projectmilstone_data = []
                 for obj in queryset:
                     context = {'request': request}
-                    serializer = ProjectMilestoneSerializer(obj,context=context)
+                    serializer = ProjectMilestoneSerializer(obj, context=context)
                     projectmilstone_data.append(serializer.data)
-                    
+
                 count = len(projectmilstone_data)
-                return Response({
-                    "status": True,
-                    "message": "milestone data fetched successfully",
-                    'total_page': 1,
-                    'total': count,
-                    'data': projectmilstone_data
-                })
+                return Response({"status": True,"message": "milestones fetched successfully.",'data': projectmilstone_data})
             else:
-                return Response({
-                    "status": True,
-                    "message": "No milestone found",
-                    "total_page": 0,
-                    "total": 0,
-                    "data": []
-                })
+                return Response({"status": True, "message": "No milestones found."})
+
         except Exception as e:
-            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+            return Response({"status": False,'message': 'Something went wrong','error': str(e)})
 
 
 class ActiveDeactiveMilestoneViewSet(viewsets.ModelViewSet):

@@ -17,7 +17,7 @@ class SubActivityNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubActivityName
-        fields = ['id', 'sub_activity']
+        fields = ['id', 'sub_activity', 'created_at']
         
 class SubsubActivitySerializer(serializers.ModelSerializer):
     class Meta:
