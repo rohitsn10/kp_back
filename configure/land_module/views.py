@@ -6,6 +6,7 @@ from land_module.models import *
 from land_module.serializers import *
 import ipdb
 from user_profile.function_call import *
+import ast
 
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
@@ -414,30 +415,77 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'land_bank_id'
 
     def update(self, request, *args, **kwargs):
         try:
             user = self.request.user
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
-            
-            land_sfr_files = request.FILES.getlist('land_sfr_file') or []
-            sfr_for_transmission_line_gss_files = request.FILES.getlist('sfr_for_transmission_line_gss_file') or []
- 
-            for file in land_sfr_files:
-                land_bank.land_sfr_file.add(file)
-            
-            for file in sfr_for_transmission_line_gss_files:
-                land_bank.sfr_for_transmission_line_gss_file.add(file)
 
+            # Extract data from the request
+            land_sfa_file = request.FILES.getlist('land_sfa_file') or []
+            sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
+            timeline = request.data.get('timeline')
+            land_sfa_assigned_to_users = request.data.getlist('land_sfa_assigned_to_users') or []  # Use getlist here for list data
+            status_of_site_visit = request.data.get('status_of_site_visit')
+            date_of_assessment = request.data.get('date_of_assessment')
+            site_visit_date = request.data.get('site_visit_date')
+
+            # Update LandBankMaster fields
+            land_bank.status_of_site_visit = status_of_site_visit
+            land_bank.sfa_approved_by_user = user
+            if timeline:
+                try:
+                    land_bank.timeline = datetime.fromisoformat(timeline)
+                except ValueError:
+                    return Response({"status": False, "message": "Invalid date format for timeline. It must be in ISO format (YYYY-MM-DD)"})
+            # Parse date_of_assessment safely
+            if date_of_assessment:
+                try:
+                    land_bank.date_of_assessment = datetime.fromisoformat(date_of_assessment)
+                except ValueError:
+                    return Response({"status": False, "message": "Invalid date format for date_of_assessment. It must be in ISO format (YYYY-MM-DD)"})
+
+            # Parse site_visit_date safely
+            if site_visit_date:
+                try:
+                    land_bank.site_visit_date = datetime.fromisoformat(site_visit_date)
+                except ValueError:
+                    return Response({"status": False, "message": "Invalid date format for site_visit_date. It must be in ISO format (YYYY-MM-DD)"})
+
+            # Add files to the model by saving them into the corresponding attachment model first
+            for file in land_sfa_file:
+                sfa_attachment = SFAAttachment.objects.create(user=user, sfa_file=file)
+                land_bank.land_sfa_file.add(sfa_attachment)
+
+            for file in sfa_for_transmission_line_gss_files:
+                sfa_gss_attachment = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
+                land_bank.sfa_for_transmission_line_gss_files.add(sfa_gss_attachment)
+
+            # Validate land_sfa_assigned_to_users list
+            if not isinstance(land_sfa_assigned_to_users, list):
+                return Response({'status': False, 'message': 'Land sfa assigned to users must be a valid list'})
+
+            # Ensure the list contains integers only
+            try:
+                land_sfa_assigned_to_users = [int(id) for id in land_sfa_assigned_to_users]
+            except ValueError:
+                return Response({'status': False, 'message': 'Land sfa assigned to users must be a list of integers'})
+
+            # Set the users to land_bank
+            land_bank.land_sfa_assigned_to_users.set(land_sfa_assigned_to_users)
             land_bank.save()
 
-            land_sfra_data = LandSFRAData.objects.create(user=user,land_bank=land_bank)
+            # Create new LandSFAData
+            land_sfra_data = LandSFAData.objects.create(user=user, land_bank=land_bank)
             land_sfra_data.save()
 
+            # Serialize and return the updated land_bank data
             serializer = LandBankSerializer(land_bank, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land updated successfully", "data": data})
+
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
