@@ -282,6 +282,7 @@ class LandBankLocation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     total_land_area = models.CharField(null=True, blank=True)
+    near_by_area = models.CharField(max_length=500,null=True, blank=True)
 
 class LandSurveyNumber(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
