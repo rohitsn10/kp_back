@@ -21,10 +21,7 @@ class SubActivitySerializer(serializers.ModelSerializer):
 #         fields = ['project_main_activity','sub_activity', 'created_at']
 
 class SubActivityNameSerializer(serializers.ModelSerializer):
-    # Serialize the project_main_activity field normally
     project_main_activity = ProjectMainActivitySerializer()
-    
-    # Directly serialize the sub_activity data from the SubActivityName model
     sub_activity = serializers.SerializerMethodField()
 
     class Meta:
@@ -45,8 +42,14 @@ class SubsubActivitySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         
 class SubSubActivityNameSerializer(serializers.ModelSerializer):
-    sub_sub_activity = SubActivitySerializer(many=True)
+    sub_sub_activity_name = serializers.SerializerMethodField()
 
     class Meta:
         model = SubSubActivityName
-        fields = ['id', 'project_activity_id', 'sub_sub_activity']
+        fields = ['id', 'project_activity_id', 'sub_sub_activity_name', 'created_at']  # Include created_at if needed
+
+    def get_sub_sub_activity_name(self, obj):
+        # Return a list of sub-sub activity names
+        return [sub.name for sub in obj.sub_sub_activity.all()]
+
+
