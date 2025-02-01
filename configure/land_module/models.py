@@ -266,6 +266,14 @@ class GramPanchayatPermissionAttachment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+class ListOfApprovalsRequiredForTransmissionLineAttachment(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    list_of_approvals_required_for_transmission_line_file = models.FileField(
+        upload_to='list_of_approvals_required_for_transmission_line', null=True, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)    
+
 
 class LandBankAfterApprovedData(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
@@ -284,6 +292,14 @@ class LandBankAfterApprovedData(models.Model):
     any_transmission_line_crossing_permission_attachment_file = models.ManyToManyField(AnyTransmissionLineCrossingPermissionAttachment)
     any_transmission_line_shifting_permission_attachment_file = models.ManyToManyField(AnyTransmissionLineShiftingPermissionAttachment)
     gram_panchayat_permission_attachment_file = models.ManyToManyField(GramPanchayatPermissionAttachment)
+    municipal_corporation_permission_file = models.ManyToManyField(MunicipalCorporationPermissionAttachment)
+    list_of_other_approvals_land_file = models.ManyToManyField(ListOfOtherApprovalsLandAttachment)
+    title_search_report_file = models.ManyToManyField(TSRAttachment)
+    coordinate_verification_file = models.ManyToManyField(CoordinateVerificationAttachment)
+    encumbrance_noc_file = models.ManyToManyField(EncumbranceNOCAttachment)
+    developer_permission_file = models.ManyToManyField(DeveloperPermissionAttachment)
+    noc_from_ministry_of_defence_file = models.ManyToManyField(NOCfromMinistryofDefenceAttachment)
+    list_of_approvals_required_for_transmission_line_file = models.ManyToManyField(ListOfApprovalsRequiredForTransmissionLineAttachment)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

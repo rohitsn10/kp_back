@@ -556,6 +556,15 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
             any_transmission_line_crossing_permission_attachment_file = request.FILES.getlist('any_transmission_line_crossing_permission_attachment_file') or []
             any_transmission_line_shifting_permission_attachment_file = request.FILES.getlist('any_transmission_line_shifting_permission_attachment_file') or []
             gram_panchayat_permission_attachment_file = request.FILES.getlist('gram_panchayat_permission_attachment_file') or []
+             # New ManyToMany fields
+            municipal_corporation_permission_file = request.FILES.getlist('municipal_corporation_permission_file') or []
+            list_of_other_approvals_land_file = request.FILES.getlist('list_of_other_approvals_land_file') or []
+            title_search_report_file = request.FILES.getlist('title_search_report_file') or []
+            coordinate_verification_file = request.FILES.getlist('coordinate_verification_file') or []
+            encumbrance_noc_file = request.FILES.getlist('encumbrance_noc_file') or []
+            developer_permission_file = request.FILES.getlist('developer_permission_file') or []
+            noc_from_ministry_of_defence_file = request.FILES.getlist('noc_from_ministry_of_defence_file') or []
+            list_of_approvals_required_for_transmission_line_file = request.FILES.getlist('list_of_approvals_required_for_transmission_line_file') or []
 
             land_bank_after_approved_data = LandBankAfterApprovedData.objects.create(land_bank=land_bank, user=user)
             if not land_bank_id:
@@ -632,6 +641,47 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
                 for file in gram_panchayat_permission_attachment_file:
                     gram_panchayat_permission_attachments = GramPanchayatPermissionAttachment.objects.create(user=user, gram_panchayat_permission_attachment_file=file)
                     land_bank_after_approved_data.gram_panchayat_permission_attachment_file.add(gram_panchayat_permission_attachments)
+
+             # Save attachments for new fields
+            if municipal_corporation_permission_file:
+                for file in municipal_corporation_permission_file:
+                    municipal_corporation_permission_files = MunicipalCorporationPermissionAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.municipal_corporation_permission_file.add(municipal_corporation_permission_files)
+
+            if list_of_other_approvals_land_file:
+                for file in list_of_other_approvals_land_file:
+                    list_of_other_approvals_land_files = ListOfOtherApprovalsLandAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.list_of_other_approvals_land_file.add(list_of_other_approvals_land_files)
+
+            if title_search_report_file:
+                for file in title_search_report_file:
+                    title_search_report_files = TSRAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.title_search_report_file.add(title_search_report_files)
+
+            if coordinate_verification_file:
+                for file in coordinate_verification_file:
+                    coordinate_verification_files = CoordinateVerificationAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.coordinate_verification_file.add(coordinate_verification_files)
+
+            if encumbrance_noc_file:
+                for file in encumbrance_noc_file:
+                    encumbrance_noc_files = EncumbranceNOCAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.encumbrance_noc_file.add(encumbrance_noc_files)
+
+            if developer_permission_file:
+                for file in developer_permission_file:
+                    developer_permission_files = DeveloperPermissionAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.developer_permission_file.add(developer_permission_files)
+
+            if noc_from_ministry_of_defence_file:
+                for file in noc_from_ministry_of_defence_file:
+                    noc_from_ministry_of_defence_files = NOCfromMinistryofDefenceAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.noc_from_ministry_of_defence_file.add(noc_from_ministry_of_defence_files)
+
+            if list_of_approvals_required_for_transmission_line_file:
+                for file in list_of_approvals_required_for_transmission_line_file:
+                    list_of_approvals_required_for_transmission_line_files = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.create(user=user, file=file)
+                    land_bank_after_approved_data.list_of_approvals_required_for_transmission_line_file.add(list_of_approvals_required_for_transmission_line_files)        
 
             land_bank_after_approved_data.save()
             serializer = LandBankAfterApprovalSerializer(land_bank_after_approved_data, context={'request': request})
