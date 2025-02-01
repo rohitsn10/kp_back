@@ -466,21 +466,36 @@ class SubSubActivityNameViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "project_activity_id is required."})
             if not sub_activity_id:
                 return Response({"status": False, "message": "sub_activity_id is required."})
-            project_activity_id = ProjectActivity.objects.get(id=project_activity_id)
-            if not project_activity_id:
+
+            # Get ProjectActivity instance
+            project_activity = ProjectActivity.objects.get(id=project_activity_id)
+            if not project_activity:
                 return Response({"status": False, "message": "Invalid project_activity_id."})
+
+            # Get SubActivityName instance
             try:
-                sub_activity = SubActivityName.objects.get(id=sub_activity_id)
+                sub_activity_name = SubActivityName.objects.get(id=sub_activity_id)
             except SubActivityName.DoesNotExist:
                 return Response({"status": False, "message": "Invalid sub_activity_id."})
 
             if not sub_sub_activity_names:
                 return Response({"status": False, "message": "sub_sub_activity_names must be a non-empty list."})
 
+            # Retrieve the associated SubActivity IDs for the SubActivityName
+            sub_activity_ids = sub_activity_name.sub_activity.values_list('id', flat=True)
+
+            # Create SubsubActivity instances and link them to SubSubActivityName
             for name in sub_sub_activity_names:
-                # Create SubsubActivity instances
+                # Create SubsubActivity instance
                 sub_sub_activity = SubsubActivity.objects.create(name=name)
-                sub_sub_activity_name = SubSubActivityName.objects.create(sub_activity_id=sub_activity, project_activity_id=project_activity_id)
+                
+                # Create SubSubActivityName instance and associate with SubActivityName and ProjectActivity
+                sub_sub_activity_name = SubSubActivityName.objects.create(
+                    sub_activity_id=sub_activity_name,  # This is SubActivityName, not SubActivity
+                    project_activity_id=project_activity
+                )
+                
+                # Add the SubsubActivity to the SubSubActivityName instance
                 sub_sub_activity_name.sub_sub_activity.add(sub_sub_activity)
 
             return Response({"status": True, "message": "SubSubActivityName created successfully."})
@@ -488,55 +503,88 @@ class SubSubActivityNameViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
+
     def list(self, request, *args, **kwargs):
         try:
             sub_activity_id = request.query_params.get("sub_activity_id")
 
+            # Filter based on sub_activity_id if provided
             if sub_activity_id:
                 queryset = self.get_queryset().filter(sub_activity_id=sub_activity_id)
             else:
                 queryset = self.get_queryset()
 
+            # If there are results, process and structure them
             if queryset.exists():
                 grouped_data = {}
 
                 for obj in queryset:
+                    # Access the ProjectActivity via the SubActivityName's foreign key
                     project_activity = obj.sub_activity_id.project_main_activity
-    
-                    sub_sub_activities = [
-                        {
-                            "sub_sub_activity_name": sub.name,
-                            "sub_sub_activity_id": sub.id,
+
+                    # Create the sub_sub_activities list grouped by sub_activity_id
+                    for sub_sub_activity in obj.sub_sub_activity.all():
+                        # Initialize the project activity if not already initialized
+                        if project_activity.id not in grouped_data:
+                            grouped_data[project_activity.id] = {
+                                "project_activity_id": project_activity.id,
+                                "project_activity_name": project_activity.activity_name,
+                                "solar_or_wind": project_activity.solar_or_wind,
+                                "sub_activity": []
+                            }
+
+                        # Get or create the sub_activity structure for this sub_activity_id
+                        sub_activity_data = next(
+                            (sub for sub in grouped_data[project_activity.id]["sub_activity"]
+                             if sub["sub_activity_id"] == obj.sub_activity_id.id), None
+                        )
+
+                        if not sub_activity_data:
+                            # If sub_activity_data does not exist, create it
+                            sub_activity_data = {
+                                # Collect the actual names of the SubActivities related to this SubActivityName
+                                "sub_activity_name": [sub.name for sub in obj.sub_activity_id.sub_activity.all()],
+                                "sub_activity_id": obj.sub_activity_id.id,
+                                "sub_sub_activities": []
+                            }
+                            # Add to grouped data
+                            grouped_data[project_activity.id]["sub_activity"].append(sub_activity_data)
+
+                        # Add the sub_sub_activity under the correct sub_activity_id
+                        sub_activity_data["sub_sub_activities"].append({
+                            "sub_sub_activity_name": sub_sub_activity.name,
+                            "sub_sub_activity_id": sub_sub_activity.id,
                             "created_at": obj.created_at
-                        }
-                        for sub in obj.sub_sub_activity.all()
-                    ]
+                        })
 
-                    if project_activity.id not in grouped_data:
-                        grouped_data[project_activity.id] = {
-                            "project_activity_id": project_activity.id,
-                            "project_activity_name": project_activity.activity_name,
-                            "solar_or_wind": project_activity.solar_or_wind,
-                            "sub_activity": []
-                        }
-
-                    sub_activity_data = {
-                        "sub_activity_name": [sub.name for sub in obj.sub_activity_id.sub_activity.all()],
-                        "sub_activity_id": obj.sub_activity_id.id,
-                        "sub_sub_activities": sub_sub_activities
-                    }
-
-                    grouped_data[project_activity.id]["sub_activity"].append(sub_activity_data)
-
+                # Convert grouped data to a list of values and return the response
                 serialized_data = list(grouped_data.values())
 
-                return Response({"status": True,"message": "SubSubActivityName data fetched successfully.","data": serialized_data})
+                return Response({
+                    "status": True,
+                    "message": "SubSubActivityName data fetched successfully.",
+                    "data": serialized_data
+                })
 
             else:
-                return Response({"status": True,"message": "No SubSubActivityName found.","data": []})
+                return Response({
+                    "status": True,
+                    "message": "No SubSubActivityName found.",
+                    "data": []
+                })
 
         except Exception as e:
-            return Response({"status": False, "message": str(e)})
+            return Response({
+                "status": False,
+                "message": str(e)
+            })
+
+
+
+
+
+
+
 
 
 class SubSubActivityUpdateViewSet(viewsets.ModelViewSet):
