@@ -9,7 +9,7 @@ class LandCategory(models.Model):
 
 class SFAAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
-    sfa_file = models.FileField(upload_to='land_sfa_file', null=True, blank=True)
+    land_sfa_file = models.FileField(upload_to='land_sfa_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -69,7 +69,7 @@ class LandTransmissionLineAttachment(models.Model):
 
 class LandApprovedReportAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    approved_report_file = models.FileField(upload_to='approved_report', null=True, blank=True)
+    approved_report_file = models.FileField(upload_to='approved_report_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -84,6 +84,8 @@ class LandBankSerializer(serializers.ModelSerializer):
     def get_land_transmission_line_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'land_transmission_line_file')
 
+    def get_approved_report_file(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'approved_report_file')
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['id'] = str(representation['id'])

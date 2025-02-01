@@ -431,6 +431,7 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             status_of_site_visit = request.data.get('status_of_site_visit')
             date_of_assessment = request.data.get('date_of_assessment')
             site_visit_date = request.data.get('site_visit_date')
+            approved_report_file = request.FILES.getlist('approved_report_file') or []
 
             # Update LandBankMaster fields
             land_bank.status_of_site_visit = status_of_site_visit
@@ -456,12 +457,16 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
 
             # Add files to the model by saving them into the corresponding attachment model first
             for file in land_sfa_file:
-                sfa_attachment = SFAAttachment.objects.create(user=user, sfa_file=file)
-                land_bank.land_sfa_file.add(sfa_attachment)
+                land_sfa_file = SFAAttachment.objects.create(user=user, land_sfa_file=file)
+                land_bank.land_sfa_file.add(land_sfa_file)
 
             for file in sfa_for_transmission_line_gss_files:
-                sfa_gss_attachment = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
-                land_bank.sfa_for_transmission_line_gss_files.add(sfa_gss_attachment)
+                sfa_for_transmission_line_gss_files = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
+                land_bank.sfa_for_transmission_line_gss_files.add(sfa_for_transmission_line_gss_files)
+
+            for file in approved_report_file:
+                approved_report_file = LandApprovedReportAttachment.objects.create(user=user, approved_report_file=file)
+                land_bank.approved_report_file.add(approved_report_file)
 
             # Validate land_sfa_assigned_to_users list
             if not isinstance(land_sfa_assigned_to_users, list):
