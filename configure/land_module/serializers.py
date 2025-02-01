@@ -107,63 +107,99 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     any_transmission_line_crossing_permission_attachment_file = serializers.SerializerMethodField()
     any_transmission_line_shifting_permission_attachment_file = serializers.SerializerMethodField()
     gram_panchayat_permission_attachment_file = serializers.SerializerMethodField()
+    list_of_approvals_required_for_transmission_line_file = serializers.SerializerMethodField()
+    municipal_corporation_permission_file = serializers.SerializerMethodField()
+    list_of_other_approvals_land_file = serializers.SerializerMethodField()
+    title_search_report_file = serializers.SerializerMethodField()
+    coordinate_verification_file = serializers.SerializerMethodField()
+    encumbrance_noc_file = serializers.SerializerMethodField()
+    developer_permission_file = serializers.SerializerMethodField()
+    noc_from_ministry_of_defence_file = serializers.SerializerMethodField()
+
     class Meta:
         model = LandBankAfterApprovedData
         fields = [
-            'id','user','user_full_name','land_bank','dilr_attachment_file','na_65b_permission_attachment_file',
-            'revenue_7_12_records_attachment','noc_from_forest_and_amp_attachment_file',
-            'noc_from_geology_and_mining_office_attachment_file','approvals_required_for_transmission_attachment_file',
-            'canal_crossing_attachment_file','lease_deed_attachment_file','railway_crossing_attachment_file',
-            'any_gas_pipeline_crossing_attachment_file','road_crossing_permission_attachment_file',
-            'any_transmission_line_crossing_permission_attachment_file','any_transmission_line_shifting_permission_attachment_file',
-            'gram_panchayat_permission_attachment_file'
+            'id', 'user', 'user_full_name', 'land_bank',
+            'dilr_attachment_file', 'na_65b_permission_attachment_file', 'revenue_7_12_records_attachment',
+            'noc_from_forest_and_amp_attachment_file', 'noc_from_geology_and_mining_office_attachment_file',
+            'approvals_required_for_transmission_attachment_file', 'canal_crossing_attachment_file',
+            'lease_deed_attachment_file', 'railway_crossing_attachment_file',
+            'any_gas_pipeline_crossing_attachment_file', 'road_crossing_permission_attachment_file',
+            'any_transmission_line_crossing_permission_attachment_file', 'any_transmission_line_shifting_permission_attachment_file',
+            'gram_panchayat_permission_attachment_file', 'list_of_approvals_required_for_transmission_line_file',
+            'municipal_corporation_permission_file', 'list_of_other_approvals_land_file', 'title_search_report_file',
+            'coordinate_verification_file', 'encumbrance_noc_file', 'developer_permission_file',
+            'noc_from_ministry_of_defence_file'
         ]
-    
+
+    def get_file_data(self, obj, field_name):
+        return get_file_data(self.context.get('request'), obj, field_name)
 
     def get_dilr_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'dilr_attachment_file')
-
-
+        return self.get_file_data(obj, 'dilr_attachment_file')
+    
     def get_na_65b_permission_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'na_65b_permission_attachment_file')
-
+        return self.get_file_data(obj, 'na_65b_permission_attachment_file')
+    
     def get_revenue_7_12_records_attachment(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'revenue_7_12_records_attachment')
-
+        return self.get_file_data(obj, 'revenue_7_12_records_attachment')
+    
     def get_noc_from_forest_and_amp_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'noc_from_forest_and_amp_attachment_file')
-
-
+        return self.get_file_data(obj, 'noc_from_forest_and_amp_attachment_file')
+    
     def get_noc_from_geology_and_mining_office_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'noc_from_geology_and_mining_office_attachment_file')
-
-
+        return self.get_file_data(obj, 'noc_from_geology_and_mining_office_attachment_file')
+    
     def get_approvals_required_for_transmission_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'approvals_required_for_transmission_attachment_file')
-
+        return self.get_file_data(obj, 'approvals_required_for_transmission_attachment_file')
+    
     def get_canal_crossing_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'canal_crossing_attachment_file')
-
+        return self.get_file_data(obj, 'canal_crossing_attachment_file')
+    
     def get_lease_deed_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'lease_deed_attachment_file')
-
+        return self.get_file_data(obj, 'lease_deed_attachment_file')
+    
     def get_railway_crossing_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'railway_crossing_attachment_file')
-
+        return self.get_file_data(obj, 'railway_crossing_attachment_file')
+    
     def get_any_gas_pipeline_crossing_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'any_gas_pipeline_crossing_attachment_file')
-
+        return self.get_file_data(obj, 'any_gas_pipeline_crossing_attachment_file')
+    
     def get_road_crossing_permission_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'road_crossing_permission_attachment_file')
-
+        return self.get_file_data(obj, 'road_crossing_permission_attachment_file')
+    
     def get_any_transmission_line_crossing_permission_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'any_transmission_line_crossing_permission_attachment_file')
-
+        return self.get_file_data(obj, 'any_transmission_line_crossing_permission_attachment_file')
+    
     def get_any_transmission_line_shifting_permission_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'any_transmission_line_shifting_permission_attachment_file')
-
+        return self.get_file_data(obj, 'any_transmission_line_shifting_permission_attachment_file')
+    
     def get_gram_panchayat_permission_attachment_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'gram_panchayat_permission_attachment_file')
+        return self.get_file_data(obj, 'gram_panchayat_permission_attachment_file')
+    
+    def get_list_of_approvals_required_for_transmission_line_file(self, obj):
+        return self.get_file_data(obj, 'list_of_approvals_required_for_transmission_line_file')
+    
+    def get_municipal_corporation_permission_file(self, obj):
+        return self.get_file_data(obj, 'municipal_corporation_permission_file')
+    
+    def get_list_of_other_approvals_land_file(self, obj):
+        return self.get_file_data(obj, 'list_of_other_approvals_land_file')
+    
+    def get_title_search_report_file(self, obj):
+        return self.get_file_data(obj, 'title_search_report_file')
+    
+    def get_coordinate_verification_file(self, obj):
+        return self.get_file_data(obj, 'coordinate_verification_file')
+    
+    def get_encumbrance_noc_file(self, obj):
+        return self.get_file_data(obj, 'encumbrance_noc_file')
+    
+    def get_developer_permission_file(self, obj):
+        return self.get_file_data(obj, 'developer_permission_file')
+    
+    def get_noc_from_ministry_of_defence_file(self, obj):
+        return self.get_file_data(obj, 'noc_from_ministry_of_defence_file')
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
