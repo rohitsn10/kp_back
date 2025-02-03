@@ -617,6 +617,25 @@ class SubSubActivityUpdateViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
+    def destroy(self, request, *args, **kwargs):
+        try:
+            sub_sub_activity_id = self.kwargs.get('sub_sub_activity_id')
+
+            if not sub_sub_activity_id:
+                return Response({"status": False, "message": "SubSubActivity ID is required"})
+
+            sub_sub_activity_name_obj = SubActivity.objects.get(id=sub_sub_activity_id)
+
+            if not sub_sub_activity_name_obj:
+                return Response({"status": False, "message": "SubSubActivityName not found"})
+
+            sub_sub_activity_name_obj.delete()
+
+            return Response({"status": True, "message": "SubSubActivityName deleted successfully"})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
         
 class ActiveDeactiveSubSubActivityViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
