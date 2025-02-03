@@ -427,7 +427,7 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             land_sfa_file = request.FILES.getlist('land_sfa_file') or []
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
             timeline = request.data.get('timeline')
-            land_sfa_assigned_to_users = request.data.getlist('land_sfa_assigned_to_users') or []  # Use getlist here for list data
+            land_sfa_assigned_to_users = request.data.get('land_sfa_assigned_to_users') or []  # Use getlist here for list data
             status_of_site_visit = request.data.get('status_of_site_visit')
             date_of_assessment = request.data.get('date_of_assessment')
             site_visit_date = request.data.get('site_visit_date')
@@ -468,16 +468,16 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
                 approved_report_file = LandApprovedReportAttachment.objects.create(user=user, approved_report_file=file)
                 land_bank.approved_report_file.add(approved_report_file)
 
-            # Validate land_sfa_assigned_to_users list
-            if not isinstance(land_sfa_assigned_to_users, list):
-                return Response({'status': False, 'message': 'Land sfa assigned to users must be a valid list'})
-
-            # Ensure the list contains integers only
+            # Validate and parse land_sfa_assigned_to_users
+            if isinstance(land_sfa_assigned_to_users, str):
+                land_sfa_assigned_to_users = land_sfa_assigned_to_users.split(',')
+    
+            # Ensure all values are integers
             try:
                 land_sfa_assigned_to_users = [int(id) for id in land_sfa_assigned_to_users]
             except ValueError:
                 return Response({'status': False, 'message': 'Land sfa assigned to users must be a list of integers'})
-
+    
             # Set the users to land_bank
             land_bank.land_sfa_assigned_to_users.set(land_sfa_assigned_to_users)
             land_bank.save()

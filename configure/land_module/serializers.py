@@ -46,13 +46,14 @@ class LandBankSerializer(serializers.ModelSerializer):
     land_proposed_gss_file = serializers.SerializerMethodField()
     land_transmission_line_file = serializers.SerializerMethodField()
     approved_report_file = ApprovedReportAttachmentSerializer(many=True)
+    land_sfa_assigned_to_users = serializers.SerializerMethodField()
     class Meta:
         model = LandBankMaster
         fields = [
             'id', 'user', 'user_full_name','land_category','land_category_name','created_at', 'updated_at','solar_or_winds','land_sfa_file','sfa_for_transmission_line_gss_files',
             'land_location_file', 'land_survey_number_file', 'land_key_plan_file',
             'land_attach_approval_report_file', 'land_approach_road_file', 
-            'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file','land_name'
+            'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file','land_name','land_sfa_assigned_to_users'
         ]
 
     def get_land_sfa_file(self, obj):
@@ -84,8 +85,19 @@ class LandBankSerializer(serializers.ModelSerializer):
     def get_land_transmission_line_file(self, obj):
         return get_file_data(self.context.get('request'), obj, 'land_transmission_line_file')
 
-    def get_approved_report_file(self, obj):
-        return get_file_data(self.context.get('request'), obj, 'approved_report_file')
+    def get_land_sfa_assigned_to_users(self, obj):
+        # Get the list of assigned users with id and full_name
+        assigned_users = obj.land_sfa_assigned_to_users.all()
+        users_data = []
+        for user in assigned_users:
+            users_data.append({
+                'id': user.id,
+                'full_name': user.full_name
+            })
+        return users_data
+
+    
+    
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['id'] = str(representation['id'])
