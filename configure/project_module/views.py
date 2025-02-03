@@ -719,35 +719,77 @@ class ProjectViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False,"message": f"Error creating project: {str(e)}","data": []})
         
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
         
-        try:
-            if queryset.exists():
-                project_data = []
-                for obj in queryset:
-                    context = {'request': request}
-                    serializer = ProjectSerializer(obj,context=context)
-                    project_data.append(serializer.data)
+    #     try:
+    #         if queryset.exists():
+    #             project_data = []
+    #             for obj in queryset:
+    #                 context = {'request': request}
+    #                 serializer = ProjectSerializer(obj,context=context)
+    #                 project_data.append(serializer.data)
                     
-                count = len(project_data)
-                return Response({
-                    "status": True,
-                    "message": "Project data fetched successfully",
-                    'total_page': 1,
-                    'total': count,
-                    'data': project_data
-                })
-            else:
-                return Response({
-                    "status": True,
-                    "message": "No milestone found",
-                    "total_page": 0,
-                    "total": 0,
-                    "data": []
-                })
+    #             count = len(project_data)
+    #             return Response({
+    #                 "status": True,
+    #                 "message": "Project data fetched successfully",
+    #                 'total_page': 1,
+    #                 'total': count,
+    #                 'data': project_data
+    #             })
+    #         else:
+    #             return Response({
+    #                 "status": True,
+    #                 "message": "No milestone found",
+    #                 "total_page": 0,
+    #                 "total": 0,
+    #                 "data": []
+    #             })
+    #     except Exception as e:
+    #         return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+
+    def list(self, request, *args, **kwargs):
+        company_id = request.query_params.get('company_id')
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        user_id = request.query_params.get('user_id')
+        project_activity_id = request.query_params.get('project_activity_id')
+
+        try:
+            projects = Project.objects.all().order_by('-created_at')
+
+            if company_id and user_id:
+                projects = projects.filter(company_id=company_id, user_id=user_id)
+
+            elif company_id:
+                projects = projects.filter(company_id=company_id)
+
+            elif user_id:
+                projects = projects.filter(user_id=user_id)
+
+            if start_date and end_date:
+                start_date_obj, end_date_obj, error = validate_dates(start_date, end_date)
+                if error:
+                    return Response({"status": False, "message": error, "data": []})
+                if start_date_obj and end_date_obj:
+                    projects = projects.filter(created_at__range=[start_date_obj, end_date_obj])
+
+            if project_activity_id:
+                projects = projects.filter(project_activity_id=project_activity_id)
+
+            if not projects.exists():
+                return Response({"status": True, "message": "No project found", "data": []})
+
+            total_count = projects.count()
+
+            context = {'request': request}
+            serializer = ProjectSerializer(projects, context=context, many=True)
+
+            return Response({"status": True,"message": "Project data fetched successfully","total_count": total_count,"data": serializer.data})
+
         except Exception as e:
-            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+            return Response({"status": False, "message": "Something went wrong", "error": str(e)})
 
 
 class ProjectUpdateViewSet(viewsets.ModelViewSet):
@@ -889,6 +931,21 @@ class GetActiveProjectViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": f"Error fetching active projects: {str(e)}", "data": []})
 
+class NumberofProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = Project.objects.all()
+            count = len(queryset)
+            return Response({
+                "status": True,
+                "message": "Total number of projects fetched successfully",
+                'total number of project': count
+            })
+        except Exception as e:
+            return Response({"status": False, "message": f"Error fetching total number of projects: {str(e)}", "data": []})
 
 
 class ProjectMilestoneViewSet(viewsets.ModelViewSet):
@@ -981,7 +1038,7 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
                     projectmilstone_data.append(serializer.data)
 
                 count = len(projectmilstone_data)
-                return Response({"status": True,"message": "milestones fetched successfully.",'data': projectmilstone_data})
+                return Response({"status": True,"message": "milestones fetched successfully.",'total': count,'data': projectmilstone_data})
             else:
                 return Response({"status": True, "message": "No milestones found."})
 
@@ -1070,3 +1127,25 @@ class ProjectMilestoneUpdateViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong", "error": str(e)})
+
+class UpcomingMilestoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectMilestoneSerializer
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = ProjectMilestone.objects.filter(start_date__gt=datetime.now())
+            
+            if queryset.exists():
+                projectmilstone_data = []
+                for obj in queryset:
+                    context = {'request': request}
+                    serializer = ProjectMilestoneSerializer(obj, context=context)
+                    projectmilstone_data.append(serializer.data)
+                    
+                count = len(projectmilstone_data)
+                return Response({"status": True,"message": "Milestone data fetched successfully",'total': count,'data': projectmilstone_data})
+            else:
+                return Response({"status": True,"message": "No upcoming milestone found","total_page": 0,"total": 0,"data": []})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error fetching upcoming milestones: {str(e)}", "data": []})
