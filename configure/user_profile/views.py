@@ -562,7 +562,10 @@ class LoginAPIView(ViewSet):
             user = CustomUser.objects.filter(email=email).first()
             if not user:
                 return Response({"status": False, "message": "Invalid email or password!", "data": []})
-
+            
+            if not user.is_active:
+                return Response({"status": False, "message": "Your account is not active. Please contact support.", "data": []})
+            
            # Authenticate user
             auth_user = authenticate_user_by_email(email, password)
             if not auth_user:
