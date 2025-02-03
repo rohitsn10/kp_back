@@ -402,7 +402,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         try:
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
