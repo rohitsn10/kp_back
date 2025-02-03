@@ -225,11 +225,12 @@ class LandSurveyNumberSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     land_bank_name = serializers.CharField(source='land_bank.land_name', read_only=True)
     land_location_name = serializers.CharField(source='location_name.land_bank_location_name', read_only=True)
+    land_survey_number_id = serializers.IntegerField(source='id', read_only=True)
 
     class Meta:
         model = LandSurveyNumber
         fields = [
-            'id', 'user', 'user_full_name', 'land_bank', 'land_bank_name',
+            'land_survey_number_id', 'user', 'user_full_name', 'land_bank', 'land_bank_name',
             'location_name','land_location_name','land_survey_number', 'created_at', 'updated_at'
         ]
 

@@ -22,7 +22,7 @@ urlpatterns = [
 
     path('create_sub_sub_activity', SubSubActivityNameViewSet.as_view({'post': 'create'}), name='create_sub_sub_activity'),
     path('get_sub_sub_activity', SubSubActivityNameViewSet.as_view({'get': 'list'}), name='get_sub_sub_activity'),
-    path('update_sub_sub_activity/<int:sub_sub_activity_id>', SubSubActivityUpdateViewSet.as_view({'put': 'update'}), name='update_sub_sub_activity'),
+    path('update_sub_sub_activity/<int:sub_sub_activity_id>', SubSubActivityUpdateViewSet.as_view({'put': 'update', 'delete': 'destroy'}), name='update_sub_sub_activity'),
 
     path('get_active_sub_sub_activity', GetActiveSubSubActivityViewSet.as_view({'get': 'list'}), name='get_active_sub_sub_activity'),
     path('active_deactivate_sub_sub_activity/<int:sub_sub_activity_id>', ActiveDeactiveSubSubActivityViewSet.as_view({'put':'update'}), name='active_deactivate_sub_sub_activity'),
