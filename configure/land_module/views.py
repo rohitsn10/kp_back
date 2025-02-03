@@ -779,10 +779,12 @@ class UpdateLandBankLocationViewset(viewsets.ModelViewSet):
             land_survey_number = request.data.get('land_survey_number')
             total_land_area = request.data.get('total_land_area')
             land_bank = land_bank_location.land_bank
+            if total_land_area:
+                land_bank_location.total_land_area = total_land_area
             if land_bank_location_name:
                 land_bank_location.land_bank_location_name = land_bank_location_name
             if land_survey_number:
-                land_survey_obj = LandSurveyNumber.objects.create(user = user,land_survey_number = land_survey_number,location_name = land_bank_location,land_bank = land_bank, total_land_area=total_land_area)
+                land_survey_obj = LandSurveyNumber.objects.create(user = user,land_survey_number = land_survey_number,location_name = land_bank_location,land_bank = land_bank)
                 land_survey_obj.save()
             land_bank_location.save()
             
