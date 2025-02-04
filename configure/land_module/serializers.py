@@ -46,13 +46,15 @@ class LandBankSerializer(serializers.ModelSerializer):
     land_proposed_gss_file = serializers.SerializerMethodField()
     land_transmission_line_file = serializers.SerializerMethodField()
     approved_report_file = ApprovedReportAttachmentSerializer(many=True)
+    sfa_approved_by_user_full_name = serializers.CharField(source='sfa_approved_by_user.full_name', read_only=True)
+    sfa_rejected_by_user_full_name = serializers.CharField(source='sfa_rejected_by_user.full_name', read_only=True)
     class Meta:
         model = LandBankMaster
         fields = [
-            'id', 'user', 'user_full_name','land_category','land_category_name','created_at', 'updated_at','solar_or_winds','land_sfa_file','sfa_for_transmission_line_gss_files',
+            'id', 'user', 'user_full_name','land_category','land_category_name','created_at', 'updated_at','solar_or_winds','sfa_name','land_sfa_file','sfa_for_transmission_line_gss_files',
             'land_location_file', 'land_survey_number_file', 'land_key_plan_file',
             'land_attach_approval_report_file', 'land_approach_road_file', 
-            'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file','land_name','timeline','status_of_site_visit','sfa_approved_by_user','date_of_assessment','site_visit_date','sfa_checked_by_user'
+            'land_co_ordinates_file', 'land_proposed_gss_file', 'land_transmission_line_file','land_bank_status','approved_report_file','sfa_approved_by_user','sfa_rejected_by_user','sfa_approved_by_user_full_name','sfa_rejected_by_user_full_name','land_name','timeline','status_of_site_visit','sfa_approved_by_user','date_of_assessment','site_visit_date','sfa_checked_by_user','survey_number','village_name','taluka_name','total_land_area','remaining_land_area','tahshil_name'
         ]
 
     def get_land_sfa_file(self, obj):

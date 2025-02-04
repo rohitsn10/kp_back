@@ -99,6 +99,12 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land_bank_id = request.data.get('land_bank_id')
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
+            survey_number = request.data.get('survey_number')
+            village_name = request.data.get('village_name')
+            taluka_name = request.data.get('taluka_name')
+            tahshil_name = request.data.get('tahshil_name')
+            total_land_area = request.data.get('total_land_area')
+
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
             land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
@@ -117,22 +123,50 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             if not land_name:
                 return Response({"status": False, "message": "Land name is required", "data": []})
 
-            if not land_bank_id:
-                return Response({"status": False, "message": "Land bank id is required", "data": []})
+            if not survey_number:
+                return Response({"status": False, "message": "Survey number is required", "data": []})
+
+            if not village_name:
+                return Response({"status": False, "message": "Village name is required", "data": []})
+
+            if not taluka_name:
+                return Response({"status": False, "message": "Taluka name is required", "data": []})
+
+            if not tahshil_name:
+                return Response({"status": False, "message": "Tahshil name is required", "data": []})
+            
+            if not total_land_area:
+                return Response({"status": False, "message": "Total land area is required", "data": []})
 
             if land_category_id:
                 land_category = LandCategory.objects.get(id=land_category_id)
                 if not land_category:
                     return Response({"status": False, "message": "Land category not found", "data": []})
-
+            
+            if not land_key_plan_files:
+                return Response({"status": False, "message": "Land key plan files are required", "data": []})
+            
+            if not land_approach_road_files:
+                return Response({"status": False, "message": "Land approach road files are required", "data": []})
+            
+            if not land_co_ordinates_files:
+                return Response({"status": False, "message": "Land co-ordinates files are required", "data": []})
+            
+            if not land_proposed_gss_files:
+                return Response({"status": False, "message": "Land proposed GSS files are required", "data": []})
+            
             land = LandBankMaster.objects.get(id=land_bank_id)
             if not land:
                 return Response({"status": False, "message": "Land not found", "data": []})
 
             land.land_category = land_category
             land.land_name = land_name
+            land.survey_number = survey_number
+            land.village_name = village_name
+            land.taluka_name = taluka_name
+            land.total_land_area = total_land_area
+            land.tahshil_name = tahshil_name
 
-            
             # Attach the files if provided
             if land_location_files:
                 for file in land_location_files:
@@ -432,14 +466,16 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             # land_bank = LandBankMaster.objects.get(id=land_bank_id)
 
             # Extract data from the request
+            sfa_name = request.data.get('sfa_name')
             land_sfa_file = request.FILES.getlist('land_sfa_file') or []
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
             timeline = request.data.get('timeline')
             solar_or_winds = request.data.get('solar_or_winds')
-            status_of_site_visit = request.data.get('status_of_site_visit')
             date_of_assessment = request.data.get('date_of_assessment')
             site_visit_date = request.data.get('site_visit_date')
-
+            
+            if not sfa_name:
+                return Response({"status": False, "message": "SFA name is required", "data": []})
             if not land_sfa_file:
                 return Response({"status": False, "message": "Land SFA file is required", "data": []})
             if not sfa_for_transmission_line_gss_files:
@@ -448,14 +484,12 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Timeline is required", "data": []})
             if not solar_or_winds:
                 return Response({"status": False, "message": "Solar or Winds is required", "data": []})
-            if not status_of_site_visit:
-                return Response({"status": False, "message": "Status of site visit is required", "data": []})
             if not date_of_assessment:
                 return Response({"status": False, "message": "Date of assessment is required", "data": []})
             if not site_visit_date:
                 return Response({"status": False, "message": "Site visit date is required", "data": []})
 
-            created = LandBankMaster.objects.create(user = user, timeline = timeline,solar_or_winds = solar_or_winds,status_of_site_visit = status_of_site_visit,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user)
+            created = LandBankMaster.objects.create(user = user, sfa_name = sfa_name, timeline = timeline, solar_or_winds = solar_or_winds,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user)
             for file in land_sfa_file:
                 land_sfa_attachments = SFAAttachment.objects.create(user=user, land_sfa_file=file)
                 created.land_sfa_file.add(land_sfa_attachments)
@@ -473,9 +507,8 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
-            department = user.department
             user = self.request.user
-            
+            department = user.department
             queryset = queryset.filter(Q(user=user) | Q(user__department=department))
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
@@ -497,7 +530,7 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             user = self.request.user
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
-
+            sfa_name = request.data.get('sfa_name')
             land_sfa_file = request.FILES.getlist('land_sfa_file') or []
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
             timeline = request.data.get('timeline')
@@ -513,12 +546,16 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             users = CustomUser.objects.filter(id__in=land_sfa_assigned_to_users)
             if len(users) != len(land_sfa_assigned_to_users):
                 return Response({"status": False, "message": "Some of the provided user IDs are invalid", "data": []})
-
+            
+            if not sfa_name:
+                return Response({"status": False, "message": "SFA name is required", "data": []})
             if not timeline:
                 return Response({"status": False, "message": "Timeline is required", "data": []})
             if not land_sfa_assigned_to_users:
                 return Response({"status": False, "message": "Land SFA assigned to users are required", "data": []})
-
+            
+            if sfa_name:
+                land_bank.sfa_name = sfa_name
             if timeline:
                 land_bank.timeline = timeline
             if solar_or_winds:
@@ -575,15 +612,17 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
             user = self.request.user
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
-            land_bank_status = request.data.get('land_bank_status')
+            status_of_site_visit = request.data.get('status_of_site_visit')
             approved_report_files = request.FILES.getlist('approved_report_files') or []
-            if not land_bank_status:
+            if not status_of_site_visit:
                 return Response({"status": False, "message": "Land bank status is required", "data": []})
             if not approved_report_files:
                 return Response({"status": False, "message": "Approval Report Files are required", "data": []})
             
-            if land_bank_status == "Approved":
-                land_bank.land_bank_status = land_bank_status
+            if status_of_site_visit == "Approved":
+                land_bank.status_of_site_visit = status_of_site_visit
+                land_bank.sfa_approved_by_user = user
+                
                 for file in approved_report_files:
                     approved_report_attachments = LandApprovedReportAttachment.objects.create(user=land_bank.user, approved_report_file=file)
                     land_bank.approved_report_file.add(approved_report_attachments)
@@ -595,9 +634,10 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
                 data = serializer.data
                 return Response({"status": True, "message": "Land approved successfully", "data": data})
             
-            if land_bank_status == "Rejected":
-                land_bank.land_bank_status = land_bank_status
-                approved_obj = LandBankRejectAction.objects.create(land_bank=land_bank, approved_by=user)
+            if status_of_site_visit == "Rejected":
+                land_bank.status_of_site_visit = status_of_site_visit
+                land_bank.sfa_rejected_by_user = user
+                approved_obj = LandBankRejectAction.objects.create(land_bank=land_bank, rejected_by=user)
                 approved_obj.save()
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
