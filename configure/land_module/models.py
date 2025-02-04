@@ -89,19 +89,19 @@ class LandBankMaster(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     )
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    land_category = models.ForeignKey(LandCategory, on_delete=models.CASCADE)
-    land_name = models.TextField()
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    land_category = models.ForeignKey(LandCategory, on_delete=models.CASCADE, null=True, blank=True)
+    land_name = models.TextField(null=True, blank=True)
     
     timeline = models.DateTimeField(null=True, blank=True)
     land_sfa_file = models.ManyToManyField(SFAAttachment)
-    land_sfa_assigned_to_users = models.ManyToManyField(CustomUser, related_name='land_sfa_users')
+    sfa_for_transmission_line_gss_files = models.ManyToManyField(SFAforTransmissionLineGSSAttachment)
     status_of_site_visit = models.CharField(max_length=255, choices=STATUS_OF_SITE_VISIT, null=True, blank=True)
     sfa_approved_by_user = models.ForeignKey(CustomUser, related_name='sfa_approved_user', null=True, blank=True, on_delete=models.SET_NULL)
     date_of_assessment = models.DateTimeField(null=True, blank=True)
     site_visit_date = models.DateTimeField(null=True, blank=True)
+    sfa_checked_by_user = models.ForeignKey(CustomUser, related_name='sfa_checked_user', null=True, blank=True, on_delete=models.SET_NULL)
     
-    sfa_for_transmission_line_gss_files = models.ManyToManyField(SFAforTransmissionLineGSSAttachment)
     land_location_file = models.ManyToManyField(LandLocationAttachment)
     land_survey_number_file = models.ManyToManyField(LandSurveyNumbeAttachment)
     land_key_plan_file = models.ManyToManyField(LandKeyPlanAttachment)
