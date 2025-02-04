@@ -7,6 +7,7 @@ from land_module.serializers import *
 import ipdb
 from user_profile.function_call import *
 import ast
+from django.db.models import Q
 
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
@@ -92,15 +93,12 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
     permission_classes = [permissions.IsAuthenticated]
-
     def create(self, request, *args, **kwargs):
         try:
             user = self.request.user
+            land_bank_id = request.data.get('land_bank_id')
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
-            solar_or_winds = request.data.get('solar_or_winds')
-
-            # Ensure files default to empty lists if not present
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
             land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
@@ -110,21 +108,31 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files') or []
             land_transmission_line_files = request.FILES.getlist('land_transmission_line_files') or []
 
+            if not land_bank_id:
+                return Response({"status": False, "message": "Land bank id is required", "data": []})
+            
             if not land_category_id:
                 return Response({"status": False, "message": "Land category is required", "data": []})
 
             if not land_name:
                 return Response({"status": False, "message": "Land name is required", "data": []})
 
-            if not solar_or_winds:
-                return Response({"status": False, "message": "Please select solar or wind", "data": []})
+            if not land_bank_id:
+                return Response({"status": False, "message": "Land bank id is required", "data": []})
 
             if land_category_id:
                 land_category = LandCategory.objects.get(id=land_category_id)
+                if not land_category:
+                    return Response({"status": False, "message": "Land category not found", "data": []})
 
-            # Create the LandBankMaster instance
-            land = LandBankMaster.objects.create(user=user, land_category=land_category, land_name=land_name, solar_or_winds=solar_or_winds)
+            land = LandBankMaster.objects.get(id=land_bank_id)
+            if not land:
+                return Response({"status": False, "message": "Land not found", "data": []})
 
+            land.land_category = land_category
+            land.land_name = land_name
+
+            
             # Attach the files if provided
             if land_location_files:
                 for file in land_location_files:
@@ -159,6 +167,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
                     land.land_transmission_line_file.add(land_transmission_line_attachments)
 
+            land.save()
             # Serialize the created LandBankMaster instance
             # serializer = LandBankSerializer(land, context={'request': request})
             # data = serializer.data
@@ -415,84 +424,146 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_field = 'land_bank_id'
 
+    def create(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            # land_bank_id = self.kwargs.get('land_bank_id')
+            # land_bank = LandBankMaster.objects.get(id=land_bank_id)
+
+            # Extract data from the request
+            land_sfa_file = request.FILES.getlist('land_sfa_file') or []
+            sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
+            timeline = request.data.get('timeline')
+            solar_or_winds = request.data.get('solar_or_winds')
+            status_of_site_visit = request.data.get('status_of_site_visit')
+            date_of_assessment = request.data.get('date_of_assessment')
+            site_visit_date = request.data.get('site_visit_date')
+
+            if not land_sfa_file:
+                return Response({"status": False, "message": "Land SFA file is required", "data": []})
+            if not sfa_for_transmission_line_gss_files:
+                return Response({"status": False, "message": "SFA for transmission line GSS files are required", "data": []})
+            if not timeline:
+                return Response({"status": False, "message": "Timeline is required", "data": []})
+            if not solar_or_winds:
+                return Response({"status": False, "message": "Solar or Winds is required", "data": []})
+            if not status_of_site_visit:
+                return Response({"status": False, "message": "Status of site visit is required", "data": []})
+            if not date_of_assessment:
+                return Response({"status": False, "message": "Date of assessment is required", "data": []})
+            if not site_visit_date:
+                return Response({"status": False, "message": "Site visit date is required", "data": []})
+
+            created = LandBankMaster.objects.create(user = user, timeline = timeline,solar_or_winds = solar_or_winds,status_of_site_visit = status_of_site_visit,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user)
+            for file in land_sfa_file:
+                land_sfa_attachments = SFAAttachment.objects.create(user=user, land_sfa_file=file)
+                created.land_sfa_file.add(land_sfa_attachments)
+
+            for file in sfa_for_transmission_line_gss_files:
+                sfa_for_transmission_line_gss_attachments = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
+                created.sfa_for_transmission_line_gss_files.add(sfa_for_transmission_line_gss_attachments)
+
+            serializer = LandBankSerializer(created, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land updated successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            department = user.department
+            user = self.request.user
+            
+            queryset = queryset.filter(Q(user=user) | Q(user__department=department))
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land Bank List Successfully", "data": data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+            
+
+
+class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'land_bank_id'
+    
     def update(self, request, *args, **kwargs):
         try:
             user = self.request.user
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
 
-            # Extract data from the request
             land_sfa_file = request.FILES.getlist('land_sfa_file') or []
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
             timeline = request.data.get('timeline')
             land_sfa_assigned_to_users = request.data.get('land_sfa_assigned_to_users') or []  # Use getlist here for list data
-            status_of_site_visit = request.data.get('status_of_site_visit')
-            date_of_assessment = request.data.get('date_of_assessment')
-            site_visit_date = request.data.get('site_visit_date')
-            approved_report_file = request.FILES.getlist('approved_report_file') or []
+            remove_selected_files = request.data.get('remove_selected_files') or []
+            solar_or_winds = request.data.get('solar_or_winds')
 
-            # Update LandBankMaster fields
-            land_bank.status_of_site_visit = status_of_site_visit
-            land_bank.sfa_approved_by_user = user
-            if timeline:
-                try:
-                    land_bank.timeline = datetime.fromisoformat(timeline)
-                except ValueError:
-                    return Response({"status": False, "message": "Invalid date format for timeline. It must be in ISO format (YYYY-MM-DD)"})
-            # Parse date_of_assessment safely
-            if date_of_assessment:
-                try:
-                    land_bank.date_of_assessment = datetime.fromisoformat(date_of_assessment)
-                except ValueError:
-                    return Response({"status": False, "message": "Invalid date format for date_of_assessment. It must be in ISO format (YYYY-MM-DD)"})
-
-            # Parse site_visit_date safely
-            if site_visit_date:
-                try:
-                    land_bank.site_visit_date = datetime.fromisoformat(site_visit_date)
-                except ValueError:
-                    return Response({"status": False, "message": "Invalid date format for site_visit_date. It must be in ISO format (YYYY-MM-DD)"})
-
-            # Add files to the model by saving them into the corresponding attachment model first
-            for file in land_sfa_file:
-                land_sfa_file = SFAAttachment.objects.create(user=user, land_sfa_file=file)
-                land_bank.land_sfa_file.add(land_sfa_file)
-
-            for file in sfa_for_transmission_line_gss_files:
-                sfa_for_transmission_line_gss_files = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
-                land_bank.sfa_for_transmission_line_gss_files.add(sfa_for_transmission_line_gss_files)
-
-            for file in approved_report_file:
-                approved_report_file = LandApprovedReportAttachment.objects.create(user=user, approved_report_file=file)
-                land_bank.approved_report_file.add(approved_report_file)
-
-            # Validate and parse land_sfa_assigned_to_users
             if isinstance(land_sfa_assigned_to_users, str):
-                land_sfa_assigned_to_users = land_sfa_assigned_to_users.split(',')
-    
-            # Ensure all values are integers
-            try:
-                land_sfa_assigned_to_users = [int(id) for id in land_sfa_assigned_to_users]
-            except ValueError:
-                return Response({'status': False, 'message': 'Land sfa assigned to users must be a list of integers'})
-    
-            # Set the users to land_bank
-            land_bank.land_sfa_assigned_to_users.set(land_sfa_assigned_to_users)
+                land_sfa_assigned_to_users = [int(user_id) for user_id in land_sfa_assigned_to_users.split(',')]
+            else:
+                land_sfa_assigned_to_users = [int(user_id) for user_id in land_sfa_assigned_to_users]
+
+            users = CustomUser.objects.filter(id__in=land_sfa_assigned_to_users)
+            if len(users) != len(land_sfa_assigned_to_users):
+                return Response({"status": False, "message": "Some of the provided user IDs are invalid", "data": []})
+
+            if not timeline:
+                return Response({"status": False, "message": "Timeline is required", "data": []})
+            if not land_sfa_assigned_to_users:
+                return Response({"status": False, "message": "Land SFA assigned to users are required", "data": []})
+
+            if timeline:
+                land_bank.timeline = timeline
+            if solar_or_winds:
+                land_bank.solar_or_winds = solar_or_winds
+
+            if land_sfa_file:
+                land_bank.land_sfa_file.clear()
+                for file in land_sfa_file:
+                    land_sfa_attachments = SFAAttachment.objects.create(user=user, land_sfa_file=file)
+                    land_bank.land_sfa_file.add(land_sfa_attachments)
+
+            if sfa_for_transmission_line_gss_files:
+                land_bank.sfa_for_transmission_line_gss_files.clear()
+                for file in sfa_for_transmission_line_gss_files:
+                    sfa_for_transmission_line_gss_attachments = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
+                    land_bank.sfa_for_transmission_line_gss_files.add(sfa_for_transmission_line_gss_attachments)
+
+
+            if remove_selected_files:
+                if isinstance(remove_selected_files, str):
+                    remove_selected_files = [int(file_id) for file_id in remove_selected_files.split(',')]
+                else:
+                    remove_selected_files = [int(file_id) for file_id in remove_selected_files]
+
+                for file_id in remove_selected_files:
+                    try:
+                        land_sfa_attachments = SFAAttachment.objects.get(id=file_id)
+                        land_sfa_attachments.delete()
+                    except SFAAttachment.DoesNotExist:
+                        pass
+
+                for file_id in remove_selected_files:
+                    try:
+                        sfa_for_transmission_line_gss_attachments = SFAforTransmissionLineGSSAttachment.objects.get(id=file_id)
+                        sfa_for_transmission_line_gss_attachments.delete()
+                    except SFAforTransmissionLineGSSAttachment.DoesNotExist:
+                        pass
+
             land_bank.save()
-
-            # Create new LandSFAData
-            land_sfra_data = LandSFAData.objects.create(user=user, land_bank=land_bank)
-            land_sfra_data.save()
-
-            # Serialize and return the updated land_bank data
             serializer = LandBankSerializer(land_bank, context={'request': request})
-            data = serializer.data
-            return Response({"status": True, "message": "Land updated successfully", "data": data})
+            return Response({"status": True, "message": "Land updated successfully", "data": serializer.data})
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
 
 class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
