@@ -19,7 +19,7 @@ from django.conf import settings
 import jwt 
 from django.contrib.auth.hashers import make_password
 import random
-
+from django.core.mail import send_mail
 
 
 
@@ -660,6 +660,18 @@ class ResetPasswordAPIView(viewsets.ModelViewSet):
             otp = str(random.randint(100000, 999999))
             user.otp = otp
             user.save()
+
+            subject = "Your OTP for Password Reset"
+            message = f"Dear {user.full_name},\n\nYour OTP for resetting your password is {otp}."
+            recipient_email = user.email
+
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,  
+                [recipient_email],
+                fail_silently=False,
+            )
 
             return Response({"status": True,"message": "Otp genrate successfully", "data": []})
         except CustomUser.DoesNotExist:
