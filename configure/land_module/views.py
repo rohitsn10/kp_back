@@ -562,13 +562,13 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
                 land_bank.solar_or_winds = solar_or_winds
 
             if land_sfa_file:
-                land_bank.land_sfa_file.clear()
+                # land_bank.land_sfa_file.clear()
                 for file in land_sfa_file:
                     land_sfa_attachments = SFAAttachment.objects.create(user=user, land_sfa_file=file)
                     land_bank.land_sfa_file.add(land_sfa_attachments)
 
             if sfa_for_transmission_line_gss_files:
-                land_bank.sfa_for_transmission_line_gss_files.clear()
+                # land_bank.sfa_for_transmission_line_gss_files.clear()
                 for file in sfa_for_transmission_line_gss_files:
                     sfa_for_transmission_line_gss_attachments = SFAforTransmissionLineGSSAttachment.objects.create(user=user, sfa_for_transmission_line_gss_files=file)
                     land_bank.sfa_for_transmission_line_gss_files.add(sfa_for_transmission_line_gss_attachments)
