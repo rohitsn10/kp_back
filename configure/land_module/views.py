@@ -547,12 +547,11 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             if len(users) != len(land_sfa_assigned_to_users):
                 return Response({"status": False, "message": "Some of the provided user IDs are invalid", "data": []})
             
-            if not sfa_name:
-                return Response({"status": False, "message": "SFA name is required", "data": []})
-            if not timeline:
-                return Response({"status": False, "message": "Timeline is required", "data": []})
-            if not land_sfa_assigned_to_users:
-                return Response({"status": False, "message": "Land SFA assigned to users are required", "data": []})
+            # if not sfa_name:
+            #     return Response({"status": False, "message": "SFA name is required", "data": []})
+            # if not timeline:
+            #     return Response({"status": False, "message": "Timeline is required", "data": []})
+
             
             if sfa_name:
                 land_bank.sfa_name = sfa_name
