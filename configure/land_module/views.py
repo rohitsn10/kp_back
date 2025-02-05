@@ -535,7 +535,8 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
             timeline = request.data.get('timeline')
             land_sfa_assigned_to_users = request.data.get('land_sfa_assigned_to_users') or []  # Use getlist here for list data
-            remove_selected_files = request.data.get('remove_selected_files') or []
+            remove_land_sfa_file = request.data.get('remove_land_sfa_file') or []
+            remove_sfa_for_transmission_line_gss_files = request.data.get('remove_sfa_for_transmission_line_gss_files') or []
             solar_or_winds = request.data.get('solar_or_winds')
 
             if isinstance(land_sfa_assigned_to_users, str):
@@ -573,20 +574,26 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
                     land_bank.sfa_for_transmission_line_gss_files.add(sfa_for_transmission_line_gss_attachments)
 
 
-            if remove_selected_files:
-                if isinstance(remove_selected_files, str):
-                    remove_selected_files = [int(file_id) for file_id in remove_selected_files.split(',')]
+            if remove_land_sfa_file:
+                if isinstance(remove_land_sfa_file, str):
+                    remove_land_sfa_file = [int(file_id) for file_id in remove_land_sfa_file.split(',')]
                 else:
-                    remove_selected_files = [int(file_id) for file_id in remove_selected_files]
+                    remove_land_sfa_file = [int(file_id) for file_id in remove_land_sfa_file]
 
-                for file_id in remove_selected_files:
+                for file_id in remove_land_sfa_file:
                     try:
                         land_sfa_attachments = SFAAttachment.objects.get(id=file_id)
                         land_sfa_attachments.delete()
                     except SFAAttachment.DoesNotExist:
                         pass
 
-                for file_id in remove_selected_files:
+            if remove_sfa_for_transmission_line_gss_files:
+                if isinstance(remove_sfa_for_transmission_line_gss_files, str):
+                    remove_sfa_for_transmission_line_gss_files = [int(file_id) for file_id in remove_sfa_for_transmission_line_gss_files.split(',')]
+                else:
+                    remove_sfa_for_transmission_line_gss_files = [int(file_id) for file_id in remove_sfa_for_transmission_line_gss_files]
+                
+                for file_id in remove_sfa_for_transmission_line_gss_files:
                     try:
                         sfa_for_transmission_line_gss_attachments = SFAforTransmissionLineGSSAttachment.objects.get(id=file_id)
                         sfa_for_transmission_line_gss_attachments.delete()
