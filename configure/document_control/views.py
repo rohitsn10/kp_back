@@ -205,3 +205,25 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": "Document not found"})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+
+class DeleteDocumentsFilesView(viewsets.ModelViewSet):
+    queryset = DocumentManagementAttachments.objects.all()
+    lookup_field = 'attachment_id'
+    def destroy(self, request, *args, **kwargs):
+        try:
+            attachment_id = self.kwargs.get('attachment_id')
+            if not attachment_id:
+                return Response({"status": False, "message": "attachment_id not found."})
+            
+            attachment_obj = DocumentManagementAttachments.objects.get(id = attachment_id)
+            if not attachment_obj:
+                return Response({"status": True, "message": "Documents Data is not found"})
+
+            attachment_obj.delete()
+            return Response({"status": True, "message": "Document Deleted Successfully"})
+
+        except DocumentManagementAttachments.DoesNotExist:
+            return Response({"status": False, "message": "Document not found"})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
