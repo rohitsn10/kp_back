@@ -225,27 +225,38 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
-class LandBankStatusUpdateViewset(viewsets.ModelViewSet):
+class ApproveRejectLandbankStatus(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         try:
+            user = self.request.user
             land_bank_id = self.kwargs.get('land_bank_id')
-            status = request.data.get('status')
-
+            land_bank_status = request.data.get('land_bank_status')
+            
             if not land_bank_id:
                 return Response({"status": False, "message": "Land bank id is required", "data": []})
 
-            if not status:
+            if not land_bank_status:
                 return Response({"status": False, "message": "Status is required", "data": []})
-
+            
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            if not land_bank:
+                return Response({"status":False, "message":" land_bank not found"})
+            if land_bank_status == "Approved":
+                land_bank.land_bank_status = land_bank_status
+                approved_obj = LandBankApproveAction.objects.create(land_bank=land_bank, approved_by=user, land_bank_status=land_bank_status)
+                approved_obj.save()
+                land_bank.save()
 
-            land_bank.land_bank_status = status
-            land_bank.save()
-
+            if land_bank_status == "Rejected":
+                land_bank.land_bank_status = land_bank_status
+                rejected_obj = LandBankRejectAction.objects.create(land_bank=land_bank, rejected_by=user, land_bank_status=land_bank_status)
+                rejected_obj.save()
+                land_bank.save()
+                
             serializer = LandBankSerializer(land_bank, context={'request': request})
             data = serializer.data
 
@@ -633,7 +644,7 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
                     approved_report_attachments = LandApprovedReportAttachment.objects.create(user=land_bank.user, approved_report_file=file)
                     land_bank.approved_report_file.add(approved_report_attachments)
                     land_bank.save()
-                approved_obj = LandBankApproveAction.objects.create(land_bank=land_bank, approved_by=user)
+                approved_obj = SaveApprovalDataOfStatusOfSiteVisit.objects.create(land_bank=land_bank, user=user, status_of_site_visit=status_of_site_visit)
                 approved_obj.save()
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
@@ -643,7 +654,7 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
             if status_of_site_visit == "Rejected":
                 land_bank.status_of_site_visit = status_of_site_visit
                 land_bank.sfa_rejected_by_user = user
-                approved_obj = LandBankRejectAction.objects.create(land_bank=land_bank, rejected_by=user)
+                approved_obj = SaveRejectDataOfStatusOfSiteVisit.objects.create(land_bank=land_bank, user=user, status_of_site_visit=status_of_site_visit)
                 approved_obj.save()
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
