@@ -28,6 +28,6 @@ class MaterialManagement(models.Model):
     PR_number = models.CharField(max_length=100,null=True, blank=True)
     PO_number = models.CharField(max_length=100,null=True, blank=True)
     quantity = models.CharField(max_length=100,null=True, blank=True)
-    status = models.CharField(max_length=50, choices=STATUS, null=True, blank=True)
-    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, null=True, blank=True)
+    status = models.CharField(max_length=50, choices=STATUS, null=True, blank=True,default='pending')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, null=True, blank=True,default='pending')
     
