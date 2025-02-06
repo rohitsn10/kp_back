@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
@@ -121,9 +122,9 @@ class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
             status = request.data.get('status')
             payment_status = request.data.get('payment_status')
             project_id = request.data.get('project_id')
-            projectactivity_id = request.data.get('projectactivity_id')
-            sub_activity_id = request.data.get('subactivity_id')
-            sub_sub_activity_id = request.data.get('subsubactivity_id')
+            project_activity_id = request.data.get('project_activity_id')
+            sub_activity_id = request.data.get('sub_activity_id')
+            sub_sub_activity_id = request.data.get('sub_sub_activity_id')
 
             if project_id:
                 try:
@@ -131,9 +132,9 @@ class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
                 except Project.DoesNotExist:
                     return Response({"status": False, "message": "Invalid project."})
 
-            if projectactivity_id:
+            if project_activity_id:
                 try:
-                    projectactivity_id = ProjectActivity.objects.get(id=projectactivity_id)
+                    project_activity_id = ProjectActivity.objects.get(id=project_activity_id)
                 except ProjectActivity.DoesNotExist:
                     return Response({"status": False, "message": "Invalid project activity."})
 
@@ -148,22 +149,35 @@ class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
                     sub_sub_activity_id = SubSubActivityName.objects.get(id=sub_sub_activity_id)
                 except SubSubActivityName.DoesNotExist:
                     return Response({"status": False, "message": "Invalid sub sub activity."})
-
-            material_obj.vendor_name = vendor_name
-            material_obj.material_name = material_name
-            material_obj.uom = uom
-            material_obj.price = price
-            material_obj.end_date = end_date
-            material_obj.PR_number = PR_number
-            material_obj.PO_number = PO_number
-            material_obj.quantity = quantity
-            material_obj.status = status
-            material_obj.payment_status = payment_status
-            material_obj.project = project_id
-            material_obj.projectactivity = projectactivity_id
-            material_obj.subactivity = sub_activity_id
-            material_obj.sub_sub_activity = sub_sub_activity_id
-
+            if vendor_name:
+                material_obj.vendor_name = vendor_name
+            if material_name:
+                material_obj.material_name = material_name
+            if uom:
+                material_obj.uom = uom
+            if price:
+                material_obj.price = price
+            if end_date:
+                material_obj.end_date = end_date
+            if PR_number:
+                material_obj.PR_number = PR_number
+            if PO_number:
+                material_obj.PO_number = PO_number
+            if quantity:
+                material_obj.quantity = quantity
+            if status:
+                material_obj.status = status
+            if payment_status:
+                material_obj.payment_status = payment_status
+            if project_id:
+                material_obj.project = project_id
+            if project_activity_id:
+                material_obj.projectactivity = project_activity_id
+            if sub_activity_id:
+                material_obj.subactivity = sub_activity_id
+            if sub_sub_activity_id:
+                material_obj.sub_sub_activity = sub_sub_activity_id
+            material_obj.updated_at = datetime.datetime.now()
             material_obj.save()
 
             serializer = self.serializer_class(material_obj, context={'request': request})
