@@ -13,8 +13,8 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         user = self.request.user
-        if not request.user.groups.filter(name='Admin').exists():
-            return Response({"status": False, "message": "You do not have permission to perform this action."})
+        # if not request.user.groups.filter(name='Admin').exists():
+        #     return Response({"status": False, "message": "You do not have permission to perform this action."})
         try:
             vendor_name = request.data.get('vendor_name')
             material_name = request.data.get('material_name')
@@ -24,8 +24,6 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
             PR_number = request.data.get('PR_number')
             PO_number = request.data.get('PO_number')
             quantity = request.data.get('quantity')
-            status = request.data.get('status')
-            payment_status = request.data.get('payment_status')
             project_id = request.data.get('project_id')
             projectactivity_id = request.data.get('projectactivity_id')
             sub_activity_id = request.data.get('subactivity_id')
@@ -63,10 +61,6 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Purchase Order Number is required."})
             if not quantity:
                 return Response({"status": False, "message": "Quantity is required."})
-            if not status:
-                return Response({"status": False, "message": "Status is required."})
-            if not payment_status:
-                return Response({"status": False, "message": "Payment Status is required."})
             
             material = MaterialManagement.objects.create(
                 vendor_name=vendor_name,
@@ -77,8 +71,6 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
                 PR_number=PR_number,
                 PO_number=PO_number,
                 quantity=quantity,
-                status=status,
-                payment_status=payment_status,
                 user=user,
                 project=project,
                 projectactivity=projectactivity,
@@ -93,9 +85,9 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
     
     def list(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name='Admin').exists():
-            return Response({"status": False, "message": "You do not have permission to perform this action."})
-        queryset = MaterialManagement.objects.filter(user=request.user)
+        # if not request.user.groups.filter(name='Admin').exists():
+        #     return Response({"status": False, "message": "You do not have permission to perform this action."})
+        queryset = MaterialManagement.objects.all().order_by('-id')
         serializer = self.serializer_class(queryset, many=True)
         data = serializer.data
         return Response({"status": True, "message": "Material Management List Successfully.", "data": data})
@@ -133,14 +125,48 @@ class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
             sub_activity_id = request.data.get('subactivity_id')
             sub_sub_activity_id = request.data.get('subsubactivity_id')
 
-            material_obje = LandSurveyNumber.objects.create(vendor_name=vendor_name, material_name=material_name, uom=uom, price=price, 
-                                                            end_date=end_date, PR_number=PR_number, PO_number=PO_number, quantity=quantity,
-                                                            status=status, payment_status=payment_status, project_id=project_id,
-                                                            projectactivity_id=projectactivity_id, sub_activity_id=sub_activity_id,
-                                                            sub_sub_activity_id=sub_sub_activity_id)
-            material_obje.save()
-            
-            serializer = self.serializer_class(material_obje)
+            if project_id:
+                try:
+                    project_id = Project.objects.get(id=project_id)
+                except Project.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid project."})
+
+            if projectactivity_id:
+                try:
+                    projectactivity_id = ProjectActivity.objects.get(id=projectactivity_id)
+                except ProjectActivity.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid project activity."})
+
+            if sub_activity_id:
+                try:
+                    sub_activity_id = SubActivityName.objects.get(id=sub_activity_id)
+                except SubActivityName.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid sub activity."})
+
+            if sub_sub_activity_id:
+                try:
+                    sub_sub_activity_id = SubSubActivityName.objects.get(id=sub_sub_activity_id)
+                except SubSubActivityName.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid sub sub activity."})
+
+            material_obj.vendor_name = vendor_name
+            material_obj.material_name = material_name
+            material_obj.uom = uom
+            material_obj.price = price
+            material_obj.end_date = end_date
+            material_obj.PR_number = PR_number
+            material_obj.PO_number = PO_number
+            material_obj.quantity = quantity
+            material_obj.status = status
+            material_obj.payment_status = payment_status
+            material_obj.project = project_id
+            material_obj.projectactivity = projectactivity_id
+            material_obj.subactivity = sub_activity_id
+            material_obj.sub_sub_activity = sub_sub_activity_id
+
+            material_obj.save()
+
+            serializer = self.serializer_class(material_obj, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Material Management updated successfully.", "data": data})
 
