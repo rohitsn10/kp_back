@@ -13,7 +13,7 @@ urlpatterns = [
     path('add_sfa_data_to_land_bank', AddFSALandBankDataViewset.as_view({'post':'create','get':'list'}), name='add_sfa_data_to_land_bank'),
     path('update_sfa_data_to_land_bank/<int:land_bank_id>', UpdateFSALandBankDataViewset.as_view({'put':'update'}), name='update_sfa_data_to_land_bank'),
     
-    path('status_update_land_bank/<int:land_bank_id>', LandBankStatusUpdateViewset.as_view({'put':'update'}), name='update_data_after_approval_land_bank'),
+    path('approve_reject_land_bank_status/<int:land_bank_id>', ApproveRejectLandbankStatus.as_view({'put':'update'}), name='approve_reject_land_bank_status'),
     path('create_land_bank_location', CrateLandBankLocationViewset.as_view({'post':'create','get':'list'}), name='create_land_bank_location'),
     path('landbank_id_wise_location_list/<int:land_bank_id>', LandBankIdWiseLocationViewset.as_view({'get':'list'}), name='landbank_id_wise_location_list'),
     path('update_land_bank_location/<int:land_bank_location_id>', UpdateLandBankLocationViewset.as_view({'put':'update','delete':'destroy'}), name='update_land_bank_location'),

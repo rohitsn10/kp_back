@@ -84,6 +84,7 @@ class LandBankMaster(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     )
+    
     STATUS_OF_SITE_VISIT = (
         ('Pending', 'Pending'),
         ('Approved', 'Approved'),
@@ -124,7 +125,17 @@ class LandBankMaster(models.Model):
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
 
+class SaveApprovalDataOfStatusOfSiteVisit(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE, null=True, blank=True)
+    status_of_site_visit = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+class SaveRejectDataOfStatusOfSiteVisit(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE, null=True, blank=True)
+    status_of_site_visit = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class LandSFAData(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
@@ -135,11 +146,13 @@ class LandSFAData(models.Model):
 class LandBankApproveAction(models.Model):
     approved_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
+    land_bank_status = models.CharField(max_length=255, null=True, blank=True)
     approved_at = models.DateTimeField(auto_now_add=True)
 
 class LandBankRejectAction(models.Model):
     rejected_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     land_bank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE)
+    land_bank_status = models.CharField(max_length=255, null=True, blank=True)
     rejected_at = models.DateTimeField(auto_now_add=True)
 
 class DILRAttachment(models.Model):
