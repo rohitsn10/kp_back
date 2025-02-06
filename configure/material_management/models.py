@@ -30,4 +30,6 @@ class MaterialManagement(models.Model):
     quantity = models.CharField(max_length=100,null=True, blank=True)
     status = models.CharField(max_length=50, choices=STATUS, null=True, blank=True,default='pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, null=True, blank=True,default='pending')
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
     

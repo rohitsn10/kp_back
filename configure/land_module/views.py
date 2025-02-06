@@ -276,6 +276,11 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
             solar_or_winds = request.data.get('solar_or_winds')
+            survey_number = request.data.get('survey_number')
+            taluka_name = village_name = request.data.get('taluka_name')
+            tahshil_name = village_name = request.data.get('tahshil_name')
+            total_land_area = village_name = request.data.get('total_land_area')
+
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
             land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
@@ -326,8 +331,19 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 land_bank.land_name = land_name
             if solar_or_winds:
                 land_bank.solar_or_winds = solar_or_winds
-            land_bank.save()
+            if survey_number:
+                land_bank.survey_number = survey_number
+            if village_name:
+                land_bank.village_name = village_name
+            if taluka_name:
+                land_bank.taluka_name = taluka_name
+            if tahshil_name:
+                land_bank.tahshil_name = tahshil_name
+            if total_land_area:
+                land_bank.total_land_area = total_land_area
 
+            land_bank.save()
+                
             if land_location_files_to_remove:
                 for file_id in land_location_files_to_remove:
                     try:

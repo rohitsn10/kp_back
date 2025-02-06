@@ -20,7 +20,7 @@ class SubSubActivityNameSerializer(serializers.ModelSerializer):
 
 class MaterialManagementSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
-    
+    project_activity_name = serializers.CharField(source='projectactivity.activity_name', read_only=True)
     # Serialize subactivity names
     subactivity_name = serializers.SerializerMethodField()
     
@@ -29,7 +29,7 @@ class MaterialManagementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MaterialManagement
-        fields = ['id', 'sub_sub_activity', 'subactivity', 'projectactivity', 'user', 'project', 'project_name',
+        fields = ['id', 'sub_sub_activity', 'subactivity', 'projectactivity','project_activity_name','user', 'project', 'project_name',
                   'vendor_name', 'material_name', 'uom', 'price', 'end_date', 'created_at', 'updated_at',
                   'PR_number', 'PO_number', 'quantity', 'status', 'payment_status', 'subactivity_name', 'sub_sub_activity_name']
 
