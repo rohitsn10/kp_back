@@ -11,8 +11,8 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
 
     def create(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name='Admin').exists():
-                return Response({"status": False, "message": "You do not have permission to perform this action."})
+        # if not request.user.groups.filter(name='Admin').exists():
+        #         return Response({"status": False, "message": "You do not have permission to perform this action."})
         try:
             document_name = request.data.get('document_name')
             document_number = request.data.get('document_number')
@@ -92,10 +92,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
 
     def list(self, request, *args, **kwargs):
-        if request.user.groups.filter(name='Admin').exists():
-            documents = DocumentManagement.objects.all()
-        else:
-            documents = DocumentManagement.objects.filter(assign_users=request.user)
+        # if request.user.groups.filter(name='Admin').exists():
+        documents = DocumentManagement.objects.all()
+        # else:
+        #     documents = DocumentManagement.objects.filter(assign_users=request.user)
         serializer = self.serializer_class(documents, many=True, context={'request': request})
         data = serializer.data
 
@@ -107,9 +107,9 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
 
     def update(self, request, *args, **kwargs):
-        # Check if user has admin permissions
-        if not request.user.groups.filter(name='Admin').exists():
-            return Response({"status": False, "message": "You do not have permission to perform this action."})
+        # # Check if user has admin permissions
+        # if not request.user.groups.filter(name='Admin').exists():
+        #     return Response({"status": False, "message": "You do not have permission to perform this action."})
         
         try:
             # Retrieve the document ID from URL kwargs
