@@ -121,7 +121,7 @@ class DocumentUpdateViewSet(viewsets.ModelViewSet):
             document_obj = DocumentManagement.objects.get(id=document_id)
             
             # Retrieve the document attachments
-            document_attachments = request.data.getlist('document_attachments', [])
+            document_attachments = request.data.getlist('document_management_attachments', [])
             remove_selected_files = request.data.get('remove_selected_files', [])
 
             # Handle document attachments
