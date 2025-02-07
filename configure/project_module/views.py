@@ -720,34 +720,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({"status": False,"message": f"Error creating project: {str(e)}","data": []})
         
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        
-        try:
-            if queryset.exists():
-                project_data = []
-                for obj in queryset:
-                    context = {'request': request}
-                    serializer = ProjectSerializer(obj,context=context)
-                    project_data.append(serializer.data)
-                    
-                count = len(project_data)
-                return Response({
-                    "status": True,
-                    "message": "Project data fetched successfully",
-                    'total_page': 1,
-                    'total': count,
-                    'data': project_data
-                })
-            else:
-                return Response({
-                    "status": True,
-                    "message": "No milestone found",
-                    "total_page": 0,
-                    "total": 0,
-                    "data": []
-                })
-        except Exception as e:
-            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+        queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+        serializer = ProjectSerializer(queryset, many=True, context={'request': request})
+        data = serializer.data
+        return Response({"status": True, "message": "Project List Successfully", "data": data})
 
 
 class ProjectUpdateViewSet(viewsets.ModelViewSet):
