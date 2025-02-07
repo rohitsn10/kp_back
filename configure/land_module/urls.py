@@ -21,4 +21,6 @@ urlpatterns = [
     path('landbank_id_wise_location_list/<int:land_bank_id>', LandBankIdWiseLocationViewset.as_view({'get':'list'}), name='landbank_id_wise_location_list'),
     path('update_land_bank_location/<int:land_bank_location_id>', UpdateLandBankLocationViewset.as_view({'put':'update','delete':'destroy'}), name='update_land_bank_location'),
     path('land_location_idwise_survey_number/<int:location_name_id>', LandLocationIdWiseLandSurveyNumberViewset.as_view({'get':'list'}), name='land_location_idwise_survey_number'),
+
+    path('update_land_survey_number/<int:land_survey_number_id>', UpdateLandSurvetNumberViewset.as_view({'put':'update'}), name='update_land_survey_number'),
 ]
