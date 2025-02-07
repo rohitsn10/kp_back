@@ -472,7 +472,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         try:
             land_bank_id = self.kwargs.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
@@ -1378,5 +1378,25 @@ class LandLocationIdWiseLandSurveyNumberViewset(viewsets.ModelViewSet):
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land survey number list successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+class UpdateLandSurvetNumberViewset(viewsets.ModelViewSet):
+    queryset = LandSurveyNumber.objects.all().order_by('-id')
+    serializer_class = LandSurveyNumberSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_survey_number_id = self.kwargs.get('land_survey_number_id')
+            land_survey_number = LandSurveyNumber.objects.get(id=land_survey_number_id)
+            land_survey_number_new = request.data.get('land_survey_number')
+            land_survey_number.land_survey_number = land_survey_number_new
+            land_survey_number.save()
+            
+            serializer = LandSurveyNumberSerializer(land_survey_number, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land survey number updated successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
