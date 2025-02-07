@@ -323,7 +323,7 @@ class LandBankAfterApprovedData(models.Model):
     list_of_approvals_required_for_transmission_line_file = models.ManyToManyField(ListOfApprovalsRequiredForTransmissionLineAttachment)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    is_filled_22_forms = models.BooleanField(default=False)
 
 class LandBankLocation(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

@@ -133,7 +133,7 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
             'gram_panchayat_permission_attachment_file',
             'municipal_corporation_permission_file', 'list_of_other_approvals_land_file', 'title_search_report_file',
             'coordinate_verification_file', 'encumbrance_noc_file', 'developer_permission_file',
-            'noc_from_ministry_of_defence_file','list_of_approvals_required_for_transmission_line_file'
+            'noc_from_ministry_of_defence_file','list_of_approvals_required_for_transmission_line_file','is_filled_22_forms'
         ]
 
     def get_file_data(self, obj, field_name):
