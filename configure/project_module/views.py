@@ -584,6 +584,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         try:
             # Extract data from the request
             user = self.request.user
+            landbank_id = request.data.get('landbank_id')
             company_id = request.data.get('company_id')
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
@@ -609,6 +610,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
 
             # Validate individual fields
+            if not landbank_id:
+                return Response({"status": False, "message": "Landbank ID is required."})
+
             if not company_id:
                 return Response({"status": False, "message": "Company ID is required."})
 
@@ -681,11 +685,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 sub_sub_activity_names = SubSubActivityName.objects.filter(id__in = project_sub_sub_activity_ids)
             except SubSubActivityName.DoesNotExist:
                 return Response({"status": False, "message": "Invalid SubSubActivity names."})
+            try:
+                landbank_ins = LandBankMaster.objects.get(id=landbank_id)
+                print(landbank_id,"==")
+            except LandBankMaster.DoesNotExist:
+                return Response({"status": False, "message": "Invalid Landbank ID."})
 
             # Create the Project instance
             project = Project.objects.create(
                 user=user,
                 company=company,
+                landbank=landbank_ins,
                 project_name=project_name,
                 start_date=start_date,
                 end_date=end_date,
