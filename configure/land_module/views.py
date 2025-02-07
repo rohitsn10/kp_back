@@ -688,9 +688,13 @@ class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
+            
             user = self.request.user
             land_bank_id = request.data.get('land_bank_id')
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            # if LandBankAfterApprovedData.objects.filter(land_bank=land_bank, is_filled_22_forms=True).exists():
+            #     return Response({"status": False, "message": "You have already filled this form", "data": []})
+            
             dilr_attachment_file = request.FILES.getlist('dilr_attachment_file') or []
             na_65b_permission_attachment_file = request.FILES.getlist('na_65b_permission_attachment_file') or []
             revenue_7_12_records_attachment = request.FILES.getlist('revenue_7_12_records_attachment') or []
@@ -715,7 +719,7 @@ class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
             noc_from_ministry_of_defence_file = request.FILES.getlist('noc_from_ministry_of_defence_file') or []
             list_of_approvals_required_for_transmission_line_file = request.FILES.getlist('list_of_approvals_required_for_transmission_line_file') or []
 
-            land_bank_after_approved_data = LandBankAfterApprovedData.objects.create(land_bank=land_bank, user=user)
+            land_bank_after_approved_data = LandBankAfterApprovedData.objects.create(land_bank=land_bank, user=user,is_filled_22_forms=True)
             if not land_bank_id:
                 return Response({"status": False, "message": "Land bank id is required", "data": []})
             if not land_bank:
