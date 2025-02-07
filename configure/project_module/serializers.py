@@ -74,7 +74,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = [
             'id', 'user', 'user_full_name', 'company', 'company_name', 'start_date', 'end_date',
-            'location_name', 'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
+            'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
             'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'project_predication_date', 'created_at',
             'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
             'project_sub_activity', 'project_sub_sub_activity',
