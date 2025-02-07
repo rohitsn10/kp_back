@@ -683,3 +683,29 @@ class GetActiveSubSubActivityViewSet(viewsets.ModelViewSet):
                 })
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+class MultipleIDWiseSubSubActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        try:
+            sub_activity_ids = request.data.get('sub_activity_ids', [])
+            if not sub_activity_ids:
+                return Response({"status": False, "message": "SubActivity IDs is required"})
+            
+            queryset = SubSubActivityName.objects.filter(sub_activity_id__in=sub_activity_ids)
+            if queryset.exists():
+                serialized_data = []
+                for obj in queryset:
+                    serializer = SubSubActivityNameSerializer(obj, context={'request': request})
+                    serialized_data.append(serializer.data)
+                return Response({
+                    "status": True,
+                    "message": "SubSubActivity data fetched successfully.",
+                    "total": len(serialized_data),
+                    "data": serialized_data,
+                })
+            else:
+                return Response({"status": False, "message": "No SubSubActivity found for the given SubActivity ID."})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
