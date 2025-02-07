@@ -588,13 +588,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
-            location_id = request.data.get('location_id', '')
-            location_survey = request.data.get('location_survey', '')
+            # location_id = request.data.get('location_id', '')
+            # location_survey = request.data.get('location_survey', '')
             alloted_land_area = request.data.get('alloted_land_area')
             available_land_area = request.data.get('available_land_area')
 
-            if isinstance(location_survey, str):
-                location_survey = [int(loc_id.strip()) for loc_id in location_survey.split(',') if loc_id.strip()]  
+            # if isinstance(location_survey, str):
+            #     location_survey = [int(loc_id.strip()) for loc_id in location_survey.split(',') if loc_id.strip()]  
 
             cod_commission_date = parse_date(request.data.get('cod_commission_date'))
             # total_area_of_project = request.data.get('total_area_of_project')
@@ -621,8 +621,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not end_date:
                 return Response({"status": False, "message": "End date is required."})
 
-            if not location_id:
-                return Response({"status": False, "message": "Location is required."})
+            # if not location_id:
+            #     return Response({"status": False, "message": "Location is required."})
 
             if not cod_commission_date:
                 return Response({"status": False, "message": "COD commission date is required."})
@@ -656,10 +656,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
             except Company.DoesNotExist:
                 return Response({"status": False, "message": "Invalid company."})
             
-            try:
-                location = LandBankLocation.objects.get(id=location_id)
-            except LandBankLocation.DoesNotExist:
-                return Response({"status": False, "message": "Invalid location."})
+            # try:
+            #     location = LandBankLocation.objects.get(id=location_id)
+            # except LandBankLocation.DoesNotExist:
+            #     return Response({"status": False, "message": "Invalid location."})
             
             try:
                 by_spoc_user = CustomUser.objects.get(id=spoc_user)
@@ -689,7 +689,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 project_name=project_name,
                 start_date=start_date,
                 end_date=end_date,
-                location_name=location,
                 cod_commission_date=cod_commission_date,
                 # total_area_of_project=total_area_of_project,
                 capacity=capacity,
@@ -704,8 +703,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             )
 
             # Add ManyToMany relationships
-            if location_survey:
-                project.location_survey.set(location_survey)
+            # if location_survey:
+            #     project.location_survey.set(location_survey)
 
             # Set the Many-to-Many relationships for sub-activities and sub-sub-activities
             if sub_activity_names:
