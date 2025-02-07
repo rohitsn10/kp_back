@@ -109,7 +109,6 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     any_transmission_line_crossing_permission_attachment_file = serializers.SerializerMethodField()
     any_transmission_line_shifting_permission_attachment_file = serializers.SerializerMethodField()
     gram_panchayat_permission_attachment_file = serializers.SerializerMethodField()
-    list_of_approvals_required_for_transmission_line_file = serializers.SerializerMethodField()
     municipal_corporation_permission_file = serializers.SerializerMethodField()
     list_of_other_approvals_land_file = serializers.SerializerMethodField()
     title_search_report_file = serializers.SerializerMethodField()
@@ -117,6 +116,8 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     encumbrance_noc_file = serializers.SerializerMethodField()
     developer_permission_file = serializers.SerializerMethodField()
     noc_from_ministry_of_defence_file = serializers.SerializerMethodField()
+    list_of_approvals_required_for_transmission_line_file = serializers.SerializerMethodField()
+
 
     class Meta:
         model = LandBankAfterApprovedData
@@ -128,10 +129,10 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
             'lease_deed_attachment_file', 'railway_crossing_attachment_file',
             'any_gas_pipeline_crossing_attachment_file', 'road_crossing_permission_attachment_file',
             'any_transmission_line_crossing_permission_attachment_file', 'any_transmission_line_shifting_permission_attachment_file',
-            'gram_panchayat_permission_attachment_file', 'list_of_approvals_required_for_transmission_line_file',
+            'gram_panchayat_permission_attachment_file',
             'municipal_corporation_permission_file', 'list_of_other_approvals_land_file', 'title_search_report_file',
             'coordinate_verification_file', 'encumbrance_noc_file', 'developer_permission_file',
-            'noc_from_ministry_of_defence_file'
+            'noc_from_ministry_of_defence_file','list_of_approvals_required_for_transmission_line_file'
         ]
 
     def get_file_data(self, obj, field_name):

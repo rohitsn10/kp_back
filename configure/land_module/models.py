@@ -181,7 +181,7 @@ class MunicipalCorporationPermissionAttachment(models.Model):
 
 class TSRAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    tsr_file = models.FileField(upload_to='tsr', null=True, blank=True)
+    title_search_report_file = models.FileField(upload_to='title_search_report_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -290,7 +290,7 @@ class GramPanchayatPermissionAttachment(models.Model):
 class ListOfApprovalsRequiredForTransmissionLineAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     list_of_approvals_required_for_transmission_line_file = models.FileField(
-        upload_to='list_of_approvals_required_for_transmission_line', null=True, blank=True
+        upload_to='list_of_approvals_required_for_transmission_line_file', null=True, blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)    
