@@ -687,7 +687,7 @@ class GetActiveSubSubActivityViewSet(viewsets.ModelViewSet):
 class MultipleIDWiseSubSubActivityViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         try:
             sub_activity_ids = request.data.get('sub_activity_ids', [])
             if not sub_activity_ids:
