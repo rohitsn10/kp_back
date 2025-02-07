@@ -69,6 +69,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_activity_name = serializers.CharField(source='project_activity.activity_name', read_only=True)
     project_sub_activity = ProjectSubActivityNameSerializer(many=True, read_only=True)
     project_sub_sub_activity = ProjectSubSubActivityNameSerializer(many=True, read_only=True)
+    landbank_name = serializers.CharField(source='landbank.land_name', read_only=True)
 
     class Meta:
         model = Project
@@ -77,7 +78,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
             'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'project_predication_date', 'created_at',
             'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
-            'project_sub_activity', 'project_sub_sub_activity',
+            'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name',
         ]
 
     def to_representation(self, instance):

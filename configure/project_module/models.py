@@ -2,6 +2,7 @@ from django.db import models
 from land_module.models import *
 from user_profile.models import *
 from activity_module.models import *
+from land_module.models import *
 
 class Company(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
@@ -27,6 +28,7 @@ class Project(models.Model):
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='projects')
+    landbank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE, related_name='landbank_data',null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
     project_name = models.CharField(max_length=255)
     start_date = models.DateTimeField(null=True, blank=True)
