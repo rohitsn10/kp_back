@@ -11,7 +11,8 @@ urlpatterns = [
 
     path('add_data_after_approval_land_bank', AddDataAfterApprovalLandBankViewset.as_view({'post':'create','get':'list'}), name='update_data_after_approval_land_bank'),
     path('update_data_after_approval_land_bank/<int:land_bank_after_approved_data_id>', UpdateDateAfterApprovalLandBankViewset.as_view({'put':'update'}), name='update_data_after_approval_land_bank'),
-    
+    path('get_land_bank_id_wise_22_forms_data/<int:land_bank_id>', GetLandBankIdWise22FormsDataViewset.as_view({'get':'list'}), name='get_land_bank_id_wise_22_forms_data'),
+
     path('add_sfa_data_to_land_bank', AddFSALandBankDataViewset.as_view({'post':'create','get':'list'}), name='add_sfa_data_to_land_bank'),
     path('update_sfa_data_to_land_bank/<int:land_bank_id>', UpdateFSALandBankDataViewset.as_view({'put':'update'}), name='update_sfa_data_to_land_bank'),
     

@@ -543,7 +543,7 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-            
+
 
 
 class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
@@ -844,6 +844,28 @@ class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
     def list(self,request,*args,**kwargs):
         try:
             queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Land bank after approval list successfully!", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
+class GetLandBankIdWise22FormsDataViewset(viewsets.ModelViewSet):
+    queryset = LandBankAfterApprovedData.objects.all().order_by('-id')
+    serializer_class = LandBankAfterApprovalSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'land_bank_id'
+    def list(self,request,*args,**kwargs):
+        try:
+            land_bank_id = self.kwargs.get('land_bank_id')
+            if not land_bank_id:
+                return Response({"status": False, "message": "Land bank id is required", "data": []})
+            
+            if not LandBankMaster.objects.filter(id=land_bank_id).exists():
+                return Response({"status": False, "message": "Entered land bank id is Unavailable", "data": []})
+            
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            queryset = queryset.filter(land_bank=land_bank_id)
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land bank after approval list successfully!", "data": data})

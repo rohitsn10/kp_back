@@ -95,6 +95,7 @@ class LandBankSerializer(serializers.ModelSerializer):
 
 class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    land_bank_name = serializers.CharField(source='land_bank.land_name', read_only=True)
     dilr_attachment_file = serializers.SerializerMethodField()
     na_65b_permission_attachment_file = serializers.SerializerMethodField()
     revenue_7_12_records_attachment = serializers.SerializerMethodField()
@@ -122,7 +123,7 @@ class LandBankAfterApprovalSerializer(serializers.ModelSerializer):
     class Meta:
         model = LandBankAfterApprovedData
         fields = [
-            'id', 'user', 'user_full_name', 'land_bank',
+            'id', 'user', 'user_full_name', 'land_bank','land_bank_name',
             'dilr_attachment_file', 'na_65b_permission_attachment_file', 'revenue_7_12_records_attachment',
             'noc_from_forest_and_amp_attachment_file', 'noc_from_geology_and_mining_office_attachment_file',
             'approvals_required_for_transmission_attachment_file', 'canal_crossing_attachment_file',
