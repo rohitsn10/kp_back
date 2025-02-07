@@ -681,7 +681,7 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
         
 
-class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
+class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
     queryset = LandBankAfterApprovedData.objects.all()
     serializer_class = LandBankAfterApprovalSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -794,42 +794,42 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
              # Save attachments for new fields
             if municipal_corporation_permission_file:
                 for file in municipal_corporation_permission_file:
-                    municipal_corporation_permission_files = MunicipalCorporationPermissionAttachment.objects.create(user=user, file=file)
+                    municipal_corporation_permission_files = MunicipalCorporationPermissionAttachment.objects.create(user=user, municipal_corporation_permission_file=file)
                     land_bank_after_approved_data.municipal_corporation_permission_file.add(municipal_corporation_permission_files)
 
             if list_of_other_approvals_land_file:
                 for file in list_of_other_approvals_land_file:
-                    list_of_other_approvals_land_files = ListOfOtherApprovalsLandAttachment.objects.create(user=user, file=file)
+                    list_of_other_approvals_land_files = ListOfOtherApprovalsLandAttachment.objects.create(user=user, list_of_other_approvals_land_file=file)
                     land_bank_after_approved_data.list_of_other_approvals_land_file.add(list_of_other_approvals_land_files)
 
             if title_search_report_file:
                 for file in title_search_report_file:
-                    title_search_report_files = TSRAttachment.objects.create(user=user, file=file)
+                    title_search_report_files = TSRAttachment.objects.create(user=user, title_search_report_file=file)
                     land_bank_after_approved_data.title_search_report_file.add(title_search_report_files)
 
             if coordinate_verification_file:
                 for file in coordinate_verification_file:
-                    coordinate_verification_files = CoordinateVerificationAttachment.objects.create(user=user, file=file)
+                    coordinate_verification_files = CoordinateVerificationAttachment.objects.create(user=user, coordinate_verification_file=file)
                     land_bank_after_approved_data.coordinate_verification_file.add(coordinate_verification_files)
 
             if encumbrance_noc_file:
                 for file in encumbrance_noc_file:
-                    encumbrance_noc_files = EncumbranceNOCAttachment.objects.create(user=user, file=file)
+                    encumbrance_noc_files = EncumbranceNOCAttachment.objects.create(user=user, encumbrance_noc_file=file)
                     land_bank_after_approved_data.encumbrance_noc_file.add(encumbrance_noc_files)
 
             if developer_permission_file:
                 for file in developer_permission_file:
-                    developer_permission_files = DeveloperPermissionAttachment.objects.create(user=user, file=file)
+                    developer_permission_files = DeveloperPermissionAttachment.objects.create(user=user, developer_permission_file=file)
                     land_bank_after_approved_data.developer_permission_file.add(developer_permission_files)
 
             if noc_from_ministry_of_defence_file:
                 for file in noc_from_ministry_of_defence_file:
-                    noc_from_ministry_of_defence_files = NOCfromMinistryofDefenceAttachment.objects.create(user=user, file=file)
+                    noc_from_ministry_of_defence_files = NOCfromMinistryofDefenceAttachment.objects.create(user=user, noc_from_ministry_of_defence_file=file)
                     land_bank_after_approved_data.noc_from_ministry_of_defence_file.add(noc_from_ministry_of_defence_files)
 
             if list_of_approvals_required_for_transmission_line_file:
                 for file in list_of_approvals_required_for_transmission_line_file:
-                    list_of_approvals_required_for_transmission_line_files = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.create(user=user, file=file)
+                    list_of_approvals_required_for_transmission_line_files = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.create(user=user, list_of_approvals_required_for_transmission_line_file=file)
                     land_bank_after_approved_data.list_of_approvals_required_for_transmission_line_file.add(list_of_approvals_required_for_transmission_line_files)        
 
             land_bank_after_approved_data.save()
@@ -841,8 +841,6 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
 
-        
-
     def list(self,request,*args,**kwargs):
         try:
             queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
@@ -852,7 +850,404 @@ class UpdateDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+class UpdateDateAfterApprovalLandBankViewset(viewsets.ModelViewSet):
+    queryset = LandBankAfterApprovedData.objects.all().order_by('-id')
+    serializer_class = LandBankAfterApprovalSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'land_bank_after_approved_data_id'
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_after_approved_data_id = self.kwargs.get('land_bank_after_approved_data_id')
+            land_bank_after_approved_data = LandBankAfterApprovedData.objects.get(id=land_bank_after_approved_data_id)
 
+            dilr_attachment_file = request.FILES.getlist('dilr_attachment_file') or []
+            na_65b_permission_attachment_file = request.FILES.getlist('na_65b_permission_attachment_file') or []
+            revenue_7_12_records_attachment = request.FILES.getlist('revenue_7_12_records_attachment') or []
+            noc_from_forest_and_amp_attachment_file = request.FILES.getlist('noc_from_forest_and_amp_attachment_file') or []
+            noc_from_geology_and_mining_office_attachment_file = request.FILES.getlist('noc_from_geology_and_mining_office_attachment_file') or []
+            approvals_required_for_transmission_attachment_file = request.FILES.getlist('approvals_required_for_transmission_attachment_file') or []
+            canal_crossing_attachment_file = request.FILES.getlist('canal_crossing_attachment_file') or []
+            lease_deed_attachment_file = request.FILES.getlist('lease_deed_attachment_file') or []
+            railway_crossing_attachment_file = request.FILES.getlist('railway_crossing_attachment_file') or []
+            any_gas_pipeline_crossing_attachment_file = request.FILES.getlist('any_gas_pipeline_crossing_attachment_file') or []
+            road_crossing_permission_attachment_file = request.FILES.getlist('road_crossing_permission_attachment_file') or []
+            any_transmission_line_crossing_permission_attachment_file = request.FILES.getlist('any_transmission_line_crossing_permission_attachment_file') or []
+            any_transmission_line_shifting_permission_attachment_file = request.FILES.getlist('any_transmission_line_shifting_permission_attachment_file') or []
+            gram_panchayat_permission_attachment_file = request.FILES.getlist('gram_panchayat_permission_attachment_file') or []
+            municipal_corporation_permission_file = request.FILES.getlist('municipal_corporation_permission_file') or []
+            list_of_other_approvals_land_file = request.FILES.getlist('list_of_other_approvals_land_file') or []
+            title_search_report_file = request.FILES.getlist('title_search_report_file') or []
+            coordinate_verification_file = request.FILES.getlist('coordinate_verification_file') or []
+            encumbrance_noc_file = request.FILES.getlist('encumbrance_noc_file') or []
+            developer_permission_file = request.FILES.getlist('developer_permission_file') or []
+            noc_from_ministry_of_defence_file = request.FILES.getlist('noc_from_ministry_of_defence_file') or []
+            list_of_approvals_required_for_transmission_line_file = request.FILES.getlist('list_of_approvals_required_for_transmission_line_file') or []
+
+            remove_dilr_attachment_file = request.data.get('remove_dilr_attachment_file', [])
+            remove_na_65b_permission_attachment_file = request.data.get('remove_na_65b_permission_attachment_file', [])
+            remove_revenue_7_12_records_attachment = request.data.get('remove_revenue_7_12_records_attachment')
+            remove_noc_from_forest_and_amp_attachment_file = request.data.get('remove_noc_from_forest_and_amp_attachment_file', [])
+            remove_noc_from_geology_and_mining_office_attachment_file = request.data.get('remove_noc_from_geology_and_mining_office_attachment_file', [])
+            remove_approvals_required_for_transmission_attachment_file = request.data.get('remove_approvals_required_for_transmission_attachment_file', [])
+            remove_canal_crossing_attachment_file = request.data.get('remove_canal_crossing_attachment_file', [])
+            remove_lease_deed_attachment_file = request.data.get('remove_lease_deed_attachment_file', [])
+            remove_railway_crossing_attachment_file = request.data.get('remove_railway_crossing_attachment_file', [])
+            remove_any_gas_pipeline_crossing_attachment_file = request.data.get('remove_any_gas_pipeline_crossing_attachment_file', [])
+            remove_road_crossing_permission_attachment_file = request.data.get('remove_road_crossing_permission_attachment_file', [])
+            remove_any_transmission_line_crossing_permission_attachment_file = request.data.get('remove_any_transmission_line_crossing_permission_attachment_file', [])
+            remove_any_transmission_line_shifting_permission_attachment_file = request.data.get('remove_any_transmission_line_shifting_permission_attachment_file', [])
+            remove_gram_panchayat_permission_attachment_file = request.data.get('remove_gram_panchayat_permission_attachment_file', [])
+            remove_municipal_corporation_permission_file = request.data.get('remove_municipal_corporation_permission_file', [])
+            remove_list_of_other_approvals_land_file = request.data.get('remove_list_of_other_approvals_land_file', [])
+            remove_title_search_report_file = request.data.get('remove_title_search_report_file', [])
+            remove_coordinate_verification_file = request.data.get('remove_coordinate_verification_file', [])
+            remove_encumbrance_noc_file = request.data.get('remove_encumbrance_noc_file', [])
+            remove_developer_permission_file = request.data.get('remove_developer_permission_file', [])
+            remove_noc_from_ministry_of_defence_file = request.data.get('remove_noc_from_ministry_of_defence_file', [])
+            remove_list_of_approvals_required_for_transmission_line_file = request.data.get('remove_list_of_approvals_required_for_transmission_line_file', [])
+            
+            remove_dilr_attachment_file = process_file_ids(remove_dilr_attachment_file)
+            remove_na_65b_permission_attachment_file = process_file_ids(remove_na_65b_permission_attachment_file)
+            remove_revenue_7_12_records_attachment = process_file_ids(remove_revenue_7_12_records_attachment)
+            remove_noc_from_forest_and_amp_attachment_file = process_file_ids(remove_noc_from_forest_and_amp_attachment_file)
+            remove_noc_from_geology_and_mining_office_attachment_file = process_file_ids(remove_noc_from_geology_and_mining_office_attachment_file)
+            remove_approvals_required_for_transmission_attachment_file = process_file_ids(remove_approvals_required_for_transmission_attachment_file)
+            remove_canal_crossing_attachment_file = process_file_ids(remove_canal_crossing_attachment_file)
+            remove_lease_deed_attachment_file = process_file_ids(remove_lease_deed_attachment_file)
+            remove_railway_crossing_attachment_file = process_file_ids(remove_railway_crossing_attachment_file)
+            remove_any_gas_pipeline_crossing_attachment_file = process_file_ids(remove_any_gas_pipeline_crossing_attachment_file)
+            remove_road_crossing_permission_attachment_file = process_file_ids(remove_road_crossing_permission_attachment_file)
+            remove_any_transmission_line_crossing_permission_attachment_file = process_file_ids(remove_any_transmission_line_crossing_permission_attachment_file)
+            remove_any_transmission_line_shifting_permission_attachment_file = process_file_ids(remove_any_transmission_line_shifting_permission_attachment_file)
+            remove_gram_panchayat_permission_attachment_file = process_file_ids(remove_gram_panchayat_permission_attachment_file)
+            remove_municipal_corporation_permission_file = process_file_ids(remove_municipal_corporation_permission_file)
+            remove_list_of_other_approvals_land_file = process_file_ids(remove_list_of_other_approvals_land_file)
+            remove_title_search_report_file = process_file_ids(remove_title_search_report_file)
+            remove_coordinate_verification_file = process_file_ids(remove_coordinate_verification_file)
+            remove_encumbrance_noc_file = process_file_ids(remove_encumbrance_noc_file)
+            remove_developer_permission_file = process_file_ids(remove_developer_permission_file)
+            remove_noc_from_ministry_of_defence_file = process_file_ids(remove_noc_from_ministry_of_defence_file)
+            remove_list_of_approvals_required_for_transmission_line_file = process_file_ids(remove_list_of_approvals_required_for_transmission_line_file)
+            
+            
+        
+            if dilr_attachment_file:
+                for file in dilr_attachment_file:
+                    dilr_attachment_files = DILRAttachment.objects.create(user=user, dilr_attachment_file=file)
+                    land_bank_after_approved_data.dilr_attachment_file.add(dilr_attachment_files)
+
+            if na_65b_permission_attachment_file:
+                for file in na_65b_permission_attachment_file:
+                    na_65b_permission_attachment_files = NA_65B_Permission_Attachment.objects.create(user=user, na_65b_permission_attachment_file=file)
+                    land_bank_after_approved_data.na_65b_permission_attachment_file.add(na_65b_permission_attachment_files)
+
+            if revenue_7_12_records_attachment:
+                for file in revenue_7_12_records_attachment:
+                    revenue_7_12_records_attachment_files = Revenue_7_12_Records_Attachment.objects.create(user=user, revenue_7_12_records_attachment=file)
+                    land_bank_after_approved_data.revenue_7_12_records_attachment.add(revenue_7_12_records_attachment_files)
+
+            if noc_from_forest_and_amp_attachment_file:
+                for file in noc_from_forest_and_amp_attachment_file:
+                    noc_from_forest_and_amp_attachment_files = NOCfromForestAndAmpAttachment.objects.create(user=user, noc_from_forest_and_amp_attachment_file=file)
+                    land_bank_after_approved_data.noc_from_forest_and_amp_attachment_file.add(noc_from_forest_and_amp_attachment_files)
+
+            if noc_from_geology_and_mining_office_attachment_file:
+                for file in noc_from_geology_and_mining_office_attachment_file:
+                    noc_from_geology_and_mining_office_attachment_files = NOCfromGeologyAndMiningOfficeAttachment.objects.create(user=user, noc_from_geology_and_mining_office_attachment_file=file)
+                    land_bank_after_approved_data.noc_from_geology_and_mining_office_attachment_file.add(noc_from_geology_and_mining_office_attachment_files)
+
+            if approvals_required_for_transmission_attachment_file:
+                for file in approvals_required_for_transmission_attachment_file:
+                    approvals_required_for_transmission_attachment_files = ApprovalsRequiredForTransmissionAttachment.objects.create(user=user, approvals_required_for_transmission_attachment_file=file)
+                    land_bank_after_approved_data.approvals_required_for_transmission_attachment_file.add(approvals_required_for_transmission_attachment_files)
+
+            if canal_crossing_attachment_file:
+                for file in canal_crossing_attachment_file:
+                    canal_crossing_attachment_files = CanalCrossingAttachment.objects.create(user=user, canal_crossing_attachment_file=file)
+                    land_bank_after_approved_data.canal_crossing_attachment_file.add(canal_crossing_attachment_files)
+
+            if lease_deed_attachment_file:
+                for file in lease_deed_attachment_file:
+                    lease_deed_attachment_files = LeaseDeedAttachment.objects.create(user=user, lease_deed_attachment_file=file)
+                    land_bank_after_approved_data.lease_deed_attachment_file.add(lease_deed_attachment_files)
+
+            if railway_crossing_attachment_file:                
+                for file in railway_crossing_attachment_file:
+                    railway_crossing_attachment_files = RailwayCrossingAttachment.objects.create(user=user, railway_crossing_attachment_file=file)
+                    land_bank_after_approved_data.railway_crossing_attachment_file.add(railway_crossing_attachment_files)
+
+            if any_gas_pipeline_crossing_attachment_file:
+                for file in any_gas_pipeline_crossing_attachment_file:
+                    any_gas_pipeline_crossing_attachment_files = AnyGasPipelineCrossingAttachment.objects.create(user=user, any_gas_pipeline_crossing_attachment_file=file)
+                    land_bank_after_approved_data.any_gas_pipeline_crossing_attachment_file.add(any_gas_pipeline_crossing_attachment_files)
+
+            if road_crossing_permission_attachment_file:
+                for file in road_crossing_permission_attachment_file:
+                    road_crossing_permission_attachment_files = RoadCrossingPermissionAttachment.objects.create(user=user, road_crossing_permission_attachment_file=file)
+                    land_bank_after_approved_data.road_crossing_permission_attachment_file.add(road_crossing_permission_attachment_files)
+
+            if any_transmission_line_crossing_permission_attachment_file:
+                for file in any_transmission_line_crossing_permission_attachment_file:
+                    any_transmission_line_crossing_permission_attachment_files = AnyTransmissionLineCrossingPermissionAttachment.objects.create(user=user, any_transmission_line_crossing_permission_attachment_file=file)
+                    land_bank_after_approved_data.any_transmission_line_crossing_permission_attachment_file.add(any_transmission_line_crossing_permission_attachment_files)
+
+            if any_transmission_line_shifting_permission_attachment_file:
+                for file in any_transmission_line_shifting_permission_attachment_file:
+                    any_transmission_line_shifting_permission_attachment_files = AnyTransmissionLineShiftingPermissionAttachment.objects.create(user=user, any_transmission_line_shifting_permission_attachment_file=file)
+                    land_bank_after_approved_data.any_transmission_line_shifting_permission_attachment_file.add(any_transmission_line_shifting_permission_attachment_files)
+
+            if gram_panchayat_permission_attachment_file:
+                for file in gram_panchayat_permission_attachment_file:
+                    gram_panchayat_permission_attachment_files = GramPanchayatPermissionAttachment.objects.create(user=user, gram_panchayat_permission_attachment_file=file)
+                    land_bank_after_approved_data.gram_panchayat_permission_attachment_file.add(gram_panchayat_permission_attachment_files)
+            
+            if municipal_corporation_permission_file:
+                for file in municipal_corporation_permission_file:
+                    municipal_corporation_permission_files = MunicipalCorporationPermissionAttachment.objects.create(user=user, municipal_corporation_permission_file=file)
+                    land_bank_after_approved_data.municipal_corporation_permission_file.add(municipal_corporation_permission_files)
+            
+            if list_of_other_approvals_land_file:
+                for file in list_of_other_approvals_land_file:
+                    list_of_other_approvals_land_files = ListOfOtherApprovalsLandAttachment.objects.create(user=user, list_of_other_approvals_land_file=file)
+                    land_bank_after_approved_data.list_of_other_approvals_land_file.add(list_of_other_approvals_land_files)
+            
+            if title_search_report_file:
+                for file in title_search_report_file:
+                    title_search_report_files = TSRAttachment.objects.create(user=user, title_search_report_file=file)
+                    land_bank_after_approved_data.title_search_report_file.add(title_search_report_files)
+
+            if coordinate_verification_file:
+                for file in coordinate_verification_file:
+                    coordinate_verification_files = CoordinateVerificationAttachment.objects.create(user=user, coordinate_verification_file=file)
+                    land_bank_after_approved_data.coordinate_verification_file.add(coordinate_verification_files)
+
+            if encumbrance_noc_file:
+                for file in encumbrance_noc_file:
+                    encumbrance_noc_files = EncumbranceNOCAttachment.objects.create(user=user, encumbrance_noc_file=file)
+                    land_bank_after_approved_data.encumbrance_noc_file.add(encumbrance_noc_files)
+
+            if developer_permission_file:
+                for file in developer_permission_file:
+                    developer_permission_files = DeveloperPermissionAttachment.objects.create(user=user, developer_permission_file=file)
+                    land_bank_after_approved_data.developer_permission_file.add(developer_permission_files)
+
+            if noc_from_ministry_of_defence_file:
+                for file in noc_from_ministry_of_defence_file:
+                    noc_from_ministry_of_defence_files = NOCfromMinistryofDefenceAttachment.objects.create(user=user, noc_from_ministry_of_defence_file=file)
+                    land_bank_after_approved_data.noc_from_ministry_of_defence_file.add(noc_from_ministry_of_defence_files)
+
+            if list_of_approvals_required_for_transmission_line_file:
+                for file in list_of_approvals_required_for_transmission_line_file:
+                    list_of_approvals_required_for_transmission_line_files = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.create(user=user, list_of_approvals_required_for_transmission_line_file=file)
+                    land_bank_after_approved_data.list_of_approvals_required_for_transmission_line_file.add(list_of_approvals_required_for_transmission_line_files)
+
+            if remove_dilr_attachment_file:
+                for file_id in remove_dilr_attachment_file:
+                    try:    
+                        file_instance = DILRAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.dilr_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except DILRAttachment.DoesNotExist:
+                        continue
+
+            if remove_na_65b_permission_attachment_file:
+                for file_id in remove_na_65b_permission_attachment_file:
+                    try:    
+                        file_instance = NA_65B_Permission_Attachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.na_65b_permission_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except NA_65B_Permission_Attachment.DoesNotExist:
+                        continue
+
+            if remove_revenue_7_12_records_attachment:
+                for file_id in remove_revenue_7_12_records_attachment:
+                    try:    
+                        file_instance = Revenue_7_12_Records_Attachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.revenue_7_12_records_attachment.remove(file_instance)
+                        file_instance.delete()
+                    except Revenue_7_12_Records_Attachment.DoesNotExist:
+                        continue
+
+            if remove_noc_from_forest_and_amp_attachment_file:
+                for file_id in remove_noc_from_forest_and_amp_attachment_file:
+                    try:    
+                        file_instance = NOCfromForestAndAmpAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.noc_from_forest_and_amp_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except NOCfromForestAndAmpAttachment.DoesNotExist:
+                        continue
+
+            if remove_noc_from_geology_and_mining_office_attachment_file:
+                for file_id in remove_noc_from_geology_and_mining_office_attachment_file:
+                    try:    
+                        file_instance = NOCfromGeologyAndMiningOfficeAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.noc_from_geology_and_mining_office_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except NOCfromGeologyAndMiningOfficeAttachment.DoesNotExist:
+                        continue
+
+            if remove_approvals_required_for_transmission_attachment_file:
+                for file_id in remove_approvals_required_for_transmission_attachment_file:
+                    try:
+                        file_instance = ApprovalsRequiredForTransmissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.approvals_required_for_transmission_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except ApprovalsRequiredForTransmissionAttachment.DoesNotExist:
+                        continue
+
+            if remove_canal_crossing_attachment_file:
+                for file_id in remove_canal_crossing_attachment_file:
+                    try:
+                        file_instance = CanalCrossingAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.canal_crossing_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except CanalCrossingAttachment.DoesNotExist:
+                        continue
+
+            if remove_lease_deed_attachment_file:
+                for file_id in remove_lease_deed_attachment_file:
+                    try:
+                        file_instance = LeaseDeedAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.lease_deed_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except LeaseDeedAttachment.DoesNotExist:
+                        continue
+
+            if remove_railway_crossing_attachment_file:
+                for file_id in remove_railway_crossing_attachment_file:
+                    try:
+                        file_instance = RailwayCrossingAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.railway_crossing_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except RailwayCrossingAttachment.DoesNotExist:
+                        continue
+
+            if remove_any_gas_pipeline_crossing_attachment_file:
+                for file_id in remove_any_gas_pipeline_crossing_attachment_file:
+                    try:
+                        file_instance = AnyGasPipelineCrossingAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.any_gas_pipeline_crossing_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except AnyGasPipelineCrossingAttachment.DoesNotExist:
+                        continue
+
+            if remove_road_crossing_permission_attachment_file:
+                for file_id in remove_road_crossing_permission_attachment_file:
+                    try:
+                        file_instance = RoadCrossingPermissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.road_crossing_permission_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except RoadCrossingPermissionAttachment.DoesNotExist:
+                        continue
+
+            if remove_any_transmission_line_crossing_permission_attachment_file:
+                for file_id in remove_any_transmission_line_crossing_permission_attachment_file:
+                    try:
+                        file_instance = AnyTransmissionLineCrossingPermissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.any_transmission_line_crossing_permission_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except AnyTransmissionLineCrossingPermissionAttachment.DoesNotExist:
+                        continue
+
+            if remove_any_transmission_line_shifting_permission_attachment_file:
+                for file_id in remove_any_transmission_line_shifting_permission_attachment_file:
+                    try:
+                        file_instance = AnyTransmissionLineShiftingPermissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.any_transmission_line_shifting_permission_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except AnyTransmissionLineShiftingPermissionAttachment.DoesNotExist:
+                        continue
+
+            if remove_gram_panchayat_permission_attachment_file:
+                for file_id in remove_gram_panchayat_permission_attachment_file:
+                    try:
+                        file_instance = GramPanchayatPermissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.gram_panchayat_permission_attachment_file.remove(file_instance)
+                        file_instance.delete()
+                    except GramPanchayatPermissionAttachment.DoesNotExist:
+                        continue
+
+            if remove_municipal_corporation_permission_file:
+                for file_id in remove_municipal_corporation_permission_file:
+                    try:
+                        file_instance = MunicipalCorporationPermissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.municipal_corporation_permission_file.remove(file_instance)
+                        file_instance.delete()
+                    except MunicipalCorporationPermissionAttachment.DoesNotExist:
+                        continue
+            
+            if remove_list_of_other_approvals_land_file:
+                for file_id in remove_list_of_other_approvals_land_file:
+                    try:
+                        file_instance = ListOfOtherApprovalsLandAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.list_of_other_approvals_land_file.remove(file_instance)
+                        file_instance.delete()
+                    except ListOfOtherApprovalsLandAttachment.DoesNotExist:
+                        continue
+
+            if remove_title_search_report_file:
+                for file_id in remove_title_search_report_file:
+                    try:
+                        file_instance = TSRAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.title_search_report_file.remove(file_instance)
+                        file_instance.delete()
+                    except TSRAttachment.DoesNotExist:
+                        continue
+
+            if remove_coordinate_verification_file:
+                for file_id in remove_coordinate_verification_file:
+                    try:
+                        file_instance = CoordinateVerificationAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.coordinate_verification_file.remove(file_instance)
+                        file_instance.delete()
+                    except CoordinateVerificationAttachment.DoesNotExist:
+                        continue
+
+            if remove_encumbrance_noc_file:
+                for file_id in remove_encumbrance_noc_file:
+                    try:
+                        file_instance = EncumbranceNOCAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.encumbrance_noc_file.remove(file_instance)
+                        file_instance.delete()
+                    except EncumbranceNOCAttachment.DoesNotExist:
+                        continue
+
+            if remove_developer_permission_file:
+                for file_id in remove_developer_permission_file:
+                    try:
+                        file_instance = DeveloperPermissionAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.developer_permission_file.remove(file_instance)
+                        file_instance.delete()
+                    except DeveloperPermissionAttachment.DoesNotExist:
+                        continue
+
+            if remove_noc_from_ministry_of_defence_file:
+                for file_id in remove_noc_from_ministry_of_defence_file:
+                    try:
+                        file_instance = NOCfromMinistryofDefenceAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.noc_from_ministry_of_defence_file.remove(file_instance)
+                        file_instance.delete()
+                    except NOCfromMinistryofDefenceAttachment.DoesNotExist:
+                        continue
+
+            if remove_list_of_approvals_required_for_transmission_line_file:
+                for file_id in remove_list_of_approvals_required_for_transmission_line_file:
+                    try:
+                        file_instance = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.get(id=file_id)
+                        land_bank_after_approved_data.list_of_approvals_required_for_transmission_line_file.remove(file_instance)
+                        file_instance.delete()
+                    except ListOfApprovalsRequiredForTransmissionLineAttachment.DoesNotExist:
+                        continue
+
+            land_bank_after_approved_data.save()
+            serializer = LandBankAfterApprovalSerializer(land_bank_after_approved_data, context={'request': request})
+            data = serializer.data
+
+            return Response({"status": True, "message": "Land bank approved successfully", "data":data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
 
 class CrateLandBankLocationViewset(viewsets.ModelViewSet):
     queryset = LandBankLocation.objects.all().order_by('-id')
