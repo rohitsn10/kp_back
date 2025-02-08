@@ -61,7 +61,7 @@ class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            project_id = request.query_param.get('project_id')
+            project_id = request.query_params.get('project_id')
             if project_id:
                 queryset = self.filter_queryset(self.get_queryset().filter(project_id=project_id)).order_by('-id')
             else:
