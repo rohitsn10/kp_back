@@ -418,7 +418,11 @@ class Wo_Po_DataCreateViewset(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            project_id = request.query_params.get('project_id')
+            if project_id:
+                queryset = self.filter_queryset(self.get_queryset().filter(project_id=project_id)).order_by('-id')
+            else:
+                queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "WO/PO List Successfully", "data": data})
