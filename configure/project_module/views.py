@@ -971,6 +971,30 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": f"Error updating project: {str(e)}", "data": []})
+        
+class ProjectIdWIseGetProjectDataViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectSerializer
+    lookup_field = 'project_id'
+
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = self.kwargs.get("project_id")
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required."})
+            
+            project_data = Project.objects.get(id=project_id)
+
+            if not project_data:
+                return Response({"status": False, "message": "Project not found."})
+            
+            
+            serializer = ProjectSerializer(project_data,context = {'request': request})
+            data = serializer.data
+            
+            return Response({"status": True, "message": "Project data fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error fetching project data: {str(e)}", "data": []})
 
 
 
