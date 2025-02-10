@@ -164,7 +164,23 @@ class ProjectExpenseUpdateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
+class ProjectIdWIseGetExpenseDataViewSet(viewsets.ModelViewSet):
+    queryset = ExpenseTracking.objects.all()
+    serializer_class = ExpenseTrackingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'project_id'
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = kwargs.get('project_id')
+            if not project_id:
+                return Response({"status": False, "message": "Project Id is required", "data": []})
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Expense List Successfully", "data": data})
 
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
 class ClientDataCreateViewset(viewsets.ModelViewSet):
     queryset = ClientDetails.objects.all()
     serializer_class = ClientDetailsSerializer
@@ -427,7 +443,29 @@ class ProjectClientUpdateViewset(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Client Updated Successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
+
+class ProjectIdWIseGetClientDataViewSet(viewsets.ModelViewSet):
+    queryset = ClientDetails.objects.all()
+    serializer_class = ClientDetailsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'project_id'
+
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = kwargs.get("project_id")
+            if not project_id:
+                return Response({"status": False, "message": "Project Id is required", "data": []})
+            project_obj = Project.objects.get(id=project_id)
+            if not project_obj:
+                return Response({"status": False, "message": "Project not found", "data": []})
+            client_obj = self.filter_queryset(self.get_queryset()).order_by('-id')
+            if not client_obj:
+                return Response({"status": False, "message": "Client not found", "data": []})
+            serializer = self.serializer_class(client_obj, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Client data fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
 
 
 class Wo_Po_DataCreateViewset(viewsets.ModelViewSet):
