@@ -165,6 +165,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land.village_name = village_name
             land.taluka_name = taluka_name
             land.total_land_area = total_land_area
+            land.remaining_land_area = total_land_area
             land.tahshil_name = tahshil_name
 
             # Attach the files if provided
@@ -341,6 +342,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 land_bank.tahshil_name = tahshil_name
             if total_land_area:
                 land_bank.total_land_area = total_land_area
+                land_bank.remaining_land_area = total_land_area
 
             land_bank.save()
                 
