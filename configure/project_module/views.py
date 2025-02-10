@@ -88,8 +88,9 @@ class ProjectExpenseUpdateViewset(viewsets.ModelViewSet):
             expense_amount = request.data.get('expense_amount')
             notes = request.data.get('notes')
 
-            expense_document_attachments = request.FILES.getlist('expense_document_attachments')  # Handle multiple files
-            # Validation checks
+            expense_document_attachments = request.FILES.getlist('expense_document_attachments') or []
+            remove_expense_document_attachments = request.data.get('remove_expense_document_attachments', [])
+
             if not expense_id:
                 return Response({"status": False, "message": "Expense Id is required", "data": []})
             expense_obj = ExpenseTracking.objects.get(id=expense_id)
@@ -113,21 +114,32 @@ class ProjectExpenseUpdateViewset(viewsets.ModelViewSet):
             if not expense_amount:
                 return Response({"status": False, "message": "Expense amount is required", "data": []})
 
-            expense_obj.user = user
-            expense_obj.project = project
-            expense_obj.category = category
-            expense_obj.expense_name = expense_name
-            expense_obj.expense_amount = expense_amount
-            expense_obj.notes = notes
+            if project:
+                expense_obj.project = project
+            if category:
+                expense_obj.category = category
+            if expense_name:
+                expense_obj.expense_name = expense_name
+            if expense_amount:
+                expense_obj.expense_amount = expense_amount
+            if notes:
+                expense_obj.notes = notes
             expense_obj.save()
 
             if expense_document_attachments:
-                expense_obj.expense_document_attachments.clear()
                 for file in expense_document_attachments:
-                    attachment = ExpenseProjectAttachments.objects.create(
-                        user=user, expense_project_attachments=file
-                    )
+                    attachment = ExpenseProjectAttachments.objects.create(user=user, expense_project_attachments=file)
                     expense_obj.expense_document_attachments.add(attachment)
+
+            if remove_expense_document_attachments:
+                for attachment_id in remove_expense_document_attachments:
+                    try:
+                        attachment = ExpenseProjectAttachments.objects.get(id=attachment_id)
+                        expense_obj.expense_document_attachments.remove(attachment)
+                        attachment.delete()
+                    except ExpenseProjectAttachments.DoesNotExist:
+                        continue
+
 
             serializer = ExpenseTrackingSerializer(expense_obj, context={'request': request})
             data = serializer.data
@@ -273,14 +285,20 @@ class ProjectClientUpdateViewset(viewsets.ModelViewSet):
             client_name = request.data.get('client_name')
             contact_number = request.data.get('contact_number')
             email = request.data.get('email')
-            gst = request.data.get('gst')
-            pan_number = request.data.get('pan_number')
+            gst = request.data.get('gst').upper()
+            pan_number = request.data.get('pan_number').upper()
 
             msme_certificate = request.FILES.getlist('msme_certificate') or []
             adhar_card = request.FILES.getlist('adhar_card') or []
             pan_card = request.FILES.getlist('pan_card') or []
             third_authority_adhar_card_attachments = request.FILES.getlist('third_authority_adhar_card_attachments') or []
             third_authortity_pan_card_attachments = request.FILES.getlist('third_authortity_pan_card_attachments') or []
+
+            remove_msme_certificate = request.data.get('remove_msme_certificate', []) or []
+            remove_adhar_card = request.data.get('remove_adhar_card',[]) or []
+            remove_pan_card = request.data.get('remove_pan_card',[]) or []
+            remove_third_authority_adhar_card_attachments = request.data.get('remove_third_authority_adhar_card_attachments',[]) or []
+            remove_third_authortity_pan_card_attachments = request.data.get('remove_third_authortity_pan_card_attachments',[]) or []
 
             captive_rec_nonrec_rpo = request.data.get('captive_rec_nonrec_rpo')
             declaration_of_getco = request.data.get('declaration_of_getco')
@@ -292,51 +310,112 @@ class ProjectClientUpdateViewset(viewsets.ModelViewSet):
             moa_partnership = request.data.get('moa_partnership')
             board_authority_signing = request.data.get('board_authority_signing')
 
-            client_obj.client_name = client_name
-            client_obj.contact_number = contact_number
-            client_obj.email = email
-            client_obj.gst = gst
-            client_obj.pan_number = pan_number
-            client_obj.captive_rec_nonrec_rpo = captive_rec_nonrec_rpo
-            client_obj.declaration_of_getco = declaration_of_getco
-            client_obj.undertaking_geda = undertaking_geda
-            client_obj.authorization_to_epc = authorization_to_epc
-            client_obj.last_3_year_turn_over_details = last_3_year_turn_over_details
-            client_obj.factory_end = factory_end
-            client_obj.cin = cin
-            client_obj.moa_partnership = moa_partnership
-            client_obj.board_authority_signing = board_authority_signing
-            client_obj.save()
+            if client_name:
+                client_obj.client_name = client_name
+            if contact_number:
+                client_obj.contact_number = contact_number
+            if email:
+                client_obj.email = email
+            if gst:
+                client_obj.gst = gst
+            if pan_number:
+                client_obj.pan_number = pan_number
+            if captive_rec_nonrec_rpo:
+                client_obj.captive_rec_nonrec_rpo = captive_rec_nonrec_rpo
+            if declaration_of_getco:
+                client_obj.declaration_of_getco = declaration_of_getco
+            if undertaking_geda:
+                client_obj.undertaking_geda = undertaking_geda
+            if authorization_to_epc:
+                client_obj.authorization_to_epc = authorization_to_epc
+            if last_3_year_turn_over_details:
+                client_obj.last_3_year_turn_over_details = last_3_year_turn_over_details
+            if factory_end:
+                client_obj.factory_end = factory_end
+            if cin:
+                client_obj.cin = cin
+            if moa_partnership:
+                client_obj.moa_partnership = moa_partnership
+            if board_authority_signing:
+                client_obj.board_authority_signing = board_authority_signing
+        
 
             if msme_certificate:
-                client_obj.msme_certificate.clear()
                 for file in msme_certificate:
                     attachment = MsMeCertificateAttachments.objects.create(user=request.user, msme_certificate_attachments=file)
-                    client_obj.msme_certificate.add(attachment)
+                    client_obj.msme_certificate_attachments.add(attachment)
 
             if adhar_card:
-                client_obj.adhar_card.clear()
                 for file in adhar_card:
                     attachment = AdharCardAttachments.objects.create(user=request.user, adhar_card_attachments=file)
-                    client_obj.adhar_card.add(attachment)
+                    client_obj.adhar_card_attachments.add(attachment)
 
             if pan_card:
-                client_obj.pan_card.clear()
                 for file in pan_card:
                     attachment = PanCardAttachments.objects.create(user=request.user, pan_card_attachments=file)
-                    client_obj.pan_card.add(attachment)
+                    client_obj.pan_card_attachments.add(attachment)
 
             if third_authority_adhar_card_attachments:
-                client_obj.third_authority_adhar_card_attachments.clear()
                 for file in third_authority_adhar_card_attachments:
                     attachment = ThirdAuthorityAdharCardAttachments.objects.create(user=request.user, third_authority_adhar_card_attachments=file)
                     client_obj.third_authority_adhar_card_attachments.add(attachment)
 
             if third_authortity_pan_card_attachments:
-                client_obj.third_authortity_pan_card_attachments.clear()
                 for file in third_authortity_pan_card_attachments:
                     attachment = ThirdAuthorityPanCardAttachments.objects.create(user=request.user, third_authority_pan_card_attachments=file)
-                    client_obj.third_authortity_pan_card_attachments.add(attachment)
+                    client_obj.third_authority_pan_card_attachments.add(attachment)
+
+            if remove_msme_certificate:
+                if isinstance(remove_msme_certificate, str):
+                    remove_msme_certificate = [int(file_id) for file_id in remove_msme_certificate.split(',')]
+                else:
+                    remove_msme_certificate = [int(file_id) for file_id in remove_msme_certificate]
+                for attachment_id in remove_msme_certificate:
+                    attachment = MsMeCertificateAttachments.objects.get(id=attachment_id)
+                    client_obj.msme_certificate_attachments.remove(attachment)
+                    attachment.delete()
+
+            if remove_adhar_card:
+                if isinstance(remove_adhar_card, str):
+                    remove_adhar_card = [int(file_id) for file_id in remove_adhar_card.split(',')]
+                else:
+                    remove_adhar_card = [int(file_id) for file_id in remove_adhar_card]
+                for attachment_id in remove_adhar_card:
+                    attachment = AdharCardAttachments.objects.get(id=attachment_id)
+                    client_obj.adhar_card_attachments.remove(attachment)
+                    attachment.delete()
+
+            if remove_pan_card:
+                if isinstance(remove_pan_card, str):
+                    remove_pan_card = [int(file_id) for file_id in remove_pan_card.split(',')]
+                else:
+                    remove_pan_card = [int(file_id) for file_id in remove_pan_card]
+                for attachment_id in remove_pan_card:
+                    attachment = PanCardAttachments.objects.get(id=attachment_id)
+                    client_obj.pan_card_attachments.remove(attachment)
+                    attachment.delete()
+
+            if remove_third_authority_adhar_card_attachments:
+                if isinstance(remove_third_authority_adhar_card_attachments, str):
+                    remove_third_authority_adhar_card_attachments = [int(file_id) for file_id in remove_third_authority_adhar_card_attachments.split(',')]
+                else:
+                    remove_third_authority_adhar_card_attachments = [int(file_id) for file_id in remove_third_authority_adhar_card_attachments]
+                for attachment_id in remove_third_authority_adhar_card_attachments:
+                    attachment = ThirdAuthorityAdharCardAttachments.objects.get(id=attachment_id)
+                    client_obj.third_authority_adhar_card_attachments.remove(attachment)
+                    attachment.delete()
+
+            if remove_third_authortity_pan_card_attachments:
+                if isinstance(remove_third_authortity_pan_card_attachments, str):
+                    remove_third_authortity_pan_card_attachments = [int(file_id) for file_id in remove_third_authortity_pan_card_attachments.split(',')]
+                else:
+                    remove_third_authortity_pan_card_attachments = [int(file_id) for file_id in remove_third_authortity_pan_card_attachments]
+                for attachment_id in remove_third_authortity_pan_card_attachments:
+                    attachment = ThirdAuthorityPanCardAttachments.objects.get(id=attachment_id)
+                    client_obj.third_authority_pan_card_attachments.remove(attachment)
+                    attachment.delete()
+
+            client_obj.save()
 
             serializer = self.serializer_class(client_obj, context={'request': request})
             data = serializer.data
