@@ -89,7 +89,7 @@ class ProjectExpenseUpdateViewset(viewsets.ModelViewSet):
             notes = request.data.get('notes')
 
             expense_document_attachments = request.FILES.getlist('expense_document_attachments') or []
-            remove_expense_document_attachments = request.data.get('remove_expense_document_attachments', [])
+            remove_expense_document_attachments = request.data.get('remove_expense_document_attachments', []) or []
 
             if not expense_id:
                 return Response({"status": False, "message": "Expense Id is required", "data": []})
@@ -132,6 +132,10 @@ class ProjectExpenseUpdateViewset(viewsets.ModelViewSet):
                     expense_obj.expense_document_attachments.add(attachment)
 
             if remove_expense_document_attachments:
+                if isinstance(remove_expense_document_attachments, str):
+                    remove_expense_document_attachments = [int(file_id) for file_id in remove_expense_document_attachments.split(',')]
+                else:
+                    remove_expense_document_attachments = [int(file_id) for file_id in remove_expense_document_attachments]
                 for attachment_id in remove_expense_document_attachments:
                     try:
                         attachment = ExpenseProjectAttachments.objects.get(id=attachment_id)
