@@ -132,6 +132,7 @@ class ClientDetails(models.Model):
     board_authority_signing = models.CharField(max_length=100,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_client_created = models.BooleanField(default=False, null=True, blank=True)
 
 
 class LOIAttachments(models.Model):
