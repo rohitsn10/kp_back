@@ -225,6 +225,7 @@ class ClientDataCreateViewset(viewsets.ModelViewSet):
                 cin=cin,
                 moa_partnership=moa_partnership,
                 board_authority_signing=board_authority_signing,
+                is_client_created=True
             )
 
             if msme_certificate:

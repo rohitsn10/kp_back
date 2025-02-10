@@ -131,7 +131,7 @@ class ClientDetailsSerializer(serializers.ModelSerializer):
         fields = ['id','user','user_full_name','project','project_name','client_name','contact_number','email','gst','pan_number',
                   'msme_certificate_attachments','adhar_card_attachments','pan_card_attachments','third_authority_adhar_card_attachments','third_authority_pan_card_attachments','captive_rec_nonrec_rpo',
                   'declaration_of_getco','undertaking_geda','authorization_to_epc','last_3_year_turn_over_details','factory_end','cin','moa_partnership',
-                  'board_authority_signing','captive_rec_nonrec_rpo']
+                  'board_authority_signing','captive_rec_nonrec_rpo','is_client_created']
         
 
     def get_msme_certificate_attachments(self, obj):
