@@ -835,7 +835,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 alloted_land_area=alloted_land_area,
                 available_land_area=available_land_area
             )
-
+            land_remaining_area = landbank_ins.remaining_land_area
+            print(land_remaining_area)
+            landbank_ins.remaining_land_area = float(land_remaining_area) - float(alloted_land_area)
+            landbank_ins.save()
             # Add ManyToMany relationships
             # if location_survey:
             #     project.location_survey.set(location_survey)
@@ -1010,6 +1013,32 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": f"Error updating project: {str(e)}", "data": []})
         
+    def destroy(self, request, *args, **kwargs):
+        try:
+            project_id = self.kwargs.get("project_id")
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required."})
+            
+            project_data = Project.objects.get(id=project_id)
+            
+            if not project_data:
+                return Response({"status": False, "message": "Project not found."})
+            
+            land_bank_instance = project_data.landbank
+            alloted_area = project_data.alloted_land_area
+
+            if land_bank_instance and alloted_area:
+                updated_remaining_land_area = float(land_bank_instance.remaining_land_area) + float(alloted_area)
+                land_bank_instance.remaining_land_area = updated_remaining_land_area
+                land_bank_instance.save()
+
+            project_data.delete()
+
+            return Response({"status": True, "message": "Project deleted successfully."})
+
+        except Exception as e:
+            return Response({"status": False, "message": f"Error deleting project: {str(e)}", "data": []})
+  
 class ProjectIdWIseGetProjectDataViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectSerializer
