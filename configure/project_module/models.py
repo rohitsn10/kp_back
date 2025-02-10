@@ -115,11 +115,11 @@ class ClientDetails(models.Model):
     gst = models.CharField(max_length=100,null=True, blank=True)
     pan_number = models.CharField(max_length=100,null=True, blank=True)
 
-    msme_certificate = models.ManyToManyField(MsMeCertificateAttachments)
-    adhar_card = models.ManyToManyField(AdharCardAttachments)
-    pan_card = models.ManyToManyField(PanCardAttachments)
+    msme_certificate_attachments = models.ManyToManyField(MsMeCertificateAttachments)
+    adhar_card_attachments = models.ManyToManyField(AdharCardAttachments)
+    pan_card_attachments = models.ManyToManyField(PanCardAttachments)
     third_authority_adhar_card_attachments = models.ManyToManyField(ThirdAuthorityAdharCardAttachments)
-    third_authortity_pan_card_attachments = models.ManyToManyField(ThirdAuthorityPanCardAttachments)
+    third_authority_pan_card_attachments = models.ManyToManyField(ThirdAuthorityPanCardAttachments)
     
     captive_rec_nonrec_rpo = models.CharField(max_length=100, choices=CAPTIVE_REC_NONREC_RPO_CHOICES, null=True, blank=True)
     declaration_of_getco = models.TextField(null=True, blank=True)

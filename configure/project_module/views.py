@@ -213,34 +213,28 @@ class ClientDataCreateViewset(viewsets.ModelViewSet):
 
             if msme_certificate:
                 for file in msme_certificate:
-                    if hasattr(file, 'name'):
-                        # Use the correct field name 'msme_certificate_attachments'
-                        attachment = MsMeCertificateAttachments.objects.create(user=user, msme_certificate_attachments=file)
-                        client_obj.msme_certificate.add(attachment)
+                    attachment = MsMeCertificateAttachments.objects.create(user=user, msme_certificate_attachments=file)
+                    client_obj.msme_certificate_attachments.add(attachment)
 
             if adhar_card:
-                if hasattr(file, 'name'):
-                    # Use the correct field name 'adhar_card_attachments'
+                for file in adhar_card:
                     attachment = AdharCardAttachments.objects.create(user=user, adhar_card_attachments=file)
-                    client_obj.adhar_card.add(attachment)
+                    client_obj.adhar_card_attachments.add(attachment)
 
             if pan_card:
-                if hasattr(file, 'name'):
-                    # Use the correct field name 'pan_card_attachments'
+                for file in pan_card:
                     attachment = PanCardAttachments.objects.create(user=user, pan_card_attachments=file)
-                    client_obj.pan_card.add(attachment)
+                    client_obj.pan_card_attachments.add(attachment)
 
             if third_authority_adhar_card_attachments:
-                if hasattr(file, 'name'):
-                    # Use the correct field name 'third_authority_adhar_card_attachments'
+                for file in third_authority_adhar_card_attachments:
                     attachment = ThirdAuthorityAdharCardAttachments.objects.create(user=user, third_authority_adhar_card_attachments=file)
                     client_obj.third_authority_adhar_card_attachments.add(attachment)
 
             if third_authortity_pan_card_attachments:
-                if hasattr(file, 'name'):
-                    # Use the correct field name 'third_authority_pan_card_attachments'
+                for file in third_authortity_pan_card_attachments:
                     attachment = ThirdAuthorityPanCardAttachments.objects.create(user=user, third_authority_pan_card_attachments=file)
-                    client_obj.third_authortity_pan_card_attachments.add(attachment)
+                    client_obj.third_authority_pan_card_attachments.add(attachment)
 
 
             serializer = self.serializer_class(client_obj,context={'request': request})

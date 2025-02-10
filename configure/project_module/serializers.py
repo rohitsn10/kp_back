@@ -120,34 +120,34 @@ class ProjectSerializer(serializers.ModelSerializer):
 class ClientDetailsSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     project_name = serializers.CharField(source='project.project_name', read_only=True)
-    msme_certificate = serializers.SerializerMethodField()
-    adhar_card = serializers.SerializerMethodField()
-    pan_card = serializers.SerializerMethodField()
+    msme_certificate_attachments = serializers.SerializerMethodField()
+    adhar_card_attachments = serializers.SerializerMethodField()
+    pan_card_attachments = serializers.SerializerMethodField()
     third_authority_adhar_card_attachments = serializers.SerializerMethodField()
-    third_authortity_pan_card_attachments = serializers.SerializerMethodField()
+    third_authority_pan_card_attachments = serializers.SerializerMethodField()
 
     class Meta:
         model = ClientDetails
         fields = ['id','user','user_full_name','project','project_name','client_name','contact_number','email','gst','pan_number',
-                  'msme_certificate','adhar_card','pan_card','third_authority_adhar_card_attachments','third_authortity_pan_card_attachments','captive_rec_nonrec_rpo',
+                  'msme_certificate_attachments','adhar_card_attachments','pan_card_attachments','third_authority_adhar_card_attachments','third_authority_pan_card_attachments','captive_rec_nonrec_rpo',
                   'declaration_of_getco','undertaking_geda','authorization_to_epc','last_3_year_turn_over_details','factory_end','cin','moa_partnership',
                   'board_authority_signing','captive_rec_nonrec_rpo']
         
 
-    def get_msme_certificate(self, obj):
-        return get_client_details_file_data(self.context.get('request'), obj, 'msme_certificate_attachments')
+    def get_msme_certificate_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'msme_certificate_attachments')
 
-    def get_adhar_card(self, obj):
-        return get_client_details_file_data(self.context.get('request'), obj, 'adhar_card_attachments')
+    def get_adhar_card_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'adhar_card_attachments')
     
-    def get_pan_card(self, obj):
-        return get_client_details_file_data(self.context.get('request'), obj, 'pan_card_attachments')
+    def get_pan_card_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'pan_card_attachments')
     
     def get_third_authority_adhar_card_attachments(self, obj):
-        return get_client_details_file_data(self.context.get('request'), obj, 'third_authority_adhar_card_attachments')
+        return get_file_data(self.context.get('request'), obj, 'third_authority_adhar_card_attachments')
     
-    def get_third_authortity_pan_card_attachments(self, obj):
-        return get_client_details_file_data(self.context.get('request'), obj, 'third_authority_pan_card_attachments')
+    def get_third_authority_pan_card_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'third_authority_pan_card_attachments')
     
     def to_representation(self, instance):
         representation = super().to_representation(instance)
