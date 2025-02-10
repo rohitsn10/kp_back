@@ -174,7 +174,7 @@ class ProjectIdWIseGetExpenseDataViewSet(viewsets.ModelViewSet):
             project_id = kwargs.get('project_id')
             if not project_id:
                 return Response({"status": False, "message": "Project Id is required", "data": []})
-            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            queryset = ExpenseTracking.objects.filter(project=project_id).order_by('-id')
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Expense List Successfully", "data": data})
@@ -458,7 +458,7 @@ class ProjectIdWIseGetClientDataViewSet(viewsets.ModelViewSet):
             project_obj = Project.objects.get(id=project_id)
             if not project_obj:
                 return Response({"status": False, "message": "Project not found", "data": []})
-            client_obj = self.filter_queryset(self.get_queryset()).order_by('-id')
+            client_obj = ClientDetails.objects.filter(project_id=project_id)
             if not client_obj:
                 return Response({"status": False, "message": "Client not found", "data": []})
             serializer = self.serializer_class(client_obj, many=True, context={'request': request})
