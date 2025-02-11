@@ -99,10 +99,30 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land_bank_id = request.data.get('land_bank_id')
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
+            old_block_number = request.data.get('old_block_number')
+            new_block_number = request.data.get('new_block_number')
+            sale_deed_date = request.data.get('sale_deed_date')
+            lease_deed_number = request.data.get('lease_deed_number')
+
             survey_number = request.data.get('survey_number')
             village_name = request.data.get('village_name')
-            taluka_name = request.data.get('taluka_name')
-            tahshil_name = request.data.get('tahshil_name')
+            district_name = request.data.get('district_name')
+            taluka_tahshil_name = request.data.get('taluka_tahshil_name')
+            propose_gss_number = request.data.get('propose_gss_number')
+            land_co_ordinates = request.data.get('land_co_ordinates')
+            land_status = request.data.get('land_status')
+            area_meters = request.data.get('area_meters')
+            area_acres = request.data.get('area_acres')
+            industrial_jantri = request.data.get('industrial_jantri')
+            jantri_value = request.data.get('jantri_value')
+            mort_gaged = request.data.get('mort_gaged')
+            seller_name = request.data.get('seller_name')
+            buyer_name = request.data.get('buyer_name')
+            actual_bucket = request.data.get('actual_bucket')
+            remarks = request.data.get('remarks')
+            index_number = request.data.get('index_number')
+            tcr = request.data.get('tcr')
+            advocate_name = request.data.get('advocate_name')
             total_land_area = request.data.get('total_land_area')
 
             land_location_files = request.FILES.getlist('land_location_files') or []
@@ -111,7 +131,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land_attach_approval_report_files = request.FILES.getlist('land_attach_approval_report_files') or []
             land_approach_road_files = request.FILES.getlist('land_approach_road_files') or []
             land_co_ordinates_files = request.FILES.getlist('land_co_ordinates_files') or []
-            land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files') or []
+            land_lease_deed_files = request.FILES.getlist('land_lease_deed_files') or []
             land_transmission_line_files = request.FILES.getlist('land_transmission_line_files') or []
 
             if not land_bank_id:
@@ -122,18 +142,76 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
 
             if not land_name:
                 return Response({"status": False, "message": "Land name is required", "data": []})
+            
+            if not old_block_number:
+                return Response({"status": False, "message": "Old block number is required", "data": []})
+            
+            if not new_block_number:
+                return Response({"status": False, "message": "New block number is required", "data": []})
+            
+            if not sale_deed_date:
+                return Response({"status": False, "message": "Sale deed date is required", "data": []})
+            
+            if not lease_deed_number:
+                return Response({"status": False, "message": "Lease deed number is required", "data": []})
+            
 
             if not survey_number:
                 return Response({"status": False, "message": "Survey number is required", "data": []})
 
             if not village_name:
                 return Response({"status": False, "message": "Village name is required", "data": []})
+            
+            if not district_name:
+                return Response({"status": False, "message": "District name is required", "data": []})
 
-            if not taluka_name:
-                return Response({"status": False, "message": "Taluka name is required", "data": []})
-
-            if not tahshil_name:
-                return Response({"status": False, "message": "Tahshil name is required", "data": []})
+            if not taluka_tahshil_name:
+                return Response({"status": False, "message": "Taluka Tahsil name is required", "data": []})
+            
+            if not propose_gss_number:
+                return Response({"status": False, "message": "Propose GSS number is required", "data": []})
+            
+            if not land_co_ordinates:
+                return Response({"status": False, "message": "Land co-ordinates are required", "data": []})
+            
+            if not land_status:
+                return Response({"status": False, "message": "Land status is required", "data": []})
+            
+            if not area_meters:
+                return Response({"status": False, "message": "Area in meters is required", "data": []})
+            
+            if not area_acres:
+                return Response({"status": False, "message": "Area in acres is required", "data": []})
+            
+            if not industrial_jantri:
+                return Response({"status": False, "message": "Industrial Jantri is required", "data": []})
+            
+            if not jantri_value:
+                return Response({"status": False, "message": "Jantri value is required", "data": []})
+            
+            if not mort_gaged:
+                return Response({"status": False, "message": "Mort gaged is required", "data": []})
+            
+            if not seller_name:
+                return Response({"status": False, "message": "Seller name is required", "data": []})
+            
+            if not buyer_name:
+                return Response({"status": False, "message": "Buyer name is required", "data": []})
+            
+            if not actual_bucket:
+                return Response({"status": False, "message": "Actual bucket is required", "data": []})
+            
+            if not remarks:
+                return Response({"status": False, "message": "Remarks are required", "data": []})
+            
+            if not index_number:
+                return Response({"status": False, "message": "Index number is required", "data": []})
+            
+            if not tcr:
+                return Response({"status": False, "message": "TCR is required", "data": []})
+            
+            if not advocate_name:
+                return Response({"status": False, "message": "Advocate name is required", "data": []})
             
             if not total_land_area:
                 return Response({"status": False, "message": "Total land area is required", "data": []})
@@ -152,8 +230,8 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             if not land_co_ordinates_files:
                 return Response({"status": False, "message": "Land co-ordinates files are required", "data": []})
             
-            if not land_proposed_gss_files:
-                return Response({"status": False, "message": "Land proposed GSS files are required", "data": []})
+            if not land_lease_deed_files:
+                return Response({"status": False, "message": "Land Lease Deed files are required", "data": []})
             
             land = LandBankMaster.objects.get(id=land_bank_id)
             if not land:
@@ -161,12 +239,31 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
 
             land.land_category = land_category
             land.land_name = land_name
+            land.old_block_number = old_block_number
+            land.new_block_number = new_block_number
+            land.sale_deed_date = sale_deed_date
+            land.lease_deed_number = lease_deed_number
             land.survey_number = survey_number
             land.village_name = village_name
-            land.taluka_name = taluka_name
+            land.district_name = district_name
+            land.taluka_tahshil_name = taluka_tahshil_name
+            land.propose_gss_number = propose_gss_number
+            land.land_co_ordinates = land_co_ordinates
+            land.land_status = land_status
+            land.area_meters = area_meters
+            land.area_acres = area_acres
+            land.industrial_jantri = industrial_jantri
+            land.jantri_value = jantri_value
+            land.mort_gaged = mort_gaged
+            land.seller_name = seller_name
+            land.buyer_name = buyer_name
+            land.actual_bucket = actual_bucket
+            land.remarks = remarks
+            land.index_number = index_number
+            land.tcr = tcr
+            land.advocate_name = advocate_name
             land.total_land_area = total_land_area
             land.remaining_land_area = total_land_area
-            land.tahshil_name = tahshil_name
 
             # Attach the files if provided
             if land_location_files:
@@ -193,10 +290,10 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 for file in land_co_ordinates_files:
                     land_co_ordinates_attachments = LandCoOrdinatesAttachment.objects.create(user=user, land_co_ordinates_file=file)
                     land.land_co_ordinates_file.add(land_co_ordinates_attachments)
-            if land_proposed_gss_files:
-                for file in land_proposed_gss_files:
-                    land_proposed_gss_attachments = LandProposedGssAttachment.objects.create(user=user, land_proposed_gss_file=file)
-                    land.land_proposed_gss_file.add(land_proposed_gss_attachments)
+            if land_lease_deed_files:
+                for file in land_lease_deed_files:
+                    land_lease_deed_attachments = LandLeaseDeedAttachment.objects.create(user=user, land_lease_deed_file=file)
+                    land.lease_deed_file.add(land_lease_deed_attachments)
             if land_transmission_line_files:
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
@@ -276,19 +373,39 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_bank_id = self.kwargs.get('land_bank_id')
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
+            old_block_number = request.data.get('old_block_number')
+            new_block_number = request.data.get('new_block_number')
+            sale_deed_date = request.data.get('sale_deed_date')
+            lease_deed_number = request.data.get('lease_deed_number')
             solar_or_winds = request.data.get('solar_or_winds')
             survey_number = request.data.get('survey_number')
-            taluka_name = village_name = request.data.get('taluka_name')
-            tahshil_name = village_name = request.data.get('tahshil_name')
-            total_land_area = village_name = request.data.get('total_land_area')
-
+            taluka_tahshil_name = request.data.get('taluka_tahshil_name')
+            total_land_area = request.data.get('total_land_area')
+            village_name = request.data.get('village_name')
+            district_name = request.data.get('district_name')
+            taluka_tahshil_name = request.data.get('taluka_tahshil_name')
+            propose_gss_number = request.data.get('propose_gss_number')
+            land_co_ordinates = request.data.get('land_co_ordinates')
+            land_status = request.data.get('land_status')
+            area_meters = request.data.get('area_meters')
+            area_acres = request.data.get('area_acres')
+            industrial_jantri = request.data.get('industrial_jantri')
+            jantri_value = request.data.get('jantri_value')
+            mort_gaged = request.data.get('mort_gaged')
+            seller_name = request.data.get('seller_name')
+            buyer_name = request.data.get('buyer_name')
+            actual_bucket = request.data.get('actual_bucket')
+            remarks = request.data.get('remarks')
+            index_number = request.data.get('index_number')
+            tcr = request.data.get('tcr')
+            advocate_name = request.data.get('advocate_name')
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
             land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
             land_attach_approval_report_files = request.FILES.getlist('land_attach_approval_report_files') or []
             land_approach_road_files = request.FILES.getlist('land_approach_road_files') or []
             land_co_ordinates_files = request.FILES.getlist('land_co_ordinates_files') or []
-            land_proposed_gss_files = request.FILES.getlist('land_proposed_gss_files') or []
+            land_lease_deed_files = request.FILES.getlist('land_lease_deed_files') or []
             land_transmission_line_files = request.FILES.getlist('land_transmission_line_files') or []
             
 
@@ -298,7 +415,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_attach_approval_report_files_to_remove = request.data.get('land_attach_approval_report_files_to_remove', [])
             land_approach_road_files_to_remove = request.data.get('land_approach_road_files_to_remove', [])
             land_co_ordinates_files_to_remove = request.data.get('land_co_ordinates_files_to_remove', [])
-            land_proposed_gss_files_to_remove = request.data.get('land_proposed_gss_files_to_remove', [])
+            land_lease_deed_files_to_remove = request.data.get('land_lease_deed_files_to_remove', [])
             land_transmission_line_files_to_remove = request.data.get('land_transmission_line_files_to_remove', [])
             approved_report_files_to_remove = request.data.get('approved_report_files_to_remove', [])
 
@@ -308,7 +425,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_attach_approval_report_files_to_remove = process_file_ids(land_attach_approval_report_files_to_remove)
             land_approach_road_files_to_remove = process_file_ids(land_approach_road_files_to_remove)
             land_co_ordinates_files_to_remove = process_file_ids(land_co_ordinates_files_to_remove)
-            land_proposed_gss_files_to_remove = process_file_ids(land_proposed_gss_files_to_remove)
+            land_lease_deed_files_to_remove = process_file_ids(land_lease_deed_files_to_remove)
             land_transmission_line_files_to_remove = process_file_ids(land_transmission_line_files_to_remove)
             approved_report_files_to_remove = process_file_ids(approved_report_files_to_remove)
 
@@ -317,7 +434,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
 
             if not land_name:
                 return Response({"status": False, "message": "Land name is required", "data": []})
-
+            
             if not solar_or_winds:
                 return Response({"status": False, "message": "Please select solar or wind", "data": []})
             
@@ -334,15 +451,43 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 land_bank.solar_or_winds = solar_or_winds
             if survey_number:
                 land_bank.survey_number = survey_number
-            if village_name:
-                land_bank.village_name = village_name
-            if taluka_name:
-                land_bank.taluka_name = taluka_name
-            if tahshil_name:
-                land_bank.tahshil_name = tahshil_name
+            if taluka_tahshil_name:
+                land_bank.taluka_tahshil_name = taluka_tahshil_name
             if total_land_area:
                 land_bank.total_land_area = total_land_area
                 land_bank.remaining_land_area = total_land_area
+            if village_name:
+                land_bank.village_name = village_name
+            if district_name:
+                land_bank.district_name = district_name
+            if taluka_tahshil_name:
+                land_bank.taluka_tahshil_name = taluka_tahshil_name
+            if propose_gss_number:
+                land_bank.propose_gss_number = propose_gss_number
+            if land_co_ordinates:
+                land_bank.land_co_ordinates = land_co_ordinates
+            if land_status:
+                land_bank.land_status = land_status
+            if area_meters:
+                land_bank.area_meters = area_meters
+            if area_acres:
+                land_bank.area_acres = area_acres
+            if industrial_jantri:
+                land_bank.industrial_jantri = industrial_jantri
+            if jantri_value:
+                land_bank.jantri_value = jantri_value
+            if mort_gaged:
+                land_bank.mort_gaged = mort_gaged
+            if seller_name:
+                land_bank.seller_name = seller_name
+            if buyer_name:
+                land_bank.buyer_name = buyer_name
+            if remarks:
+                land_bank.remarks = remarks
+            if advocate_name:
+                land_bank.advocate_name = advocate_name
+            if tcr:
+                land_bank.tcr = tcr
 
             land_bank.save()
                 
@@ -400,13 +545,13 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                     except LandCoOrdinatesAttachment.DoesNotExist:
                         continue  
 
-            if land_proposed_gss_files_to_remove:
-                for file_id in land_proposed_gss_files_to_remove:
+            if land_lease_deed_files_to_remove:
+                for file_id in land_lease_deed_files_to_remove:
                     try:
-                        file_instance = LandProposedGssAttachment.objects.get(id=file_id)
-                        land_bank.land_proposed_gss_file.remove(file_instance)
+                        file_instance = LandLeaseDeedAttachment.objects.get(id=file_id)
+                        land_bank.lease_deed_file.remove(file_instance)
                         file_instance.delete()
-                    except LandProposedGssAttachment.DoesNotExist:
+                    except LandLeaseDeedAttachment.DoesNotExist:
                         continue
 
             if land_transmission_line_files_to_remove:
@@ -457,10 +602,10 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                     land_co_ordinates_attachments = LandCoOrdinatesAttachment.objects.create(user=land_bank.user, land_co_ordinates_file=file)
                     land_bank.land_co_ordinates_file.add(land_co_ordinates_attachments)
 
-            if land_proposed_gss_files:
-                for file in land_proposed_gss_files:
-                    land_proposed_gss_attachments = LandProposedGssAttachment.objects.create(user=land_bank.user, land_proposed_gss_file=file)
-                    land_bank.land_proposed_gss_file.add(land_proposed_gss_attachments)
+            if land_lease_deed_files:
+                for file in land_lease_deed_files:
+                    land_lease_deed_attachments = LandLeaseDeedAttachment.objects.create(user=land_bank.user, land_lease_deed_file=file)
+                    land_bank.lease_deed_file.add(land_lease_deed_attachments)
 
             if land_transmission_line_files:
                 for file in land_transmission_line_files:
