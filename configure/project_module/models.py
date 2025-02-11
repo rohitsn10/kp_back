@@ -9,6 +9,11 @@ class Company(models.Model):
     company_name = models.CharField(max_length=255,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
+
+class Electricity(models.Model):
+    electricity_line = models.CharField(max_length=255,null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
     
 class Project(models.Model):
     CI_UTILITY_CHOICES = [
@@ -21,15 +26,10 @@ class Project(models.Model):
         ('ipp', 'IPP'),
     ]
 
-
-    ELECTRICITY_LINE_CHOICES = [
-        ('11kv', '11KV'),
-        ('33kv', '33KV'),
-    ]
-
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='projects')
     landbank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE, related_name='landbank_data',null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
+    electricity_line = models.ForeignKey(Electricity, on_delete=models.CASCADE, related_name='electricity_line_name',null=True, blank=True)
     project_name = models.CharField(max_length=255)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -43,7 +43,6 @@ class Project(models.Model):
     project_activity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE, null=True, blank=True)
     project_sub_activity = models.ManyToManyField(SubActivityName)
     project_sub_sub_activity = models.ManyToManyField(SubSubActivityName)
-    electricity_line = models.CharField(max_length=5, choices=ELECTRICITY_LINE_CHOICES, null=True, blank=True)
     spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
     project_predication_date = models.DateTimeField(null=True, blank=True)
     available_land_area = models.CharField(null=True, blank=True)

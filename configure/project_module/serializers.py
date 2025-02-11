@@ -61,6 +61,10 @@ class ProjectSubSubActivityNameSerializer(serializers.ModelSerializer):
         # Return the name of the first associated sub_sub_activity
         return obj.sub_sub_activity.first().name if obj.sub_sub_activity.exists() else None
 
+class ElectricitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Electricity
+        fields = ['id', 'electricity_line', 'created_at', 'updated_at']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -70,13 +74,14 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_sub_activity = ProjectSubActivityNameSerializer(many=True, read_only=True)
     project_sub_sub_activity = ProjectSubSubActivityNameSerializer(many=True, read_only=True)
     landbank_name = serializers.CharField(source='landbank.land_name', read_only=True)
+    electricity_name = serializers.CharField(source='electricity_line.electricity_line', read_only=True)
 
     class Meta:
         model = Project
         fields = [
             'id', 'user', 'user_full_name', 'company', 'company_name', 'start_date', 'end_date',
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
-            'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'project_predication_date', 'created_at',
+            'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'project_predication_date', 'created_at',
             'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
             'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name',
         ]
