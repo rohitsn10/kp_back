@@ -699,6 +699,70 @@ class CompanyViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
+class ElectricityViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Electricity.objects.all()
+    serializer_class = ElectricitySerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            electricity_line = request.data.get('electricity_line')
+            if not electricity_line:
+                return Response({"status": False, "message": "Electricity Line is required"})
+            
+            electricity_obj = Electricity.objects.create(electricity_line=electricity_line)
+            serializer = self.serializer_class(electricity_obj)
+            data = serializer.data
+            return Response({"status": True, "message": "Electricity Line Created Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Electricity Line List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+class UpdateElectricityViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Electricity.objects.all()
+    serializer_class = ElectricitySerializer
+    lookuo_field = 'id'
+    def update(self, request, *args, **kwargs):
+        try:
+            electricity_id = self.kwargs.get('id')
+            electricity_obj = Electricity.objects.get(id=electricity_id)
+            electricity_line = request.data.get('electricity_line')
+
+            if not electricity_line:
+                return Response({"status": False, "message": "Electricity Line is required"})
+            
+            
+            electricity_obj.electricity_line = electricity_line
+            electricity_obj.save()
+
+            return Response({"status": True, "message": "Electricity Line Updated Successfully"})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+    def destroy(self, request, *args, **kwargs):
+        try:
+            electricity_id = self.kwargs.get('id')
+            if not electricity_id:
+                return Response({"status": False, "message": "Electricity Line Id is required"})
+            
+            electricity_obj = Electricity.objects.get(id=electricity_id)
+            electricity_obj.delete()
+            return Response({"status": True, "message": "Electricity Line deleted successfully"})
+        except Electricity.DoesNotExist:
+            return Response({"status": False, "message": "Electricity Line not found"})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
 class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Project.objects.all()
@@ -710,6 +774,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             user = self.request.user
             landbank_id = request.data.get('landbank_id')
             company_id = request.data.get('company_id')
+            electricity_line_id = request.data.get('electricity_line_id')
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
@@ -727,7 +792,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
             project_activity_id = request.data.get('project_activity_id')
-            electricity_line = request.data.get('electricity_line')
             spoc_user = request.data.get('spoc_user')
             project_predication_date = parse_date(request.data.get('project_predication_date'))
             project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
@@ -739,6 +803,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             if not company_id:
                 return Response({"status": False, "message": "Company ID is required."})
+            
+            if not electricity_line_id:
+                return Response({"status": False, "message": "Electricity line ID is required."})
 
             if not project_name:
                 return Response({"status": False, "message": "Project name is required."})
@@ -770,9 +837,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not project_activity_id:
                 return Response({"status": False, "message": "Project choice activity is required."})
 
-            if not electricity_line:
-                return Response({"status": False, "message": "Electricity line is required."})
-
             if not spoc_user:
                 return Response({"status": False, "message": "SPOC user is required."})
 
@@ -783,6 +847,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 company = Company.objects.get(id=company_id)
             except Company.DoesNotExist:
                 return Response({"status": False, "message": "Invalid company."})
+            
+            try:
+                electricity_line = Electricity.objects.get(id=electricity_line_id)
+            except Electricity.DoesNotExist:
+                return Response({"status": False, "message": "Invalid electricity line."})
             
             # try:
             #     location = LandBankLocation.objects.get(id=location_id)
@@ -819,6 +888,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project = Project.objects.create(
                 user=user,
                 company=company,
+                electricity_line=electricity_line,
                 landbank=landbank_ins,
                 project_name=project_name,
                 start_date=start_date,
@@ -829,7 +899,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 ci_or_utility=ci_or_utility,
                 cpp_or_ipp=cpp_or_ipp,
                 project_activity=project_activity,
-                electricity_line=electricity_line,
                 spoc_user_id=by_spoc_user.id,
                 project_predication_date=project_predication_date,
                 alloted_land_area=alloted_land_area,
@@ -952,7 +1021,7 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
             project_choice_activity = request.data.get('project_choice_activity')
-            electricity_line = request.data.get('electricity_line')
+            electricity_line_id = request.data.get('electricity_line_id')
             spoc_user = request.data.get('spoc_user')
             project_predication_date = parse_date(request.data.get('project_predication_date'))
 
@@ -989,8 +1058,12 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
                 project_object.cpp_or_ipp = cpp_or_ipp
             if project_choice_activity:
                 project_object.project_choice_activity = project_choice_activity
-            if electricity_line:
-                project_object.electricity_line = electricity_line
+            if electricity_line_id:
+                try:
+                    electricity_line = Electricity.objects.get(id=electricity_line_id)
+                    project_object.electricity_line = electricity_line
+                except Electricity.DoesNotExist:
+                    return Response({"status": False, "message": "Electricity line not found"})
             if spoc_user:
                 try:
                     spoc_user_object = CustomUser.objects.get(id=spoc_user)
