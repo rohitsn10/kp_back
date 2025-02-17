@@ -79,9 +79,9 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'id', 'user', 'user_full_name', 'company', 'company_name', 'start_date', 'end_date',
+            'id', 'user', 'user_full_name', 'company', 'company_name', 'start_date', 'end_date', 'project_predicted_date',
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
-            'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'project_predication_date', 'created_at',
+            'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'created_at',
             'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
             'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name',
         ]
@@ -195,4 +195,4 @@ class CompanySerializer(serializers.ModelSerializer):
 class ProjectMilestoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectMilestone
-        fields = ['id','project','start_date','end_date','milestone_name','milestone_description', 'is_active']
+        fields = ['id','project', 'project_main_activity', 'project_sub_activity', 'project_sub_sub_activity', 'start_date','end_date','milestone_name','milestone_description','completed_at', 'is_active', 'is_depended','milestone_status']

@@ -108,6 +108,39 @@ class ProjectActivityUpdateViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
         
 
+class MainProjectWiseProjectActivity(viewsets.ModelViewSet):
+    queryset = ProjectActivity.objects.all()
+    serializer_class = ProjectMainActivitySerializer
+    lookup_field = 'main_project_id'
+    def list(self, request, *args, **kwargs):
+        try:
+            main_project_id = kwargs.get('main_project_id')
+            if not main_project_id:
+                return Response({"status": False, "message": "Project not found."})
+            
+            queryset = self.get_queryset().filter(project=main_project_id)
+            
+            if queryset.exists():
+                serializer_data = []
+                for obj in queryset:
+                    context = {'request' : request}
+                    serializer = ProjectMainActivitySerializer(obj,context=context)
+                    serializer_data.append(serializer.data)
+                
+                return Response({
+                    "status": True,
+                    "message": "activity data fetched successfully",
+                    'data': serializer_data
+                })
+            else:
+                return Response({
+                    "status": True,
+                    "message": "No activity found",
+                    "data": []
+                })
+        except Exception as e:
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+
 class ActiveDeactiveActivityProjectViewSet(viewsets.ModelViewSet):
     queryset = ProjectActivity.objects.all()
     serializer_class = ProjectMainActivitySerializer
@@ -333,6 +366,67 @@ class DropDownSubActivityNameViewSet(viewsets.ModelViewSet):
                     "data": [],
                 })
 
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+
+class MainProjectWiseSubActivity(viewsets.ModelViewSet):
+    queryset = SubActivityName.objects.all()
+    serializer_class = SubActivityNameSerializer
+    lookup_field = 'main_project_id'
+    def list(self, request, *args, **kwargs):
+        try:
+            main_project_id = kwargs.get('main_project_id')
+            if not main_project_id:
+                return Response({"status": False, "message": "Project not found."})
+            
+            queryset = self.get_queryset().filter(project=main_project_id)
+            
+            if queryset.exists():
+                serializer_data = []
+                for obj in queryset:
+                    context = {'request' : request}
+                    serializer = SubActivityNameSerializer(obj,context=context)
+                    serializer_data.append(serializer.data)
+                
+                return Response({
+                    "status": True,
+                    "message": "sub_activity data fetched successfully",
+                    'data': serializer_data
+                })
+            else:
+                return Response({
+                    "status": True,
+                    "message": "No sub_activity found",
+                    "data": []
+                })
+        except Exception as e:
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
+
+
+class MultipleIDWiseSubActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            main_activity_ids = request.data.get('main_activity_ids', [])
+            if not main_activity_ids or not isinstance(main_activity_ids, list):
+                return Response({"status": False, "message": "main_activity_ids must be a list of IDs."})
+            
+            queryset = SubActivityName.objects.filter(project_main_activity__in=main_activity_ids)
+            if queryset.exists():
+                serialized_data = []
+                for obj in queryset:
+                    serializer = SubActivityNameSerializer(obj, context={'request': request})
+                    serialized_data.append(serializer.data)
+                return Response({
+                    "status": True,
+                    "message": "SubActivity data fetched successfully.",
+                    "total": len(serialized_data),
+                    "data": serialized_data,
+                })
+            else:
+                return Response({"status": False, "message": "No SubActivity found for the given SubActivity ID."})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
@@ -709,3 +803,37 @@ class MultipleIDWiseSubSubActivityViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "No SubSubActivity found for the given SubActivity ID."})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+    
+class MainProjectWiseSubSubActivity(viewsets.ModelViewSet):
+    queryset = SubSubActivityName.objects.all()
+    serializer_class = SubSubActivityNameSerializer
+    lookup_field = 'main_project_id'
+    def list(self, request, *args, **kwargs):
+        try:
+            main_project_id = kwargs.get('main_project_id')
+            if not main_project_id:
+                return Response({"status": False, "message": "Project not found."})
+            
+            queryset = self.get_queryset().filter(project=main_project_id)
+            
+            if queryset.exists():
+                serializer_data = []
+                for obj in queryset:
+                    context = {'request' : request}
+                    serializer = SubSubActivityNameSerializer(obj,context=context)
+                    serializer_data.append(serializer.data)
+                
+                return Response({
+                    "status": True,
+                    "message": "sub_sub_activity data fetched successfully",
+                    'data': serializer_data
+                })
+            else:
+                return Response({
+                    "status": True,
+                    "message": "No sub_sub_activity found",
+                    "data": []
+                })
+        except Exception as e:
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
