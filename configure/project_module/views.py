@@ -1432,6 +1432,7 @@ class ProjectMilestoneCompletedViewSet(viewsets.ModelViewSet):
             if not milestone_data.is_completed:
                 milestone_data.is_completed = True
                 milestone_data.completed_at = datetime.now()
+                milestone_data.milestone_status = "completed"
                 milestone_data.save()
                 if milestone_data.end_date:
                     end_date_naive = milestone_data.end_date.replace(tzinfo=None) if milestone_data.end_date.tzinfo else milestone_data.end_date
@@ -1478,3 +1479,26 @@ class UpcomingMilestoneViewSet(viewsets.ModelViewSet):
                 return Response({"status": True,"message": "No upcoming milestone found","total_page": 0,"total": 0,"data": []})
         except Exception as e:
             return Response({"status": False, "message": f"Error fetching upcoming milestones: {str(e)}", "data": []})
+        
+class ProjectMilestoneStartViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectMilestoneSerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            milestone_id = self.kwargs.get("milestone_id")
+            milestone_data = ProjectMilestone.objects.get(id=milestone_id)
+            
+            if not milestone_data:
+                return Response({"status": False, "message": "Milestone not found."})
+            
+            if milestone_data.is_started:
+                return Response({"status": False, "message": "Milestone is already marked as started."})
+            else:
+                milestone_data.is_started = True
+                milestone_data.started_at = datetime.now()
+                milestone_data.milestone_status = "in_progress"
+                milestone_data.save()
+                return Response({"status": True, "message": "Milestone status updated to Started."})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error updating milestone status: {str(e)}", "data": []})

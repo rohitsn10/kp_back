@@ -35,6 +35,8 @@ urlpatterns = [
     path('milestone_completed/<int:milestone_id>', ProjectMilestoneCompletedViewSet.as_view({'put': 'update'}), name='completed_milestone'),
     path('upcoming_milestone', UpcomingMilestoneViewSet.as_view({'get':'list'}), name='upcoming_milestone'),
 
+    path('starting_milestone/<int:milestone_id>', ProjectMilestoneStartViewSet.as_view({'put': 'update'}), name='starting_milestone'),
+
     path('milestone_active_deactivate/<int:milestone_id>', ActiveDeactiveMilestoneViewSet.as_view({'put':'update'}), name='milestone_active_deactivate'),
     
     path('getactivemilestone',GetActiveMilestoneViewSet.as_view({'get':'list'}), name='getactivemilestone'),
