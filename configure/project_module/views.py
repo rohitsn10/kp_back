@@ -778,6 +778,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
+            project_predicted_date = parse_date(request.data.get('project_predicted_date'))
             # location_id = request.data.get('location_id', '')
             # location_survey = request.data.get('location_survey', '')
             alloted_land_area = request.data.get('alloted_land_area')
@@ -793,7 +794,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             cpp_or_ipp = request.data.get('cpp_or_ipp')
             project_activity_id = request.data.get('project_activity_id')
             spoc_user = request.data.get('spoc_user')
-            project_predication_date = parse_date(request.data.get('project_predication_date'))
             project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
             project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
 
@@ -839,9 +839,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             if not spoc_user:
                 return Response({"status": False, "message": "SPOC user is required."})
-
-            if not project_predication_date:
-                return Response({"status": False, "message": "Project predication date is required."})
 
             try:
                 company = Company.objects.get(id=company_id)
@@ -893,6 +890,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 project_name=project_name,
                 start_date=start_date,
                 end_date=end_date,
+                project_predicted_date=project_predicted_date,
                 cod_commission_date=cod_commission_date,
                 # total_area_of_project=total_area_of_project,
                 capacity=capacity,
@@ -900,10 +898,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 cpp_or_ipp=cpp_or_ipp,
                 project_activity=project_activity,
                 spoc_user_id=by_spoc_user.id,
-                project_predication_date=project_predication_date,
                 alloted_land_area=alloted_land_area,
                 available_land_area=available_land_area
             )
+            serializer = self.serializer_class(project)
+            data = serializer.data
             land_remaining_area = landbank_ins.remaining_land_area
             print(land_remaining_area)
             landbank_ins.remaining_land_area = float(land_remaining_area) - float(alloted_land_area)
@@ -919,7 +918,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if sub_sub_activity_names:
                 project.project_sub_sub_activity.set(sub_sub_activity_names)
 
-            return Response({"status": True,"message": "Project created successfully","data": []})
+            return Response({"status": True,"message": "Project created successfully","data": data})
 
         except Exception as e:
             return Response({"status": False,"message": f"Error creating project: {str(e)}","data": []})
@@ -1009,6 +1008,7 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
+            project_predicted_date = parse_date(request.data.get('project_predicted_date'))
             location_id = request.data.get('location_id', '')
             location_survey = request.data.get('location_survey', '')
             available_land_area = request.data.get('available_land_area')
@@ -1023,7 +1023,6 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
             project_choice_activity = request.data.get('project_choice_activity')
             electricity_line_id = request.data.get('electricity_line_id')
             spoc_user = request.data.get('spoc_user')
-            project_predication_date = parse_date(request.data.get('project_predication_date'))
 
             if not Project.objects.filter(id=project_id).exists():
                 return Response({"status": False, "message": "Project ID not found"})
@@ -1040,6 +1039,8 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
                 project_object.start_date = start_date
             if end_date:
                 project_object.end_date = end_date
+            if project_predicted_date:
+                project_object.project_predicted_date = project_predicted_date
             if location_id:
                 try:
                     location = LandBankLocation.objects.get(id=location_id)
@@ -1070,9 +1071,6 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
                     project_object.spoc_user = spoc_user_object
                 except CustomUser.DoesNotExist:
                     return Response({"status": False, "message": "User not found"})
-
-            if project_predication_date:
-                project_object.project_predication_date = project_predication_date
 
             # Update the project instance
             project_object.save()
@@ -1217,9 +1215,13 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
             user = self.request.user
             milestone_name = request.data.get('milestone_name')
             project_id = request.data.get('project')
+            project_main_activity = request.data.get('project_main_activity')
+            project_sub_activity = request.data.get('project_sub_activity', [])
+            project_sub_sub_activity = request.data.get('project_sub_sub_activity', [])
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
             milestone_description = request.data.get('milestone_description')
+            is_depended = request.data.get('is_depended')
 
             if not milestone_name:
                 return Response({"status": False, "message": "Milestone Name is required."})
@@ -1235,6 +1237,23 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
 
             if not milestone_description:
                 return Response({"status": False, "message": "Milestone description is required."})
+            
+            if not is_depended:
+                return Response({"status": False, "message": "Is Depended is required."})
+            
+            if is_depended == "True":
+                if project_sub_sub_activity:
+                    if project_main_activity is None:
+                        return Response({"status": False, "message": "Project Main Activity is required when Project Sub Sub Activity is provided."})
+                    if not project_sub_activity is None:
+                        return Response({"status": False, "message": "Project Sub Activity is required when Project Sub Sub Activity is provided."})
+                elif project_sub_activity:
+                    if not project_main_activity is None:
+                        return Response({"status": False, "message": "Project Main Activity is required when Project Sub Activity is provided."})
+                
+            else:
+                if not (project_sub_sub_activity or project_sub_activity or project_main_activity):
+                    return Response({"status": False, "message": "Project Main Activity, Project Sub Activity, or Project Sub Sub Activity is required."})
 
             try:
                 project = Project.objects.get(id=project_id)
@@ -1244,11 +1263,22 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
             milestone = ProjectMilestone.objects.create(
                 user=user,
                 project=project,
+                project_main_activity=project_main_activity,
                 start_date=start_date,
                 end_date=end_date,
                 milestone_name = milestone_name,
                 milestone_description=milestone_description,
+                is_depended=is_depended,
             )
+            if project_sub_activity:
+                milestone.project_sub_activity.set(project_sub_activity)
+
+            if project_sub_sub_activity:
+                milestone.project_sub_sub_activity.set(project_sub_sub_activity)
+
+            if project.project_predicted_date is None or end_date > project.project_predicted_date:
+                project.project_predicted_date = end_date
+                project.save()
 
             return Response(
                 {
@@ -1386,6 +1416,46 @@ class ProjectMilestoneUpdateViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong", "error": str(e)})
+        
+class ProjectMilestoneCompletedViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectMilestoneSerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            milestone_id = self.kwargs.get("milestone_id")
+            milestone_data = ProjectMilestone.objects.get(id=milestone_id)
+            
+            if not milestone_data:
+                return Response({"status": False, "message": "Milestone not found."})
+            
+            if not milestone_data.is_completed:
+                milestone_data.is_completed = True
+                milestone_data.completed_at = datetime.now()
+                milestone_data.save()
+                if milestone_data.end_date:
+                    end_date_naive = milestone_data.end_date.replace(tzinfo=None) if milestone_data.end_date.tzinfo else milestone_data.end_date
+                    completed_at_naive = milestone_data.completed_at.replace(tzinfo=None) if milestone_data.completed_at.tzinfo else milestone_data.completed_at
+                    days_completed_before = (end_date_naive - completed_at_naive).days
+                    days_completed_after = (completed_at_naive - end_date_naive).days
+                    project = milestone_data.project
+                    print(days_completed_before, "days_completed_before")
+                    print(days_completed_after, "days_completed_after")
+                    if days_completed_before > 0:
+                        new_predicted_date = project.end_date - timedelta(days=days_completed_before)
+                        print(new_predicted_date, "new_predicted_date")
+                        project.project_predicted_date = new_predicted_date
+                        project.save()
+                    elif days_completed_after > 0:
+                        new_predicted_date = project.end_date + timedelta(days=days_completed_after)
+                        print("New predicted date (after):", new_predicted_date)
+                        project.project_predicted_date = new_predicted_date
+                        project.save()
+                return Response({"status": True, "message": "Milestone status updated to Completed."})
+            else:
+                return Response({"status": False, "message": "Milestone is already marked as completed."})
+        except Exception as e:
+            return Response({"status": False, "message": f"Error updating milestone status: {str(e)}", "data": []})
 
 class UpcomingMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]

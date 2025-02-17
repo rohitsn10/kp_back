@@ -33,6 +33,7 @@ class Project(models.Model):
     project_name = models.CharField(max_length=255)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
+    project_predicted_date = models.DateTimeField(null=True, blank=True)
     location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='projects_location',null=True, blank=True)
     location_survey = models.ManyToManyField(LandSurveyNumber, related_name='projects_survey')
     cod_commission_date = models.DateTimeField(null=True, blank=True)
@@ -44,7 +45,7 @@ class Project(models.Model):
     project_sub_activity = models.ManyToManyField(SubActivityName)
     project_sub_sub_activity = models.ManyToManyField(SubSubActivityName)
     spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
-    project_predication_date = models.DateTimeField(null=True, blank=True)
+    # project_predication_date = models.DateTimeField(null=True, blank=True)
     available_land_area = models.CharField(null=True, blank=True)
     alloted_land_area = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -170,16 +171,27 @@ class WO_PO(models.Model):
     
 
 class ProjectMilestone(models.Model):
+    MILESTONE_STATUS = [
+        ('pending', 'Pending'),
+        ('in_progress', 'InProgress'),
+        ('completed', 'Completed')
+    ]
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    project_main_activity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE,null=True, blank=True)
+    project_sub_activity = models.ManyToManyField(SubActivityName, blank=True)
+    project_sub_sub_activity = models.ManyToManyField(SubSubActivityName, blank=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     milestone_name = models.TextField(null=True, blank=True)
     milestone_description = models.TextField(null=True, blank=True)
+    milestone_status = models.CharField(default='pending',max_length=100, choices=MILESTONE_STATUS, null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
+    is_depended = models.BooleanField(default=False, null=True, blank=True)
 
 
 

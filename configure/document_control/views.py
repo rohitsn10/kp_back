@@ -93,7 +93,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         # if request.user.groups.filter(name='Admin').exists():
-        documents = DocumentManagement.objects.all()
+        document_id = kwargs.get('document_id')
+        if document_id:
+            documents = DocumentManagement.objects.filter(id=document_id)
+        else:
+            documents = DocumentManagement.objects.all()
         # else:
         #     documents = DocumentManagement.objects.filter(assign_users=request.user)
         serializer = self.serializer_class(documents, many=True, context={'request': request})
