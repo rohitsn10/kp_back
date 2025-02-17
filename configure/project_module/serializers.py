@@ -193,6 +193,9 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = ['user','company_name', 'id', 'created_at', 'updated_at']
         
 class ProjectMilestoneSerializer(serializers.ModelSerializer):
+    project_main_activity_name = serializers.CharField(source='project_main_activity.activity_name', read_only=True)
+    project_sub_activity_name = serializers.CharField(source='project_sub_activity.sub_activity.name', read_only=True)
+    project_sub_sub_activity_name = serializers.CharField(source='project_sub_sub_activity.sub_sub_activity.name', read_only=True)
     class Meta:
         model = ProjectMilestone
-        fields = ['id','project', 'project_main_activity', 'project_sub_activity', 'project_sub_sub_activity', 'start_date','end_date','milestone_name','milestone_description','completed_at', 'is_active', 'is_depended','milestone_status']
+        fields = ['id','project', 'project_main_activity','project_main_activity_name', 'project_sub_activity','project_sub_activity_name', 'project_sub_sub_activity','project_sub_sub_activity_name', 'start_date','end_date','milestone_name','milestone_description','completed_at', 'is_active', 'is_depended','milestone_status']
