@@ -1259,6 +1259,12 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
                 project = Project.objects.get(id=project_id)
             except Project.DoesNotExist:
                 return Response({"status": False, "message": "Invalid project."})
+            
+            if project_main_activity:
+                try:
+                    project_main_activity = ProjectActivity.objects.get(id=project_main_activity)
+                except ProjectActivity.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid Project Main Activity."})
 
             milestone = ProjectMilestone.objects.create(
                 user=user,
