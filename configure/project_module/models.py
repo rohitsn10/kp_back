@@ -187,11 +187,14 @@ class ProjectMilestone(models.Model):
     milestone_description = models.TextField(null=True, blank=True)
     milestone_status = models.CharField(default='pending',max_length=100, choices=MILESTONE_STATUS, null=True, blank=True)
     is_completed = models.BooleanField(default=False)
+    is_started = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
     is_depended = models.BooleanField(default=False, null=True, blank=True)
+    milestone_starting_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
 
 
 
