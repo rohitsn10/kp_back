@@ -1339,6 +1339,31 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False,'message': 'Something went wrong','error': str(e)})
+        
+class IdWiseProjectMilestoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectMilestoneSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            milestone_id = self.kwargs.get("milestone_id")
+            if not milestone_id:
+                return Response({"status": False, "message": "milestone_id ID is required."})
+            
+            queryset = ProjectMilestone.objects.filter(id=milestone_id)
+            
+            if queryset.exists():
+                projectmilstone_data = []
+                for obj in queryset:
+                    context = {'request': request}
+                    serializer = ProjectMilestoneSerializer(obj, context=context)
+                    projectmilstone_data.append(serializer.data)
+                    count = len(projectmilstone_data)
+                return Response({"status": True,"message": "milestone data fetched successfully",'total': count,'data': projectmilstone_data})
+            else:
+                return Response({"status": True, "message": "No milestone found."})
+        except Exception as e:
+            return Response({"status": False,'message': 'Something went wrong','error': str(e)})
 
 
 class ActiveDeactiveMilestoneViewSet(viewsets.ModelViewSet):
