@@ -778,7 +778,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
-            project_predicted_date = parse_date(request.data.get('project_predicted_date'))
             # location_id = request.data.get('location_id', '')
             # location_survey = request.data.get('location_survey', '')
             alloted_land_area = request.data.get('alloted_land_area')
@@ -890,7 +889,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 project_name=project_name,
                 start_date=start_date,
                 end_date=end_date,
-                project_predicted_date=project_predicted_date,
+                project_predicted_date=end_date,
                 cod_commission_date=cod_commission_date,
                 # total_area_of_project=total_area_of_project,
                 capacity=capacity,
@@ -905,7 +904,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
             data = serializer.data
             land_remaining_area = landbank_ins.remaining_land_area
             print(land_remaining_area)
-            landbank_ins.remaining_land_area = float(land_remaining_area) - float(alloted_land_area)
+            if land_remaining_area is None:
+                land_remaining_area = 0.0
+
+            landbank_ins.remaining_land_area = land_remaining_area - float(alloted_land_area)
             landbank_ins.save()
             # Add ManyToMany relationships
             # if location_survey:
@@ -1221,7 +1223,9 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
             milestone_description = request.data.get('milestone_description')
-            is_depended = request.data.get('is_depended')
+            is_depended = request.data.get('is_depended', None)
+            if isinstance(is_depended, str):
+                is_depended = is_depended.lower() == "true"
 
             if not milestone_name:
                 return Response({"status": False, "message": "Milestone Name is required."})
@@ -1238,14 +1242,14 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
             if not milestone_description:
                 return Response({"status": False, "message": "Milestone description is required."})
             
-            if not is_depended:
+            if is_depended is None:
                 return Response({"status": False, "message": "Is Depended is required."})
             
-            if is_depended == "True":
+            if is_depended == "true":
                 if project_sub_sub_activity:
                     if project_main_activity is None:
                         return Response({"status": False, "message": "Project Main Activity is required when Project Sub Sub Activity is provided."})
-                    if not project_sub_activity is None:
+                    if project_sub_activity is None:
                         return Response({"status": False, "message": "Project Sub Activity is required when Project Sub Sub Activity is provided."})
                 elif project_sub_activity:
                     if not project_main_activity is None:
@@ -1356,7 +1360,7 @@ class IdWiseProjectMilestoneViewSet(viewsets.ModelViewSet):
                 projectmilstone_data = []
                 for obj in queryset:
                     context = {'request': request}
-                    serializer = ProjectMilestoneSerializer(obj, context=context)
+                    serializer = MilestonedataActivitySerializer(obj, context=context)
                     projectmilstone_data.append(serializer.data)
                     count = len(projectmilstone_data)
                 return Response({"status": True,"message": "milestone data fetched successfully",'total': count,'data': projectmilstone_data})
