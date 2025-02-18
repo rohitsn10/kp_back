@@ -207,3 +207,105 @@ class ProjectMilestoneSerializer(serializers.ModelSerializer):
     def get_project_sub_sub_activity(self, obj):
         # Return only id and sub_sub_activity_name without including project_activity_id
         return [{"id": sub_sub_activity.id, "sub_sub_activity_name": [sub_sub.name for sub_sub in sub_sub_activity.sub_sub_activity.all()]} for sub_sub_activity in obj.project_sub_sub_activity.all()]
+    
+
+class MilestoneMainActivitySerializer(serializers.ModelSerializer):
+    sub_activity = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProjectActivity
+        fields = ['id', 'activity_name', 'sub_activity']
+
+    def get_sub_activity(self, obj):
+        # Get the list of sub activities related to this main activity
+        sub_activity_data = SubActivityName.objects.filter(project_main_activity=obj)
+        return MilestoneSubActivitySerializer(sub_activity_data, many=True).data
+
+
+
+class MilestoneSubActivitySerializer(serializers.ModelSerializer):
+    sub_activity = serializers.SerializerMethodField()
+    sub_sub_activity_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SubActivityName
+        fields = ['id', 'sub_activity', 'sub_sub_activity_name']
+
+    def get_sub_activity(self, obj):
+        # Get the list of SubActivity names related to this SubActivityName instance
+        return [{"id": sub.id, "name": sub.name} for sub in obj.sub_activity.all()]
+
+    def get_sub_sub_activity_name(self, obj):
+        # Get the list of SubSubActivity names related to this SubActivityName instance
+        sub_sub_activity_data = SubSubActivityName.objects.filter(sub_activity_id=obj)
+        return MilestoneSubSubActivitySerializer(sub_sub_activity_data, many=True).data
+
+
+
+class MilestoneSubSubActivitySerializer(serializers.ModelSerializer):
+    sub_sub_activity_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SubSubActivityName
+        fields = ['id', 'sub_sub_activity_name']
+
+    def get_sub_sub_activity_name(self, obj):
+        # Ensure obj is an instance of the model, not a dictionary
+        # Serialize the sub_sub_activity related to this obj
+        return [{"id": sub_sub.id, "name": sub_sub.name} for sub_sub in obj.sub_sub_activity.all()]
+
+
+
+
+class MilestonedataActivitySerializer(serializers.ModelSerializer):
+    project_main_activity_name = MilestoneMainActivitySerializer(source='project_main_activity', read_only=True)
+
+    class Meta:
+        model = ProjectMilestone
+        fields = ['id', 'project', 'project_main_activity', 'project_main_activity_name', 
+                  'start_date', 'end_date', 'milestone_name', 'milestone_description', 
+                  'completed_at', 'is_active', 'is_depended', 'milestone_status']
+
+
+
+    def to_representation(self, instance):
+        """
+        Override to_representation to modify the output format as required.
+        """
+        data = super().to_representation(instance)
+    
+        # Get the project main activity details
+        project_main_activity_name = data.get('project_main_activity_name', {})
+    
+        # Correctly structure sub_activity and sub_sub_activity_name
+        if 'sub_activity' in project_main_activity_name:
+            # Loop through sub_activity that is already serialized data
+            project_main_activity_name['sub_activity'] = [
+                {
+                    # `sub_activity` is already serialized, so we just format it
+                    'sub_activity': [{'id': sub.get('id'), 'name': sub.get('name')} for sub in sub_activity.get('sub_activity', [])],
+                    'sub_sub_activity_name': [
+                        {
+                            'sub_sub_activity_name': [
+                                {'id': sub_sub.get('id'), 'name': sub_sub.get('name')}
+                                for sub_sub in sub_sub_activity.get('sub_sub_activity_name', [])
+                            ]
+                        }
+                        for sub_sub_activity in sub_activity.get('sub_sub_activity_name', [])
+                    ]
+                }
+                for sub_activity in project_main_activity_name['sub_activity']
+            ]
+    
+        return {
+            'status': True,
+            'message': 'milestone data fetched successfully',
+            'total': 1,
+            'data': [data]
+        }
+
+
+
+
+
+
