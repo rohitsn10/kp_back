@@ -23,7 +23,6 @@ urlpatterns = [
     path('get_active_sub_activity', GetActiveSubActivityViewSet.as_view({'get': 'list'}), name='get_active_sub_activity'),
     path('active_deactivate_sub_activity/<int:sub_activity_id>', ActiveDeactiveSubActivityViewSet.as_view({'put':'update'}), name='active_deactivate_sub_activity'),
 
-
     path('create_sub_sub_activity', SubSubActivityNameViewSet.as_view({'post': 'create'}), name='create_sub_sub_activity'),
     path('get_sub_sub_activity', SubSubActivityNameViewSet.as_view({'get': 'list'}), name='get_sub_sub_activity'),
 
