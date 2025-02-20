@@ -34,10 +34,10 @@ class DepartmentSerializer(serializers.ModelSerializer):
 class LoginUserSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
     group_id = serializers.SerializerMethodField()
-
+    user_permissions = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name', 'group_name', 'group_id']
+        fields = ['id', 'full_name','group_id','group_name','user_permissions']
 
     def get_group_name(self, obj):
 
@@ -48,6 +48,28 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
         group = obj.groups.first() 
         return str(group.id) if group else None
+    
+    def get_user_permissions(self, obj):
+        group = obj.groups.first()  # Get the user's first group (or however you determine the relevant group)
+        if not group:
+            return None
+
+        permissions = group.permissions.select_related('content_type').all()
+
+        permission_list = []
+        for permission in permissions:
+            permission_list.append({
+                "id": permission.id,
+                "name": permission.codename
+            })
+
+        return {
+            "group": {
+                "id": group.id,
+                "name": group.name,
+            },
+            "permissions": permission_list if permission_list else None
+        }
     
     def to_representation(self, instance):
         """Override to ensure all IDs are strings."""

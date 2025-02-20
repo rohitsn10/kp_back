@@ -43,3 +43,29 @@ class MaterialManagement(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
     
+class MaterialQualityReportAttacchments(models.Model):
+    material_management = models.ForeignKey(MaterialManagement, on_delete=models.CASCADE,null=True, blank=True)
+    inspection_quality_report_attachments = models.FileField(upload_to='inspection_quality_report_attachments', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
+    
+class InspectionOfMaterial(models.Model):
+    material_management = models.ForeignKey(MaterialManagement, on_delete=models.CASCADE,null=True, blank=True)
+    user =  models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='is_inspection_by',null=True, blank=True)
+    inspection_date = models.DateTimeField(null=True, blank=True)
+    inspection_quality_report = models.TextField(null=True, blank=True)
+    inspection_quality_report_attachments = models.ManyToManyField(MaterialQualityReportAttacchments)
+    is_inspection = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
+    is_approved_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='is_approved_by',null=True, blank=True)
+    is_approved_date = models.DateTimeField(null=True, blank=True)
+    is_approved_remarks = models.TextField(null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
+    
+class InseptionOfMaterialApprovalAction(models.Model):
+    inspection_of_material = models.ForeignKey(InspectionOfMaterial, on_delete=models.CASCADE,null=True, blank=True)
+    user =  models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)

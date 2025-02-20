@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from material_management.models import *
+from user_profile.function_call import *
 
 class SubActivityNameSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
@@ -46,4 +47,18 @@ class MaterialManagementSerializer(serializers.ModelSerializer):
     #         subsubactivity = obj.sub_sub_activity.sub_sub_activity.first()  # Get the first related sub-sub-activity
     #         return subsubactivity.name if subsubactivity else None  # Return the name or None if no sub-sub-activity
     #     return None
+
+
+class InspectionMaterialSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    is_approved_by_full_name = serializers.CharField(source='is_approved_by.full_name', read_only=True)
+    inspection_quality_report_attachments = serializers.SerializerMethodField()
+    
+    
+    class Meta:
+        model = InspectionOfMaterial
+        fields = ['id', 'material_management', 'user','user_full_name','inspection_date','inspection_quality_report','inspection_quality_report_attachments','is_inspection','is_approved','is_approved_by','is_approved_by_full_name','is_approved_date','is_approved_remarks','remarks','created_at','updated_at']
         
+    def get_inspection_quality_report_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'inspection_quality_report_attachments')
+
