@@ -258,3 +258,116 @@ class UpddateOnlyDeliverDateOfMaterialViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+
+class AddInspectionOfMaterialViewset(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InspectionMaterialSerializer
+    queryset = InspectionOfMaterial.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        user = self.request.user
+        
+        try:
+            material_id = request.data.get('material_id')
+            if not material_id:
+                return Response({"status": False, "message": "Material ID not found."})
+            
+            material_obj = MaterialManagement.objects.get(id=material_id)
+            if not material_obj:
+                return Response({"status": True, "message": "Material Management Data is not found"})
+            
+            inspection_date = parse_date(request.data.get('inspection_date'))
+            inspection_quality_report = request.data.get('inspection_quality_report')
+            inspection_quality_report_attachments = request.data.getlist('inspection_quality_report_attachments',[]) or []
+            remarks = request.data.get('remarks','')
+            
+            inspection_obj = InspectionOfMaterial.objects.create(
+                user = user,
+                material_management = material_obj,
+                inspection_date = inspection_date,
+                inspection_quality_report = inspection_quality_report,
+                remarks = remarks
+            )
+            
+            for attachment in inspection_quality_report_attachments:
+                attachment_obj = MaterialQualityReportAttacchments.objects.create(
+                    inspection_quality_report_attachments = attachment
+                )
+                inspection_obj.inspection_quality_report_attachments.add(attachment_obj)
+                
+            serializer = self.serializer_class(inspection_obj, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Inspection Material created successfully.", "data": data})
+        
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Inspection Material List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
+class MaterialIdwiseGetInspectionViewset(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InspectionMaterialSerializer
+    queryset = InspectionOfMaterial.objects.all()
+    lookup_field = 'material_id'
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            material_id = kwargs.get('material_id')
+            if not material_id:
+                return Response({"status": False, "message": "Material ID not found."})
+            
+            queryset = self.filter_queryset(self.get_queryset()).filter(material_management=material_id).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Inspection Material List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
+class ApprovedInspectionViewset(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InspectionMaterialSerializer
+    queryset = InspectionOfMaterial.objects.all()
+    lookup_field = "inspection_id"
+    def update(self, request, *args, **kwargs):
+        
+        try:
+            user = self.request.user
+            inspection_id = kwargs.get('inspection_id')
+            is_approved_remarks = request.data.get('is_approved_remarks','')
+            
+            if not inspection_id:
+                return Response({"status": False, "message": "Inspection ID not found."})
+            
+            inspection_obj = InspectionOfMaterial.objects.get(id=inspection_id)
+            if not inspection_obj:
+                return Response({"status": True, "message": "Inspection Data is not found"})
+            
+            inspection_obj.is_approved = True
+            inspection_obj.is_approved_by = user
+            inspection_obj.is_approved_date = datetime.now()
+            if is_approved_remarks:
+                inspection_obj.is_approved_remarks = is_approved_remarks
+            
+            add_in_approval_action = InseptionOfMaterialApprovalAction.objects.create(user = user,inspection_of_material = inspection_obj,remarks = is_approved_remarks)
+            add_in_approval_action.save()
+            inspection_obj.save()
+            
+            serializer = self.serializer_class(inspection_obj, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Inspection Material updated successfully.", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+            
+                
+            
