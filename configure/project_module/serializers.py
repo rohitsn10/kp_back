@@ -306,6 +306,19 @@ class MilestonedataActivitySerializer(serializers.ModelSerializer):
 
 
 
+class DrawingandDesignSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    drawing_and_design_attachments = serializers.SerializerMethodField()
+    assign_to_user_full_name = serializers.CharField(source='assign_to_user.full_name', read_only=True)
+    class Meta:
+        model = DrawingAndDesignManagement
+        fields = ['id','project','project_name','user','user_full_name','drawing_and_design_attachments','assign_to_user','assign_to_user_full_name','discipline','block','drawing_number','auto_drawing_number','name_of_drawing','drawing_category','type_of_approval','approval_status','commented_count','submitted_count','is_approved','is_commented','is_submitted','updated_at']
+        
+    def get_drawing_and_design_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'drawing_and_design_attachments')
+
+
 
 
 

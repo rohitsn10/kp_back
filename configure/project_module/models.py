@@ -196,7 +196,74 @@ class ProjectMilestone(models.Model):
     is_depended = models.BooleanField(default=False, null=True, blank=True)
     milestone_starting_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
 
+class DrawingAndDesignAttachments(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    drawing_and_design_attachments = models.FileField(upload_to='drawing_and_design_attachments',null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
 
+class DrawingAndDesignManagement(models.Model):
+    DRAWING_CATEGORY = [
+        ('drawing', 'Drawing'),
+        ('document', 'Document'),
+        ('quality_document', 'Quality Document'),
+        ('field_quality_doc', 'Field Quality Doc'),
+        ('safety', 'Safety'),
+    ]
+    
+    TYPE_OF_APPROVAL = [
+        ('information', 'INFORMATION'),
+        ('approval', 'APPROVAL'),
+    ]
+    
+    APPROVAL_STATUS = [
+        ('not_submitted', 'Not Submitted'),  # This is the default status when create
+        ('commented', 'Commented'),  # this is the status when user commented on rejection
+        ('submitted', 'Submitted'),  # this is the status when user re-submitted
+        ('approved', 'Approved'),    # this is the status when user approved
+    ]
+    
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    assign_to_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assign_to',null=True, blank=True)
+    drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignAttachments)
+    discipline = models.CharField(max_length=100,null=True, blank=True)
+    block = models.CharField(max_length=100,null=True, blank=True)
+    drawing_number = models.CharField(max_length=100,null=True, blank=True)
+    auto_drawing_number = models.CharField(max_length=500,null=True, blank=True)
+    name_of_drawing = models.CharField(max_length=500,null=True, blank=True)
+    
+    drawing_category = models.CharField(max_length=500, choices=DRAWING_CATEGORY, null=True, blank=True)
+    type_of_approval = models.CharField(max_length=500, choices=TYPE_OF_APPROVAL, null=True, blank=True)
+    approval_status = models.CharField(max_length=500, choices=APPROVAL_STATUS, null=True, blank=True)
+    commented_count = models.IntegerField(null=True, blank=True, default=0)
+    submitted_count = models.IntegerField(null=True, blank=True, default=0)
+    is_approved = models.BooleanField(default=False)
+    is_commented = models.BooleanField(default=False)
+    is_submitted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-
+class ApprovedActions(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class CommentedActions(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class ReSubmittedActions(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 

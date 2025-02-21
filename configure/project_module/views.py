@@ -1537,3 +1537,250 @@ class ProjectMilestoneStartViewSet(viewsets.ModelViewSet):
                 return Response({"status": True, "message": "Milestone status updated to Started."})
         except Exception as e:
             return Response({"status": False, "message": f"Error updating milestone status: {str(e)}", "data": []})
+        
+        
+class AddDrawingandDesignViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DrawingandDesignSerializer
+    queryset = DrawingAndDesignManagement.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            project_id = request.data.get('project_id')
+            assign_to_user = request.data.get('assign_to_user')
+            drawing_and_design_attachments = request.data.getlist('drawing_and_design_attachments', []) or []
+            discipline = request.data.get('discipline')
+            block = request.data.get('block')
+            drawing_number = request.data.get('drawing_number')
+            auto_drawing_number = request.data.get('auto_drawing_number')
+            name_of_drawing = request.data.get('name_of_drawing')
+            drawing_category = request.data.get('drawing_category')
+            type_of_approval = request.data.get('type_of_approval')
+            approval_status = request.data.get('approval_status')
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Project not found", "data": []})
+            
+            try:
+                if not assign_to_user:
+                    return Response({"status": False, "message": "Assign to user is required", "data": []})
+                assign_to_user = CustomUser.objects.get(id=assign_to_user)
+            except CustomUser.DoesNotExist:
+                return Response({"status": False, "message": "Assign to user not found", "data": []})
+        
+            if not discipline:
+                return Response({"status": False, "message": "Discipline is required", "data": []})
+            if not block:
+                return Response({"status": False, "message": "Block is required", "data": []})
+            if not drawing_number:
+                return Response({"status": False, "message": "Drawing number is required", "data": []})
+            if not auto_drawing_number:
+                return Response({"status": False, "message": "Auto drawing number is required", "data": []})
+            if not name_of_drawing:
+                return Response({"status": False, "message": "Name of drawing is required", "data": []})
+            if not drawing_category:
+                return Response({"status": False, "message": "Drawing category is required", "data": []})
+            if not type_of_approval:
+                return Response({"status": False, "message": "Type of approval is required", "data": []})
+            if not approval_status:
+                return Response({"status": False, "message": "Approval status is required", "data": []})
+            
+            drawing_and_design = DrawingAndDesignManagement.objects.create(
+                project=project,
+                user=user,
+                assign_to_user=assign_to_user,
+                discipline=discipline,
+                block=block,
+                drawing_number=drawing_number,
+                auto_drawing_number=auto_drawing_number,
+                name_of_drawing=name_of_drawing,
+                drawing_category=drawing_category,
+                type_of_approval=type_of_approval,
+                approval_status=approval_status
+            )
+            
+            for attachment in drawing_and_design_attachments:
+                drawing_and_design_attachments = DrawingAndDesignAttachments.objects.create(project = project, user = user, drawing_and_design_attachments = attachment)
+                drawing_and_design.drawing_and_design_attachments.add(drawing_and_design_attachments)
+                
+            drawing_and_design.save()
+            return Response({"status": True, "message": "Drawing and design added successfully", "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Drawing and design List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
+class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DrawingandDesignSerializer
+    queryset = DrawingAndDesignManagement.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            drawing_and_design_id = self.kwargs.get('drawing_and_design_id')
+            if not drawing_and_design_id:
+                return Response({"status": False, "message": "Drawing and design not found."})
+            
+            drawing_and_design = DrawingAndDesignManagement.objects.get(id=drawing_and_design_id)
+            
+            if not drawing_and_design:
+                return Response({"status": True, "message": "Drawing and design Data is not found"})
+            
+            # Retrieve the current approval status and submitted_count
+            current_approval_status = drawing_and_design.approval_status
+            current_submitted_count = int(drawing_and_design.submitted_count) if drawing_and_design.submitted_count else 0
+            
+            # Retrieve the request data
+            project_id = request.data.get('project_id')
+            drawing_and_design_attachments = request.data.getlist('drawing_and_design_attachments', []) or []
+            remove_drawing_and_design_attachments = request.data.get('remove_drawing_and_design_attachments_id', []) or []
+            assign_to_user = request.data.get('assign_to_user')
+            discipline = request.data.get('discipline')
+            block = request.data.get('block')
+            drawing_number = request.data.get('drawing_number')
+            auto_drawing_number = request.data.get('auto_drawing_number')
+            name_of_drawing = request.data.get('name_of_drawing')
+            drawing_category = request.data.get('drawing_category')
+            type_of_approval = request.data.get('type_of_approval')
+            approval_status = request.data.get('approval_status')
+            remarks = request.data.get('remarks')
+            if approval_status in ['commented', 'approved']:
+                return Response({"status": False, "message": "You cannot update the approval status to commented or approved."})
+            
+            remove_drawing_and_design_attachments = process_file_ids(remove_drawing_and_design_attachments)
+            try:
+                # Update fields only if they are provided in the request
+                if project_id:
+                    project = Project.objects.get(id=project_id)
+                    drawing_and_design.project = project
+                
+                if drawing_and_design_attachments:
+                    for attachment in drawing_and_design_attachments:
+                        drawing_and_design_attachments = DrawingAndDesignAttachments.objects.create(
+                            project=project, user=user, drawing_and_design_attachments=attachment)
+                        drawing_and_design.drawing_and_design_attachments.add(drawing_and_design_attachments)
+                        
+                if remove_drawing_and_design_attachments:
+                    for file_id in remove_drawing_and_design_attachments:
+                        try:
+                            file_instance = DrawingAndDesignAttachments.objects.get(id=file_id)
+                            drawing_and_design.drawing_and_design_attachments.remove(file_instance)
+                            file_instance.delete()
+                        except DrawingAndDesignAttachments.DoesNotExist:
+                            pass
+                
+                if assign_to_user:
+                    assign_to_user = CustomUser.objects.get(id=assign_to_user)
+                    drawing_and_design.assign_to_user = assign_to_user
+                
+                if discipline:
+                    drawing_and_design.discipline = discipline
+                
+                if block:
+                    drawing_and_design.block = block
+                
+                if drawing_number:
+                    drawing_and_design.drawing_number = drawing_number
+                
+                if auto_drawing_number:
+                    drawing_and_design.auto_drawing_number = auto_drawing_number
+                
+                if name_of_drawing:
+                    drawing_and_design.name_of_drawing = name_of_drawing
+                
+                if drawing_category:
+                    drawing_and_design.drawing_category = drawing_category
+                
+                if type_of_approval:
+                    drawing_and_design.type_of_approval = type_of_approval
+                
+                if approval_status:
+                    drawing_and_design.approval_status = approval_status
+                
+                # Only increment submitted_count if approval_status is 'submitted' 
+                if approval_status == 'submitted' and current_approval_status == 'commented':
+                    drawing_and_design.submitted_count = current_submitted_count + 1
+                    drawing_and_design.is_submitted = True
+                    resubmitted_actions = ReSubmittedActions.objects.create(project = project , user=user, remarks = remarks)
+                    resubmitted_actions.save()
+                    
+                    
+                # Don't update submitted_count if approval_status is 'not_submitted'
+                if approval_status in ['not_submitted', 'commented', 'approved'] and current_approval_status == 'not_submitted':
+                    drawing_and_design.submitted_count = str(current_submitted_count)  # Keep it unchanged
+                drawing_and_design.save()
+                
+                return Response({"status": True, "message": "Drawing and design updated successfully", "data": []})
+            except Exception as e:
+                return Response({"status": False, "message": str(e), "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DrawingandDesignSerializer
+    queryset = DrawingAndDesignManagement.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            drawing_and_design_id = self.kwargs.get('drawing_and_design_id')
+            if not drawing_and_design_id:
+                return Response({"status": False, "message": "Drawing and design not found."})
+            
+            drawing_and_design = DrawingAndDesignManagement.objects.get(id=drawing_and_design_id)
+            
+            if not drawing_and_design:
+                return Response({"status": True, "message": "Drawing and design Data is not found"})
+            
+            approval_status = request.data.get('approval_status')
+            remarks = request.data.get('remarks')
+            
+            if approval_status == 'approved':
+                drawing_and_design.approval_status = approval_status
+                drawing_and_design.is_approved = True
+                approval_acions = ApprovedActions.objects.create(project = drawing_and_design.project , user=user, remarks = remarks)
+                approval_acions.save()
+                drawing_and_design.save()
+                return Response({"status": True, "message": "Drawing and design approved successfully", "data": []})
+            elif approval_status == 'commented':
+                drawing_and_design.approval_status = approval_status
+                drawing_and_design.is_commented = True
+                drawing_and_design.is_submitted = False
+                commented_actions = CommentedActions.objects.create(project = drawing_and_design.project , user=user, remarks = remarks)
+                commented_actions.save()
+                drawing_and_design.save()
+                return Response({"status": True, "message": "Drawing and design commented successfully", "data": []})
+            else:
+                return Response({"status": False, "message": "Invalid approval status."})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
+class ProjectIdwiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DrawingandDesignSerializer
+    queryset = DrawingAndDesignManagement.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = self.kwargs.get('project_id')
+            if not project_id:
+                return Response({"status": False, "message": "Project Id is required", "data": []})
+            drawing_and_design = DrawingAndDesignManagement.objects.filter(project=project_id)
+            serializer = DrawingandDesignSerializer(drawing_and_design, many=True)
+            return Response({"status": True, "message": "Drawing and design data fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
