@@ -305,19 +305,76 @@ class MilestonedataActivitySerializer(serializers.ModelSerializer):
         }
 
 
+class CommentedActionsSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    drawing_and_design_name = serializers.CharField(source='drawing_and_design.name_of_drawing', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    class Meta:
+        model = DrawingAndDesignCommentedActions
+        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks', 'created_at', 'updated_at']
+
+class ReSubmittedActionsSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    drawing_and_design_name = serializers.CharField(source='drawing_and_design.name_of_drawing', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    class Meta:
+        model = DrawingAndDesignCommentedActions
+        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks', 'created_at', 'updated_at']
+
+class ApprovedActionsSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.CharField(source='user.full_name', read_only=True)
+    drawing_and_design_name = serializers.CharField(source='drawing_and_design.name_of_drawing', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    class Meta:
+        model = DrawingAndDesignCommentedActions
+        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks', 'created_at', 'updated_at']
+        
 
 class DrawingandDesignSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     drawing_and_design_attachments = serializers.SerializerMethodField()
     assign_to_user_full_name = serializers.CharField(source='assign_to_user.full_name', read_only=True)
+    
+    # Nested serializers for the actions
+    commented_actions = serializers.SerializerMethodField()
+    resubmitted_actions = serializers.SerializerMethodField()
+    approved_actions = serializers.SerializerMethodField()
+
     class Meta:
         model = DrawingAndDesignManagement
-        fields = ['id','project','project_name','user','user_full_name','drawing_and_design_attachments','assign_to_user','assign_to_user_full_name','discipline','block','drawing_number','auto_drawing_number','name_of_drawing','drawing_category','type_of_approval','approval_status','commented_count','submitted_count','is_approved','is_commented','is_submitted','updated_at']
-        
+        fields = [
+            'id', 'project', 'project_name', 'user', 'user_full_name', 
+            'drawing_and_design_attachments', 'assign_to_user', 'assign_to_user_full_name', 
+            'discipline', 'block', 'drawing_number', 'auto_drawing_number', 'name_of_drawing', 
+            'drawing_category', 'type_of_approval', 'approval_status', 'commented_count', 
+            'submitted_count', 'is_approved', 'is_commented', 'is_submitted', 'updated_at',
+            'commented_actions', 'resubmitted_actions', 'approved_actions'
+        ]
+
     def get_drawing_and_design_attachments(self, obj):
         return get_file_data(self.context.get('request'), obj, 'drawing_and_design_attachments')
 
+    def get_commented_actions(self, obj):
+        # Get related commented actions, or return an empty list if no related actions exist
+        commented_actions = obj.drawinganddesigncommentedactions_set.all()
+        if commented_actions.exists():
+            return CommentedActionsSerializer(commented_actions, many=True, context=self.context).data
+        return []
+
+    def get_resubmitted_actions(self, obj):
+        # Get related resubmitted actions, or return an empty list if no related actions exist
+        resubmitted_actions = obj.drawinganddesignresubmittedactions_set.all()
+        if resubmitted_actions.exists():
+            return ReSubmittedActionsSerializer(resubmitted_actions, many=True, context=self.context).data
+        return []
+
+    def get_approved_actions(self, obj):
+        # Get related approved actions, or return an empty list if no related actions exist
+        approved_actions = obj.drawinganddesignapprovedactions_set.all()
+        if approved_actions.exists():
+            return ApprovedActionsSerializer(approved_actions, many=True, context=self.context).data
+        return []
 
 
 
