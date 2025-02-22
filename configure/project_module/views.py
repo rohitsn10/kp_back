@@ -1712,7 +1712,7 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                 if approval_status == 'submitted' and current_approval_status == 'commented':
                     drawing_and_design.submitted_count = current_submitted_count + 1
                     drawing_and_design.is_submitted = True
-                    resubmitted_actions = ReSubmittedActions.objects.create(project = project , user=user, remarks = remarks)
+                    resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = project , user=user, remarks = remarks)
                     resubmitted_actions.save()
                     
                     
@@ -1751,7 +1751,7 @@ class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
             if approval_status == 'approved':
                 drawing_and_design.approval_status = approval_status
                 drawing_and_design.is_approved = True
-                approval_acions = ApprovedActions.objects.create(project = drawing_and_design.project , user=user, remarks = remarks)
+                approval_acions = DrawingAndDesignApprovedActions.objects.create(drawing_and_design = drawing_and_design,project = drawing_and_design.project , user=user, remarks = remarks)
                 approval_acions.save()
                 drawing_and_design.save()
                 return Response({"status": True, "message": "Drawing and design approved successfully", "data": []})
@@ -1759,7 +1759,7 @@ class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
                 drawing_and_design.approval_status = approval_status
                 drawing_and_design.is_commented = True
                 drawing_and_design.is_submitted = False
-                commented_actions = CommentedActions.objects.create(project = drawing_and_design.project , user=user, remarks = remarks)
+                commented_actions = DrawingAndDesignCommentedActions.objects.create(drawing_and_design = drawing_and_design,project = drawing_and_design.project , user=user, remarks = remarks)
                 commented_actions.save()
                 drawing_and_design.save()
                 return Response({"status": True, "message": "Drawing and design commented successfully", "data": []})
@@ -1784,3 +1784,30 @@ class ProjectIdwiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Drawing and design data fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
+
+class DrawingIdWiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DrawingandDesignSerializer
+    queryset = DrawingAndDesignManagement.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            drawing_and_design_id = self.kwargs.get('drawing_and_design_id')
+            if not drawing_and_design_id:
+                return Response({"status": False, "message": "Drawing Id is required", "data": []})
+
+            # Fetch the specific DrawingAndDesignManagement record
+            drawing_and_design = DrawingAndDesignManagement.objects.get(id=drawing_and_design_id)
+            print(drawing_and_design.drawinganddesignapprovedactions_set.all())
+            # Serialize the DrawingAndDesignManagement record (which includes the nested related actions)
+            serializer = DrawingandDesignSerializer(drawing_and_design, context={'request': request})
+
+            return Response({
+                "status": True,
+                "message": "Drawing and design data with related actions fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
