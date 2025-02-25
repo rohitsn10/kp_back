@@ -1797,10 +1797,7 @@ class DrawingIdWiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
             if not drawing_and_design_id:
                 return Response({"status": False, "message": "Drawing Id is required", "data": []})
 
-            # Fetch the specific DrawingAndDesignManagement record
             drawing_and_design = DrawingAndDesignManagement.objects.get(id=drawing_and_design_id)
-            print(drawing_and_design.drawinganddesignapprovedactions_set.all())
-            # Serialize the DrawingAndDesignManagement record (which includes the nested related actions)
             serializer = DrawingandDesignSerializer(drawing_and_design, context={'request': request})
 
             return Response({
@@ -1811,3 +1808,137 @@ class DrawingIdWiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
+
+
+class InFlowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InFlowPaymentOnMilestoneSerializer
+    queryset = InFlowPaymentOnMilestone.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            milestone_id = request.data.get('milestone_id')
+            party_name = request.data.get('party_name')
+            po_number = request.data.get('po_number')
+            invoice_number = request.data.get('invoice_number')
+            total_amount = request.data.get('total_amount')
+            gst_amount = request.data.get('gst_amount')
+            paid_amount = request.data.get('paid_amount')
+            pending_amount = request.data.get('pending_amount')
+            payment_date = parse_date(request.data.get('payment_date'))
+            notes = request.data.get('notes')
+            
+            if not milestone_id:
+                return Response({"status": False, "message": "Milestone Id is required", "data": []})
+            if not party_name:
+                return Response({"status": False, "message": "Party Name is required", "data": []})
+            if not invoice_number:
+                return Response({"status": False, "message": "Invoice Number is required", "data": []})
+            if not total_amount:
+                return Response({"status": False, "message": "Total Amount is required", "data": []})
+            if not gst_amount:
+                return Response({"status": False, "message": "GST Amount is required", "data": []})
+            if not paid_amount:
+                return Response({"status": False, "message": "Paid Amount is required", "data": []})
+            if not pending_amount:
+                return Response({"status": False, "message": "Pending Amount is required", "data": []})
+            if not payment_date:
+                return Response({"status": False, "message": "Payment Date is required", "data": []})
+            milestone = ProjectMilestone.objects.get(id=milestone_id)
+            if not milestone:
+                return Response({"status": False, "message": "Milestone not found", "data": []})
+            
+            in_flow_payment = InFlowPaymentOnMilestone.objects.create(
+                project = milestone.project,
+                milestone=milestone,
+                party_name=party_name,
+                po_number=po_number,
+                invoice_number=invoice_number,
+                total_amount=total_amount,
+                gst_amount=gst_amount,
+                paid_amount=paid_amount,
+                pending_amount=pending_amount,
+                payment_date=payment_date,
+                notes=notes
+            )
+            in_flow_payment.save()
+            return Response({"status": True, "message": "Payment data created successfully", "data": []})
+        
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = InFlowPaymentOnMilestoneSerializer(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Payment data fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+            
+class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InFlowPaymentOnMilestoneSerializer
+    queryset = InFlowPaymentOnMilestone.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            inflow_payment_on_milestone_id = self.kwargs.get('inflow_payment_on_milestone_id')
+            if not inflow_payment_on_milestone_id:
+                return Response({"status": False, "message": "Payment Id is required", "data": []})
+            payment = InFlowPaymentOnMilestone.objects.get(id=inflow_payment_on_milestone_id)
+            if not payment:
+                return Response({"status": False, "message": "Payment not found", "data": []})
+            party_name = request.data.get('party_name')
+            po_number = request.data.get('po_number')
+            invoice_number = request.data.get('invoice_number')
+            total_amount = request.data.get('total_amount')
+            gst_amount = request.data.get('gst_amount')
+            paid_amount = request.data.get('paid_amount')
+            pending_amount = request.data.get('pending_amount')
+            payment_date = parse_date(request.data.get('payment_date'))
+            notes = request.data.get('notes')
+            
+            if party_name:
+                payment.party_name = party_name
+            if po_number:
+                payment.po_number = po_number
+            if invoice_number:
+                payment.invoice_number = invoice_number
+            if total_amount:
+                payment.total_amount = total_amount
+            if gst_amount:
+                payment.gst_amount = gst_amount
+            if paid_amount:
+                payment.paid_amount = paid_amount
+            if pending_amount:
+                payment.pending_amount = pending_amount
+            if payment_date:
+                payment.payment_date = payment_date
+            if notes:
+                payment.notes = notes
+            payment.save()
+            
+            return Response({"status": True, "message": "Payment data updated successfully", "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+class MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InFlowPaymentOnMilestoneSerializer
+    queryset = InFlowPaymentOnMilestone.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            milestone_id = self.kwargs.get('milestone_id')
+            if not milestone_id:
+                return Response({"status": False, "message": "Milestone Id is required", "data": []})
+            queryset = self.filter_queryset(self.get_queryset()).filter(milestone=milestone_id)
+            serializer = InFlowPaymentOnMilestoneSerializer(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Payment data fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+            
+
+          
