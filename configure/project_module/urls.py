@@ -49,4 +49,7 @@ urlpatterns = [
     path('projcet_idwise_get_drawing_and_design/<int:project_id>',ProjectIdwiseGetDrawingandDesignViewSet.as_view({'get':'list'}), name='projcet_idwise_get_drawing_and_design'),
     path('drawing_id_wise_get_drawing_and_design/<int:drawing_and_design_id>',DrawingIdWiseGetDrawingandDesignViewSet.as_view({'get':'list'}), name='drawing_id_wise_get_drawing_and_design'),
 
+    path('create_inflow_payment_on_milestone',InFlowPaymentOnMilestoneViewSet.as_view({'post':'create','get':'list'}), name='create_inflow_payment_on_milestone'),
+    path('update_inflow_payment_on_milestone/<int:inflow_payment_on_milestone_id>',UpdateInflowPaymentMiletoneViewSet.as_view({'put':'update','delete':'destroy'}), name='update_inflow_payment_on_milestone'),
+    path('milestone_id_wise_get_inflow_payment_on_milestone/<int:milestone_id>',MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet.as_view({'get':'list'}), name='milestone_id_wise_get_inflow_payment_on_milestone'),
 ]

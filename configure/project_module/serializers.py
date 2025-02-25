@@ -375,6 +375,14 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
         if approved_actions.exists():
             return ApprovedActionsSerializer(approved_actions, many=True, context=self.context).data
         return []
+    
+    
+class InFlowPaymentOnMilestoneSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    milestone_name = serializers.CharField(source='milestone.milestone_name', read_only=True)
+    class Meta:
+        model = InFlowPaymentOnMilestone
+        fields = ['id','project','project_name','milestone','milestone_name','party_name','invoice_number','total_amount','gst_amount','paid_amount','pending_amount','payment_date','notes','created_at','updated_at']
 
 
 

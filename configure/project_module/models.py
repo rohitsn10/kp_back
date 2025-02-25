@@ -196,6 +196,22 @@ class ProjectMilestone(models.Model):
     is_depended = models.BooleanField(default=False, null=True, blank=True)
     milestone_starting_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
 
+class InFlowPaymentOnMilestone(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    milestone = models.ForeignKey(ProjectMilestone, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    party_name = models.CharField(max_length=500,null=True, blank=True)
+    po_number = models.CharField(max_length=500,null=True, blank=True)
+    invoice_number = models.CharField(max_length=500,null=True, blank=True)
+    total_amount = models.CharField(max_length=500,null=True, blank=True)
+    gst_amount = models.CharField(max_length=500,null=True, blank=True)
+    paid_amount = models.CharField(max_length=500,null=True, blank=True)
+    pending_amount = models.CharField(max_length=500,null=True, blank=True)
+    payment_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
 class DrawingAndDesignAttachments(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
