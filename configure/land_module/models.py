@@ -218,7 +218,6 @@ class LandBankMaster(models.Model):
     details_of_local_drainage_scheme = models.CharField(max_length=500, null=True, blank=True)
     availability_of_potable_water = models.CharField(max_length=500, null=True, blank=True)
     any_other_general_observation = models.CharField(max_length=500, null=True, blank=True)
-    any_other_general_observation = models.CharField(max_length=500, null=True, blank=True)  
 
     land_sfa_file = models.ManyToManyField(SFAAttachment)
     sfa_for_transmission_line_gss_files = models.ManyToManyField(SFAforTransmissionLineGSSAttachment)

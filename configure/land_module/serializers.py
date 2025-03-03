@@ -30,7 +30,12 @@ class ApprovedReportAttachmentSerializer(serializers.ModelSerializer):
             "updated_at": obj.updated_at.isoformat()   # Format the updated_at as ISO string with timezone
         }
         return representation
-    
+
+class SfaSoilBearingCapacityAttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SfaSoilBearingCapacityAttachment
+        fields = ['id', 'sfa_soil_bearing_capacity_files', 'created_at', 'updated_at']
+
 
 class LandBankSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
@@ -48,6 +53,7 @@ class LandBankSerializer(serializers.ModelSerializer):
     approved_report_file = ApprovedReportAttachmentSerializer(many=True)
     sfa_approved_by_user_full_name = serializers.CharField(source='sfa_approved_by_user.full_name', read_only=True)
     sfa_rejected_by_user_full_name = serializers.CharField(source='sfa_rejected_by_user.full_name', read_only=True)
+    sfa_soil_bearing_capacity_files = SfaSoilBearingCapacityAttachmentSerializer(many=True)
     class Meta:
         model = LandBankMaster
         fields = [
@@ -62,7 +68,25 @@ class LandBankSerializer(serializers.ModelSerializer):
             'total_land_area','remaining_land_area','taluka_tahshil_name', 'old_block_number', 'new_block_number', 'sale_deed_date',
             'lease_deed_number', 'district_name', 'propose_gss_number', 'land_co_ordinates', 'land_status', 'area_meters', 
             'area_acres', 'industrial_jantri', 'jantri_value', 'mort_gaged', 'seller_name', 'buyer_name', 'actual_bucket',
-            'remarks', 'index_number', 'tcr', 'advocate_name'
+            'remarks', 'index_number', 'tcr', 'advocate_name', 'land_address', 'client_consultant', 'palnt_capacity', 'land_owner',
+            'sfa_available_area_acres', 'distance_from_main_road', 'road_highway_details', 'land_title', 'sfa_land_category', 
+            'sfa_land_profile', 'sfa_land_orientation', 'sfa_land_soil_testing_availability', 'sfa_soil_bearing_capacity_files',
+            'any_shadow_casting_buildings_or_hill', 'any_water_ponds_or_nalas_within_the_proposed_location', 'any_roads_or_bridge_within_the_proposed_location',
+            'any_railway_lane_within_the_proposed_location', 'is_the_proposed_site_is_of_natural_contour_or_filled_up_area', 'geo_graphical_cordinates',
+            'land_co_ordinates', 'substation_cordinates', 'solar_isolation_data', 'rain_fall_pattern', 'communication_network_availability',
+            'permission_required_for_power_generation', 'transmission_network_availabilty_above_400_220_33kv', 'distance_of_supply_point_from_proposed_site',
+            'distance_of_nearest_substation_from_proposed_site', 'transmission_line_load_carrying_or_evacuation_capacity', 'right_of_way_requirement_up_to_the_delivery_point', 
+            'construction_power_availability_and_identify_source_distance', 'grid_availability_data_outage_pattern', 'substation_capacity_mva', 
+            'substation_load_side_voltage_level_kv', 'kv_grid_voltage_variation', 'hz_grid_voltage_variation', 'check_space_availability_in_substation_to_conct_power_by_area', 
+            'transformer_rating_in_substation', 'check_protection_system_details_of_substation', 'any_future_plan_for_expansion_of_substation',
+            'is_there_any_power_export_happening_at_substation', 'any_specific_requirements_of_eb_for_double_pole_structure', 'any_transmission_communication_line_passing_through_site',
+            'neighboring_area_or_vicinity_details', 'nearest_industry_category_and_distance', 'nearest_village_or_district_name_and_distance',
+            'nearest_highway_or_airport_name_and_distance', 'availability_of_labor_and_cost_of_labor', 'logistics', 'is_there_an_approach_road_available_to_the_site',
+            'can_truck_of_Multi_axel_with_40_foot_container_reach_site', 'availability_of_vehicle_for_hiring_or_cost_per_km', 'list_the_risks_including_journey',
+            'nearest_police_station_and_distance', 'nearest_hospital_and_distance', 'nearest_fire_station_and_distance', 'nearest_seashore_and_distance',
+            'availability_of_accommodation_to_site_approximate_cost', 'provide_near_by_civil_electrical_contractors', 'availability_of_construction_material_nearby',
+            'any_weather_station_nearby', 'water_belt_profile_of_the_area', 'water_availability', 'construction_water_availability', 'details_of_local_drainage_scheme',
+            'availability_of_potable_water', 'any_other_general_observation'
         ]
 
     def get_land_sfa_file(self, obj):
