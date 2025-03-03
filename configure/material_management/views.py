@@ -17,16 +17,17 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
         # if not request.user.groups.filter(name='Admin').exists():
         #     return Response({"status": False, "message": "You do not have permission to perform this action."})
         try:
-            client_vendor_choices = request.data.get('client_vendor_choices',None)
-            client_name = None
-            vendor_name = None
-            if client_vendor_choices == 'client':
-                client_name = request.data.get('client_name','')
-            if client_vendor_choices == 'vendor':
-                vendor_name = request.data.get('vendor_name')
+            # client_vendor_choices = request.data.get('client_vendor_choices',None)
+            # client_name = None
+            # vendor_code = None
+            # if client_vendor_choices == 'client':
+                # client_name = request.data.get('client_name','')
+            # if client_vendor_choices == 'vendor':
+                # vendor_name = request.data.get('vendor_name')
 
-            material_number = request.data.get('material_number')
-            material_name = request.data.get('material_name')
+            material_code = request.data.get('material_code')
+            # material_name = request.data.get('material_name')
+            vendor_code = request.data.get('vendor_code')
             uom = request.data.get('uom')
             price = request.data.get('price')
             PR_number = request.data.get('PR_number')
@@ -59,11 +60,11 @@ class MaterialManagementCreateViewSet(viewsets.ModelViewSet):
             
             material = MaterialManagement.objects.create(
                 user = user,
-                client_vendor_choices=client_vendor_choices,
-                client_name=client_name,
-                vendor_name=vendor_name,
-                material_number=material_number,
-                material_name=material_name,
+                # client_vendor_choices=client_vendor_choices,
+                # client_name=client_name,
+                vendor_code=vendor_code,
+                material_code=material_code,
+                # material_name=material_name,
                 uom=uom,
                 price=price,
                 PR_number=PR_number,
@@ -109,24 +110,25 @@ class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
             material_obj = MaterialManagement.objects.get(id=material_id)
             if not material_obj:
                 return Response({"status": True, "message": "Material Management Data is not found"})
-            client_name = None
-            vendor_name = None
-            client_vendor_choices = request.data.get('client_vendor_choices',None)
+            # client_name = None
+            # vendor_name = None
+            # client_vendor_choices = request.data.get('client_vendor_choices',None)
             
-            if client_vendor_choices == 'client':
-                client_name = request.data.get('client_name')
-                vendor_name = None
-                if not client_name:
-                  return Response({"status": False, "message": "Client name is required."})
+            # if client_vendor_choices == 'client':
+                # client_name = request.data.get('client_name')
+                # vendor_name = None
+                # if not client_name:
+                #   return Response({"status": False, "message": "Client name is required."})
 
-            elif client_vendor_choices == 'vendor':
-                vendor_name = request.data.get('vendor_name')
-                client_name = None
-                if not vendor_name:
-                  return Response({"status": False, "message": "Vendor name is required."})
+            # elif client_vendor_choices == 'vendor':
+                # vendor_name = request.data.get('vendor_name')
+                # client_name = None
+                # if not vendor_name:
+                #   return Response({"status": False, "message": "Vendor name is required."})
 
-            material_number = request.data.get('material_number')
-            material_name = request.data.get('material_name')
+            material_code = request.data.get('material_code')
+            vendor_code = request.data.get('vendor_code')
+            # material_name = request.data.get('material_name')
             uom = request.data.get('uom')
             price = request.data.get('price')
             PR_number = request.data.get('PR_number')
@@ -165,16 +167,18 @@ class MaterialManagementUpdateViewSet(viewsets.ModelViewSet):
             #         sub_sub_activity_id = SubSubActivityName.objects.get(id=sub_sub_activity_id)
             #     except SubSubActivityName.DoesNotExist:
             #         return Response({"status": False, "message": "Invalid sub sub activity."})
-            if client_vendor_choices:
-                material_obj.client_vendor_choices = client_vendor_choices
-            if client_name is not None:
-                material_obj.client_name = client_name
-            if vendor_name is not None:
-                material_obj.vendor_name = vendor_name
-            if material_number:
-                material_obj.material_number = material_number
-            if material_name:
-                material_obj.material_name = material_name
+            # if client_vendor_choices:
+                # material_obj.client_vendor_choices = client_vendor_choices
+            # if client_name is not None:
+                # material_obj.client_name = client_name
+            # if vendor_name is not None:
+                # material_obj.vendor_name = vendor_name
+            if material_code:
+                material_obj.material_code = material_code
+            if vendor_code:
+                material_obj.vendor_code = vendor_code
+            # if material_name:
+                # material_obj.material_name = material_name
             if uom:
                 material_obj.uom = uom
             if price:
@@ -251,6 +255,7 @@ class UpddateOnlyDeliverDateOfMaterialViewSet(viewsets.ModelViewSet):
             number_of_delay = request.data.get('number_of_delay')
             material_obj.delivered_date = delivered_date
             material_obj.number_of_delay = number_of_delay
+            material_obj.status = 'delivered'
             material_obj.save()
             serializer = self.serializer_class(material_obj, context={'request': request})
             data = serializer.data
@@ -259,6 +264,42 @@ class UpddateOnlyDeliverDateOfMaterialViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
+class ApprovedMaterialViewset(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MaterialManagementSerializer
+    queryset = MaterialManagement.objects.all()
+    lookup_field = "material_id"
+    def update(self, request, *args, **kwargs):
+        
+        try:
+            user = self.request.user
+            material_id = kwargs.get('material_id')
+            is_approved_remarks = request.data.get('is_approved_remarks','')
+            
+            if not material_id:
+                return Response({"status": False, "message": "Material ID not found."})
+            
+            material_obj = MaterialManagement.objects.get(id=material_id)
+            if not material_obj:
+                return Response({"status": True, "message": "Material Data is not found"})
+            
+            material_obj.is_approved = True
+            material_obj.is_approved_by = user
+            material_obj.is_approved_date = datetime.now()
+            if is_approved_remarks:
+                material_obj.is_approved_remarks = is_approved_remarks
+            
+            add_in_approval_action = MaterialApprovalAction.objects.create(user = user,material = material_obj,remarks = is_approved_remarks)
+            add_in_approval_action.save()
+            material_obj.save()
+            
+            serializer = self.serializer_class(material_obj, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Material updated successfully.", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+            
+
 
 class AddInspectionOfMaterialViewset(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -279,6 +320,10 @@ class AddInspectionOfMaterialViewset(viewsets.ModelViewSet):
             
             inspection_date = parse_date(request.data.get('inspection_date'))
             inspection_quality_report = request.data.get('inspection_quality_report')
+            gtp = request.data.get('gtp')
+            qap = request.data.get('qap')
+            gtp_attachments = request.data.getlist('gtp_attachments', []) or []
+            qap_attachments = request.data.getlist('qap_attachments', []) or []
             inspection_quality_report_attachments = request.data.getlist('inspection_quality_report_attachments',[]) or []
             remarks = request.data.get('remarks','')
             
@@ -287,7 +332,9 @@ class AddInspectionOfMaterialViewset(viewsets.ModelViewSet):
                 material_management = material_obj,
                 inspection_date = inspection_date,
                 inspection_quality_report = inspection_quality_report,
-                remarks = remarks
+                remarks = remarks,
+                gtp = gtp,
+                qap = qap
             )
             
             for attachment in inspection_quality_report_attachments:
@@ -295,6 +342,18 @@ class AddInspectionOfMaterialViewset(viewsets.ModelViewSet):
                     inspection_quality_report_attachments = attachment
                 )
                 inspection_obj.inspection_quality_report_attachments.add(attachment_obj)
+            
+            for attachment in gtp_attachments:
+                attachment_obj = MaterialGTPAttachment.objects.create(
+                    gtp_attachments = attachment
+                )
+                inspection_obj.gtp_attachments.add(attachment_obj)
+            
+            for attachment in qap_attachments:
+                attachment_obj = MaterialQAPAttachment.objects.create(
+                    qap_attachments = attachment
+                )
+                inspection_obj.qap_attachments.add(attachment_obj)
                 
             serializer = self.serializer_class(inspection_obj, context={'request': request})
             data = serializer.data
@@ -370,4 +429,41 @@ class ApprovedInspectionViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e)})
             
                 
+class ProjectIdwisePendingMaterialsViewset(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MaterialManagementSerializer
+    queryset = MaterialManagement.objects.all()
+    lookup_field = 'project_id'
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = kwargs.get('project_id')
+            if not project_id:
+                return Response({"status": False, "message": "Project ID not found."})
             
+            queryset = self.filter_queryset(self.get_queryset()).filter(project=project_id, status='pending').order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Pending Material List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+    
+class ProjectIdwiseDeliveredMaterialsViewset(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MaterialManagementSerializer
+    queryset = MaterialManagement.objects.all()
+    lookup_field = 'project_id'
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = kwargs.get('project_id')
+            if not project_id:
+                return Response({"status": False, "message": "Project ID not found."})
+            
+            queryset = self.filter_queryset(self.get_queryset()).filter(project=project_id, status='delivered').order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Delivered Material List Successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
