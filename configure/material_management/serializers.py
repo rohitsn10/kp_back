@@ -30,8 +30,8 @@ class MaterialManagementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MaterialManagement
-        fields = ['id','user','client_vendor_choices','project', 'project_name','client_name',
-                  'vendor_name','material_number','material_name', 'uom', 'price', 'created_at', 'updated_at',
+        fields = ['id','user','project', 'project_name', 'vendor_code',
+                  'material_code', 'uom', 'price', 'created_at', 'updated_at',
                   'PR_number','pr_date','PO_number','po_date','material_required_date','delivered_date','number_of_delay','quantity', 'status', 'payment_status']
 
     # def get_subactivity_name(self, obj):
@@ -53,12 +53,18 @@ class InspectionMaterialSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     is_approved_by_full_name = serializers.CharField(source='is_approved_by.full_name', read_only=True)
     inspection_quality_report_attachments = serializers.SerializerMethodField()
-    
+    inspection_gtp_attachments = serializers.SerializerMethodField()
+    inspection_qap_attachments = serializers.SerializerMethodField()
     
     class Meta:
         model = InspectionOfMaterial
-        fields = ['id', 'material_management', 'user','user_full_name','inspection_date','inspection_quality_report','inspection_quality_report_attachments','is_inspection','is_approved','is_approved_by','is_approved_by_full_name','is_approved_date','is_approved_remarks','remarks','created_at','updated_at']
+        fields = ['id', 'material_management','gtp','qap','inspection_gtp_attachments','inspection_qap_attachments','user','user_full_name','inspection_date','inspection_quality_report','inspection_quality_report_attachments','is_inspection','is_approved','is_approved_by','is_approved_by_full_name','is_approved_date','is_approved_remarks','remarks','created_at','updated_at']
         
     def get_inspection_quality_report_attachments(self, obj):
         return get_file_data(self.context.get('request'), obj, 'inspection_quality_report_attachments')
-
+    
+    def get_inspection_gtp_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'inspection_gtp_attachments')
+    
+    def get_inspection_qap_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'inspection_qap_attachments')
