@@ -18,6 +18,12 @@ class SFAforTransmissionLineGSSAttachment(models.Model):
     sfa_for_transmission_line_gss_files = models.FileField(upload_to='sfa_for_transmission_line_gss_files', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+class SfaSoilBearingCapacityAttachment(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    sfa_soil_bearing_capacity_files = models.FileField(upload_to='sfa_soil_bearing_capacity_files', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
 class LandLocationAttachment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -72,11 +78,50 @@ class LandApprovedReportAttachment(models.Model):
     approved_report_file = models.FileField(upload_to='approved_report_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
 
 class LandBankMaster(models.Model):
+    SFA_LAND_TITLE_CHOICES = (
+        ('Freehold', 'Freehold'),
+        ('Govt', 'Govt'),
+        ('Private', 'Private'),
+    )
+    SFA_LAND_CATEGORY_CHOICES = (
+        ('Forest', 'Forest'),
+        ('Agriculture', 'Agriculture'),
+        ('AnyOther', 'AnyOther'),
+    )
+    
+    SFA_LAND_PROFILE_CHOICES = (
+        ('Hilly', 'Hilly'),
+        ('Flat', 'Flat'),
+        ('Undulated', 'Undulated'),
+        ('Developed', 'Developed'),
+        ('Undeveloped', 'Undeveloped'),
+        ('Sandy', 'Sandy'),
+        ('Silty', 'Silty'),
+        ('BackFilled', 'BackFilled'),
+    )
+    
+    SFA_LAND_ORIENTATION_CHOICES = (
+        ('NorthToSouth', 'North To South'),
+        ('EastToWest', 'East To West'),
+    )
+    
+    SFA_POWER_EXPORT_HAPPENING_CHOICES = (
+        ("Solar","Solar"),
+        ("Wind","Wind"),
+        ("Biogas","Biogas")
+    )
+    
     SOLAR_WIND_CHOICES = (
         ('Solar', 'Solar'),
         ('Wind', 'Wind'),
+    )
+    
+    SFA_WEATHER_TEMP_CHOICES = (
+        ('MinTemp','MinTemp'),
+        ('MaxTemp','MaxTemp')
     )
 
     LAND_BANK_STATUS = (
@@ -98,15 +143,91 @@ class LandBankMaster(models.Model):
     sale_deed_date = models.DateTimeField(null=True, blank=True)
     lease_deed_number = models.CharField(max_length=200, null=True, blank=True)
     lease_deed_file = models.ManyToManyField(LandLeaseDeedAttachment)
+    
+    #=============== SFA ================
     sfa_name = models.CharField(max_length=255, null=True, blank=True)
-    timeline = models.DateTimeField(null=True, blank=True)
+    land_address = models.CharField(max_length=255, null=True, blank=True)
+    client_consultant = models.CharField(max_length=255, null=True, blank=True)
+    site_visit_date = models.DateTimeField(null=True, blank=True)
+    palnt_capacity = models.CharField(max_length=255, null=True, blank=True)
+    land_owner = models.CharField(max_length=255, null=True, blank=True)
+    sfa_available_area_acres = models.CharField(max_length=255, null=True, blank=True)
+    distance_from_main_road = models.CharField(max_length=500, null=True, blank=True)
+    road_highway_details = models.CharField(max_length=500, null=True, blank=True)
+    land_title = models.CharField(max_length=100, choices=SFA_LAND_TITLE_CHOICES, null=True, blank=True)
+    sfa_land_category = models.CharField(max_length=100, choices=SFA_LAND_CATEGORY_CHOICES, null=True, blank=True)
+    sfa_land_profile = models.CharField(max_length=100, choices=SFA_LAND_PROFILE_CHOICES, null=True, blank=True)
+    sfa_land_orientation = models.CharField(max_length=100, choices=SFA_LAND_ORIENTATION_CHOICES, null=True, blank=True)
+    sfa_land_soil_testing_availability = models.BooleanField(default=False, null=True, blank=True)
+    sfa_soil_bearing_capacity_files = models.ManyToManyField(SfaSoilBearingCapacityAttachment)
+    any_shadow_casting_buildings_or_hill = models.BooleanField(default=False, null=True, blank=True)
+    any_water_ponds_or_nalas_within_the_proposed_location = models.CharField(max_length=500, null=True, blank=True)
+    any_roads_or_bridge_within_the_proposed_location = models.CharField(max_length=500,null=True, blank=True)
+    any_railway_lane_within_the_proposed_location = models.CharField(max_length=500,null=True, blank=True)
+    is_the_proposed_site_is_of_natural_contour_or_filled_up_area = models.BooleanField(default=False, null=True, blank=True)
+    geo_graphical_cordinates = models.CharField(max_length=500, null=True, blank=True)
+    land_co_ordinates = models.CharField(max_length=500, null=True, blank=True)
+    substation_cordinates = models.CharField(max_length=500, null=True, blank=True)
+    solar_isolation_data = models.CharField(max_length=500, null=True, blank=True)
+    rain_fall_pattern = models.CharField(max_length=500, choices = SFA_WEATHER_TEMP_CHOICES, null=True, blank=True)
+    communication_network_availability = models.CharField(max_length=500, null=True, blank=True)
+    # Power Evacuation
+    permission_required_for_power_generation = models.BooleanField(default=False, null=True, blank=True)
+    transmission_network_availabilty_above_400_220_33kv = models.CharField(max_length=500, null=True, blank=True)
+    distance_of_supply_point_from_proposed_site = models.CharField(max_length=500, null=True, blank=True)
+    distance_of_nearest_substation_from_proposed_site = models.CharField(max_length=500, null=True, blank=True)
+    transmission_line_load_carrying_or_evacuation_capacity = models.CharField(max_length=500, null=True, blank=True)
+    right_of_way_requirement_up_to_the_delivery_point = models.CharField(max_length=500, null=True, blank=True)
+    construction_power_availability_and_identify_source_distance = models.CharField(max_length=500, null=True, blank=True)
+    grid_availability_data_outage_pattern = models.CharField(max_length=500, null=True, blank=True)
+    substation_capacity_mva = models.CharField(max_length=500, null=True, blank=True)
+    substation_load_side_voltage_level_kv = models.CharField(max_length=500, null=True, blank=True)
+    kv_grid_voltage_variation = models.CharField(max_length=500, null=True, blank=True)
+    hz_grid_voltage_variation = models.CharField(max_length=500, null=True, blank=True)
+    check_space_availability_in_substation_to_conct_power_by_area = models.CharField(max_length=500, null=True, blank=True)
+    transformer_rating_in_substation = models.CharField(max_length=500, null=True, blank=True)
+    check_protection_system_details_of_substation = models.CharField(max_length=500, null=True, blank=True)
+    any_future_plan_for_expansion_of_substation = models.CharField(max_length=500, null=True, blank=True)
+    is_there_any_power_export_happening_at_substation = models.CharField(max_length=500,choices = SFA_POWER_EXPORT_HAPPENING_CHOICES, null=True, blank=True)
+    any_specific_requirements_of_eb_for_double_pole_structure = models.CharField(max_length=500, null=True, blank=True)
+    any_transmission_communication_line_passing_through_site = models.CharField(max_length=500, null=True, blank=True)
+    neighboring_area_or_vicinity_details = models.CharField(max_length=500, null=True, blank=True)
+    nearest_industry_category_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    nearest_village_or_district_name_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    nearest_highway_or_airport_name_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    availability_of_labor_and_cost_of_labor = models.CharField(max_length=500, null=True, blank=True)
+    logistics = models.CharField(max_length=500, null=True, blank=True)
+    is_there_an_approach_road_available_to_the_site = models.CharField(max_length=500, null=True, blank=True)
+    can_truck_of_Multi_axel_with_40_foot_container_reach_site = models.CharField(max_length=500, null=True, blank=True)
+    availability_of_vehicle_for_hiring_or_cost_per_km = models.CharField(max_length=500, null=True, blank=True)
+    # HSSE
+    list_the_risks_including_journey =  models.CharField(max_length=500, null=True, blank=True)
+    # Others
+    nearest_police_station_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    nearest_hospital_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    nearest_fire_station_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    nearest_seashore_and_distance = models.CharField(max_length=500, null=True, blank=True)
+    availability_of_accommodation_to_site_approximate_cost = models.CharField(max_length=500, null=True, blank=True)
+    provide_near_by_civil_electrical_contractors = models.CharField(max_length=500, null=True, blank=True)
+    availability_of_construction_material_nearby = models.BooleanField(default=False, null=True, blank=True)
+    any_weather_station_nearby = models.CharField(max_length=500, null=True, blank=True)
+    # Water Availability 
+    water_belt_profile_of_the_area = models.CharField(max_length=500, null=True, blank=True)
+    water_availability = models.CharField(max_length=500, null=True, blank=True)
+    construction_water_availability = models.CharField(max_length=500, null=True, blank=True)
+    details_of_local_drainage_scheme = models.CharField(max_length=500, null=True, blank=True)
+    availability_of_potable_water = models.CharField(max_length=500, null=True, blank=True)
+    any_other_general_observation = models.CharField(max_length=500, null=True, blank=True)
+    any_other_general_observation = models.CharField(max_length=500, null=True, blank=True)  
+
     land_sfa_file = models.ManyToManyField(SFAAttachment)
     sfa_for_transmission_line_gss_files = models.ManyToManyField(SFAforTransmissionLineGSSAttachment)
+    timeline = models.DateTimeField(null=True, blank=True)
+    solar_or_winds = models.CharField(max_length=10, choices=SOLAR_WIND_CHOICES, null=True, blank=True)
+    date_of_assessment = models.DateTimeField(null=True, blank=True)
     status_of_site_visit = models.CharField(max_length=255, choices=STATUS_OF_SITE_VISIT, null=True, blank=True,default='Pending')
     sfa_approved_by_user = models.ForeignKey(CustomUser, related_name='sfa_approved_user', null=True, blank=True, on_delete=models.SET_NULL)
     sfa_rejected_by_user = models.ForeignKey(CustomUser, related_name='sfa_rejected_user', null=True, blank=True, on_delete=models.SET_NULL)
-    date_of_assessment = models.DateTimeField(null=True, blank=True)
-    site_visit_date = models.DateTimeField(null=True, blank=True)
     sfa_checked_by_user = models.ForeignKey(CustomUser, related_name='sfa_checked_user', null=True, blank=True, on_delete=models.SET_NULL)
     
     survey_number = models.CharField(max_length=500, null=True, blank=True)
@@ -114,7 +235,6 @@ class LandBankMaster(models.Model):
     district_name = models.CharField(max_length=500, null=True, blank=True)
     taluka_tahshil_name = models.CharField(max_length=500, null=True, blank=True)
     propose_gss_number = models.CharField(max_length=500, null=True, blank=True)
-    land_co_ordinates = models.CharField(max_length=500, null=True, blank=True)
     land_status = models.CharField(max_length=500, null=True, blank=True)
     area_meters = models.CharField(max_length=500, null=True, blank=True)
     area_acres = models.CharField(max_length=500,null=True, blank=True)
@@ -138,7 +258,6 @@ class LandBankMaster(models.Model):
     land_approach_road_file = models.ManyToManyField(LandApproachRoadAttachment)
     land_co_ordinates_file = models.ManyToManyField(LandCoOrdinatesAttachment)
     land_transmission_line_file = models.ManyToManyField(LandTransmissionLineAttachment)
-    solar_or_winds = models.CharField(max_length=10, choices=SOLAR_WIND_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
