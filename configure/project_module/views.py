@@ -1780,7 +1780,7 @@ class ProjectIdwiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
             if not project_id:
                 return Response({"status": False, "message": "Project Id is required", "data": []})
             drawing_and_design = DrawingAndDesignManagement.objects.filter(project=project_id)
-            serializer = DrawingandDesignSerializer(drawing_and_design, many=True)
+            serializer = DrawingandDesignSerializer(drawing_and_design, many=True, context={'request': request})
             return Response({"status": True, "message": "Drawing and design data fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
