@@ -42,8 +42,9 @@ urlpatterns = [
     
     path('getactivemilestone',GetActiveMilestoneViewSet.as_view({'get':'list'}), name='getactivemilestone'),
     
-    path('add_drawing_and_design',AddDrawingandDesignViewSet.as_view({'post':'create','get':'list'}), name='add_drawing_design'),
+    # path('add_drawing_and_design',AddDrawingandDesignViewSet.as_view({'post':'create','get':'list'}), name='add_drawing_design'),
     path('get_drawing_and_design',AddDrawingandDesignViewSet.as_view({'get':'list'}), name='get_drawing_design'),
+    path('upload_excel_drawing_and_design',UploadExcelDrawingDataView.as_view(), name='UploadDrawingDataView'),
     path('update_drawing_and_design/<int:drawing_and_design_id>',DrawingandDesignUpdateViewSet.as_view({'put':'update','delete':'destroy'}), name='update_drawing_design'),
     path('approval_or_commented_action_on_drawing_and_design/<int:drawing_and_design_id>', ApprovalOrCommentedActionOnDrawingandDesignViewSet.as_view({'put':'update'}), name='approval_or_commented_action_on_drawing_and_design'),
     path('projcet_idwise_get_drawing_and_design/<int:project_id>',ProjectIdwiseGetDrawingandDesignViewSet.as_view({'get':'list'}), name='projcet_idwise_get_drawing_and_design'),

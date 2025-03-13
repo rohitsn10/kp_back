@@ -75,6 +75,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_sub_sub_activity = ProjectSubSubActivityNameSerializer(many=True, read_only=True)
     landbank_name = serializers.CharField(source='landbank.land_name', read_only=True)
     electricity_name = serializers.CharField(source='electricity_line.electricity_line', read_only=True)
+    assigned_users = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -83,15 +84,28 @@ class ProjectSerializer(serializers.ModelSerializer):
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
             'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'created_at',
             'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
-            'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name',
+            'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name','assigned_users'
         ]
 
+    def get_assigned_users(self, obj):
+        """Custom method to retrieve assigned users as a list of dicts"""
+        assigned_users = obj.assigned_users.all()  # Ensure it's a QuerySet
+        return [
+            {
+                'assigned_user_id': user.id, 
+                'assigned_user_name': user.full_name,
+                'assigned_user_group': user.groups.first().name if user.groups.exists() else None
+            }
+            for user in assigned_users
+        ] if assigned_users else []
+        
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['id'] = int(representation['id'])  # Convert ID to int
         representation['user'] = int(representation['user'])  # Convert user ID to int
         representation['company'] = int(representation['company'])  # Convert company ID to int
         representation['project_activity'] = int(representation['project_activity'])  # Convert activity ID to int
+        
 
         # Format project_sub_activity properly
         project_sub_activity = representation.pop('project_sub_activity', [])
@@ -112,7 +126,17 @@ class ProjectSerializer(serializers.ModelSerializer):
                 'sub_sub_activity_name': sub_sub_activity['sub_sub_activity_name']
             })
         representation['project_sub_sub_activity'] = formatted_sub_sub_activities
-
+        
+        # Format assigned_users properly
+        assigned_users = representation.pop('assigned_users', [])
+        representation['assigned_users'] = [
+            {
+                'assigned_user_id': user['assigned_user_id'],
+                'assigned_user_name': user['assigned_user_name'],
+                'assigned_user_group': user['assigned_user_group']
+            }
+            for user in assigned_users if user
+        ]
         return representation
 
 

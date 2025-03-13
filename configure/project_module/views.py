@@ -7,6 +7,10 @@ from project_module.serializers import *
 import ipdb
 from user_profile.function_call import *
 from datetime import datetime
+import pandas as pd
+from django.core.files.storage import default_storage
+from openpyxl import load_workbook
+from rest_framework.views import APIView
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
@@ -795,6 +799,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             spoc_user = request.data.get('spoc_user')
             project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
             project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
+            assigned_users = request.data.get('assigned_users', [])
 
             # Validate individual fields
             if not landbank_id:
@@ -880,6 +885,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
             except LandBankMaster.DoesNotExist:
                 return Response({"status": False, "message": "Invalid Landbank ID."})
 
+            try:
+                assigned_users = CustomUser.objects.filter(id__in=assigned_users)
+            except CustomUser.DoesNotExist:
+                return Response({"status": False, "message": "Invalid assigned users."})
             # Create the Project instance
             project = Project.objects.create(
                 user=user,
@@ -920,6 +929,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if sub_sub_activity_names:
                 project.project_sub_sub_activity.set(sub_sub_activity_names)
 
+            if assigned_users:
+                project.assigned_users.set(assigned_users)
+                
             return Response({"status": True,"message": "Project created successfully","data": data})
 
         except Exception as e:
@@ -1542,82 +1554,163 @@ class ProjectMilestoneStartViewSet(viewsets.ModelViewSet):
 class AddDrawingandDesignViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = DrawingandDesignSerializer
-    queryset = DrawingAndDesignManagement.objects.all()
+    queryset = DrawingAndDesignManagement.objects.all().order_by('-id')
     
-    def create(self, request, *args, **kwargs):
-        try:
-            user = self.request.user
-            project_id = request.data.get('project_id')
-            assign_to_user = request.data.get('assign_to_user')
-            drawing_and_design_attachments = request.data.getlist('drawing_and_design_attachments', []) or []
-            discipline = request.data.get('discipline')
-            block = request.data.get('block')
-            drawing_number = request.data.get('drawing_number')
-            auto_drawing_number = request.data.get('auto_drawing_number')
-            name_of_drawing = request.data.get('name_of_drawing')
-            drawing_category = request.data.get('drawing_category')
-            type_of_approval = request.data.get('type_of_approval')
-            approval_status = request.data.get('approval_status')
-            try:
-                project = Project.objects.get(id=project_id)
-            except Project.DoesNotExist:
-                return Response({"status": False, "message": "Project not found", "data": []})
+#     def create(self, request, *args, **kwargs):
+#         try:
+#             user = self.request.user
+#             project_id = request.data.get('project_id')
+#             assign_to_user = request.data.get('assign_to_user')
+#             drawing_and_design_attachments = request.data.getlist('drawing_and_design_attachments', []) or []
+#             discipline = request.data.get('discipline')
+#             block = request.data.get('block')
+#             drawing_number = request.data.get('drawing_number')
+#             auto_drawing_number = request.data.get('auto_drawing_number')
+#             name_of_drawing = request.data.get('name_of_drawing')
+#             drawing_category = request.data.get('drawing_category')
+#             type_of_approval = request.data.get('type_of_approval')
+#             approval_status = request.data.get('approval_status')
+#             try:
+#                 project = Project.objects.get(id=project_id)
+#             except Project.DoesNotExist:
+#                 return Response({"status": False, "message": "Project not found", "data": []})
             
-            try:
-                if not assign_to_user:
-                    return Response({"status": False, "message": "Assign to user is required", "data": []})
-                assign_to_user = CustomUser.objects.get(id=assign_to_user)
-            except CustomUser.DoesNotExist:
-                return Response({"status": False, "message": "Assign to user not found", "data": []})
+#             try:
+#                 if not assign_to_user:
+#                     return Response({"status": False, "message": "Assign to user is required", "data": []})
+#                 assign_to_user = CustomUser.objects.get(id=assign_to_user)
+#             except CustomUser.DoesNotExist:
+#                 return Response({"status": False, "message": "Assign to user not found", "data": []})
         
-            if not discipline:
-                return Response({"status": False, "message": "Discipline is required", "data": []})
-            if not block:
-                return Response({"status": False, "message": "Block is required", "data": []})
-            if not drawing_number:
-                return Response({"status": False, "message": "Drawing number is required", "data": []})
-            if not auto_drawing_number:
-                return Response({"status": False, "message": "Auto drawing number is required", "data": []})
-            if not name_of_drawing:
-                return Response({"status": False, "message": "Name of drawing is required", "data": []})
-            if not drawing_category:
-                return Response({"status": False, "message": "Drawing category is required", "data": []})
-            if not type_of_approval:
-                return Response({"status": False, "message": "Type of approval is required", "data": []})
-            if not approval_status:
-                return Response({"status": False, "message": "Approval status is required", "data": []})
+#             if not discipline:
+#                 return Response({"status": False, "message": "Discipline is required", "data": []})
+#             if not block:
+#                 return Response({"status": False, "message": "Block is required", "data": []})
+#             if not drawing_number:
+#                 return Response({"status": False, "message": "Drawing number is required", "data": []})
+#             if not auto_drawing_number:
+#                 return Response({"status": False, "message": "Auto drawing number is required", "data": []})
+#             if not name_of_drawing:
+#                 return Response({"status": False, "message": "Name of drawing is required", "data": []})
+#             if not drawing_category:
+#                 return Response({"status": False, "message": "Drawing category is required", "data": []})
+#             if not type_of_approval:
+#                 return Response({"status": False, "message": "Type of approval is required", "data": []})
+#             if not approval_status:
+#                 return Response({"status": False, "message": "Approval status is required", "data": []})
             
-            drawing_and_design = DrawingAndDesignManagement.objects.create(
-                project=project,
-                user=user,
-                assign_to_user=assign_to_user,
-                discipline=discipline,
-                block=block,
-                drawing_number=drawing_number,
-                auto_drawing_number=auto_drawing_number,
-                name_of_drawing=name_of_drawing,
-                drawing_category=drawing_category,
-                type_of_approval=type_of_approval,
-                approval_status=approval_status
-            )
+#             drawing_and_design = DrawingAndDesignManagement.objects.create(
+#                 project=project,
+#                 user=user,
+#                 assign_to_user=assign_to_user,
+#                 discipline=discipline,
+#                 block=block,
+#                 drawing_number=drawing_number,
+#                 auto_drawing_number=auto_drawing_number,
+#                 name_of_drawing=name_of_drawing,
+#                 drawing_category=drawing_category,
+#                 type_of_approval=type_of_approval,
+#                 approval_status=approval_status
+#             )
             
-            for attachment in drawing_and_design_attachments:
-                drawing_and_design_attachments = DrawingAndDesignAttachments.objects.create(project = project, user = user, drawing_and_design_attachments = attachment)
-                drawing_and_design.drawing_and_design_attachments.add(drawing_and_design_attachments)
+#             for attachment in drawing_and_design_attachments:
+#                 drawing_and_design_attachments = DrawingAndDesignAttachments.objects.create(project = project, user = user, drawing_and_design_attachments = attachment)
+#                 drawing_and_design.drawing_and_design_attachments.add(drawing_and_design_attachments)
                 
-            drawing_and_design.save()
-            return Response({"status": True, "message": "Drawing and design added successfully", "data": []})
-        except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
-    
+#             drawing_and_design.save()
+#             return Response({"status": True, "message": "Drawing and design added successfully", "data": []})
+#         except Exception as e:
+#             return Response({"status": False, "message": str(e), "data": []})
     def list(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            queryset = self.filter_queryset(self.get_queryset())
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Drawing and design List Successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+
+class UploadExcelDrawingDataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            # Get uploaded file
+            file = request.FILES.get('file')
+            project_id = request.data.get('project_id')
+            
+            if not file:
+                return Response({"status": False, "message": "No file uploaded"})
+            
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required"})
+            
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Invalid project ID"})
+            
+            # Save file temporarily
+            file_path = default_storage.save(file.name, file)
+            
+            # Load Excel file
+            xls = pd.ExcelFile(default_storage.path(file_path))
+            sheet_name = xls.sheet_names[0]  # Read the first sheet dynamically
+            df = pd.read_excel(xls, sheet_name=sheet_name)
+            
+            # Find the header row dynamically
+            expected_headers = ['Discipline', 'Block', 'Drawing / Document Number', 'Name of the Drawing / Document', 'Document Catagories:', 'Type - Approval / Information', 'Approval Status']
+            header_row = None
+            for i, row in df.iterrows():
+                if all(col in row.values for col in expected_headers):
+                    header_row = i
+                    break
+            
+            if header_row is None:
+                return Response({"status": False, "message": "Could not find header row in the uploaded file"})
+            
+            # Read data from detected header row
+            df = pd.read_excel(xls, sheet_name=sheet_name, skiprows=header_row + 1)
+            df = df.rename(columns={
+                'Discipline': 'discipline',
+                'Block': 'block',
+                'Drawing / Document Number': 'drawing_number',
+                'Name of the Drawing / Document': 'name_of_drawing',
+                'Document Catagories:': 'drawing_category',
+                'Type - Approval / Information': 'type_of_approval',
+                'Approval Status': 'approval_status'
+            })
+            
+            df = df[['discipline', 'block', 'drawing_number', 'name_of_drawing', 'drawing_category', 'type_of_approval', 'approval_status']]
+            df = df.dropna(subset=['drawing_number', 'name_of_drawing']).reset_index(drop=True)
+            
+            # Save data to the database
+            drawings = []
+            for _, row in df.iterrows():
+                drawing = DrawingAndDesignManagement(
+                    project=project,
+                    user=request.user,
+                    assign_to_user=None,  # Will be assigned later
+                    discipline=row['discipline'],
+                    block=row['block'],
+                    drawing_number=row['drawing_number'],
+                    name_of_drawing=row['name_of_drawing'],
+                    drawing_category=row['drawing_category'],
+                    type_of_approval=row['type_of_approval'],
+                    approval_status=row['approval_status']
+                )
+                drawings.append(drawing)
+            
+            DrawingAndDesignManagement.objects.bulk_create(drawings)
+            
+            return Response({"status": True, "message": "Data uploaded successfully", "total_records": len(drawings)})
+        
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
+    
+    
         
         
 class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
@@ -1772,14 +1865,14 @@ class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
 class ProjectIdwiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = DrawingandDesignSerializer
-    queryset = DrawingAndDesignManagement.objects.all()
+    queryset = DrawingAndDesignManagement.objects.all().order_by('-id')
     
     def list(self, request, *args, **kwargs):
         try:
             project_id = self.kwargs.get('project_id')
             if not project_id:
                 return Response({"status": False, "message": "Project Id is required", "data": []})
-            drawing_and_design = DrawingAndDesignManagement.objects.filter(project=project_id)
+            drawing_and_design = DrawingAndDesignManagement.objects.filter(project=project_id).order_by('-id')
             serializer = DrawingandDesignSerializer(drawing_and_design, many=True, context={'request': request})
             return Response({"status": True, "message": "Drawing and design data fetched successfully", "data": serializer.data})
         except Exception as e:
