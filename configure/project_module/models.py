@@ -220,7 +220,13 @@ class DrawingAndDesignAttachments(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-
+class OtherDrawingAndDesignAttachments(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    other_drawing_and_design_attachments = models.FileField(upload_to='other_drawing_and_design_attachments',null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
 class DrawingAndDesignManagement(models.Model):
     DRAWING_CATEGORY = [
         ('drawing', 'Drawing'),
@@ -246,6 +252,7 @@ class DrawingAndDesignManagement(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
     assign_to_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assign_to',null=True, blank=True)
     drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignAttachments)
+    other_drawing_and_design_attachments = models.ManyToManyField(OtherDrawingAndDesignAttachments)
     discipline = models.CharField(max_length=100,null=True, blank=True)
     block = models.CharField(max_length=100,null=True, blank=True)
     drawing_number = models.CharField(max_length=100,null=True, blank=True)
