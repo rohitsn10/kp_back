@@ -359,7 +359,7 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     drawing_and_design_attachments = serializers.SerializerMethodField()
     assign_to_user_full_name = serializers.CharField(source='assign_to_user.full_name', read_only=True)
-    
+    other_drawing_and_design_attachments = serializers.SerializerMethodField()
     # Nested serializers for the actions
     commented_actions = serializers.SerializerMethodField()
     resubmitted_actions = serializers.SerializerMethodField()
@@ -369,7 +369,7 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
         model = DrawingAndDesignManagement
         fields = [
             'id', 'project', 'project_name', 'user', 'user_full_name', 
-            'drawing_and_design_attachments', 'assign_to_user', 'assign_to_user_full_name', 
+            'drawing_and_design_attachments','other_drawing_and_design_attachments','assign_to_user', 'assign_to_user_full_name', 
             'discipline', 'block', 'drawing_number', 'auto_drawing_number', 'name_of_drawing', 
             'drawing_category', 'type_of_approval', 'approval_status', 'commented_count', 
             'submitted_count', 'is_approved', 'is_commented', 'is_submitted', 'updated_at',
@@ -379,6 +379,9 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
     def get_drawing_and_design_attachments(self, obj):
         return get_file_data(self.context.get('request'), obj, 'drawing_and_design_attachments')
 
+    def get_other_drawing_and_design_attachments(self, obj):
+        return get_file_data(self.context.get('request'), obj, 'other_drawing_and_design_attachments')
+    
     def get_commented_actions(self, obj):
         # Get related commented actions, or return an empty list if no related actions exist
         commented_actions = obj.drawinganddesigncommentedactions_set.all()

@@ -1738,6 +1738,8 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
             project_id = request.data.get('project_id')
             drawing_and_design_attachments = request.data.getlist('drawing_and_design_attachments', []) or []
             remove_drawing_and_design_attachments = request.data.get('remove_drawing_and_design_attachments_id', []) or []
+            other_drawing_and_design_attachments = request.data.getlist('other_drawing_and_design_attachments', []) or []
+            remove_other_drawing_and_design_attachments = request.data.get('remove_other_drawing_and_design_attachments_id', []) or []
             assign_to_user = request.data.get('assign_to_user')
             discipline = request.data.get('discipline')
             block = request.data.get('block')
@@ -1752,6 +1754,7 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "You cannot update the approval status to commented or approved."})
             
             remove_drawing_and_design_attachments = process_file_ids(remove_drawing_and_design_attachments)
+            remove_other_drawing_and_design_attachments = process_file_ids(remove_other_drawing_and_design_attachments)
             try:
                 # Update fields only if they are provided in the request
                 if project_id:
@@ -1772,7 +1775,21 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                             file_instance.delete()
                         except DrawingAndDesignAttachments.DoesNotExist:
                             pass
-                
+                if other_drawing_and_design_attachments:
+                    for attachment in other_drawing_and_design_attachments:
+                        other_drawing_and_design_attachments = OtherDrawingAndDesignAttachments.objects.create(
+                            project=project, user=user, other_drawing_and_design_attachments=attachment)
+                        drawing_and_design.other_drawing_and_design_attachments.add(other_drawing_and_design_attachments)
+                        
+                if remove_other_drawing_and_design_attachments:
+                    for file_id in remove_other_drawing_and_design_attachments:
+                        try:
+                            file_instance = OtherDrawingAndDesignAttachments.objects.get(id=file_id)
+                            drawing_and_design.other_drawing_and_design_attachments.remove(file_instance)
+                            file_instance.delete()
+                        except OtherDrawingAndDesignAttachments.DoesNotExist:
+                            pass
+                        
                 if assign_to_user:
                     assign_to_user = CustomUser.objects.get(id=assign_to_user)
                     drawing_and_design.assign_to_user = assign_to_user
@@ -1819,6 +1836,7 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": str(e), "data": []})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
         
 
 class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
