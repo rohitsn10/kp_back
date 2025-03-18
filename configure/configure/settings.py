@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "project_module",
     "document_control",
     "material_management",
+    "annexures_module",
 
 ]
 
