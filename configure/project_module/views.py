@@ -1819,16 +1819,16 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                     drawing_and_design.approval_status = approval_status
                 
                 # Only increment submitted_count if approval_status is 'submitted' 
-                if approval_status == 'submitted' and current_approval_status == 'commented':
-                    drawing_and_design.submitted_count = current_submitted_count + 1
-                    drawing_and_design.is_submitted = True
-                    resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = project , user=user, remarks = remarks,submitted_count = current_submitted_count + 1)
-                    resubmitted_actions.save()
+                # if approval_status == 'submitted' and current_approval_status == 'commented':
+                #     drawing_and_design.submitted_count = current_submitted_count + 1
+                #     drawing_and_design.is_submitted = True
+                #     resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = project , user=user, remarks = remarks,submitted_count = current_submitted_count + 1)
+                #     resubmitted_actions.save()
                     
                     
-                # Don't update submitted_count if approval_status is 'not_submitted'
-                if approval_status in ['not_submitted', 'commented', 'approved'] and current_approval_status == 'not_submitted':
-                    drawing_and_design.submitted_count = str(current_submitted_count)  # Keep it unchanged
+                # # Don't update submitted_count if approval_status is 'not_submitted'
+                # if approval_status in ['not_submitted', 'commented', 'approved'] and current_approval_status == 'not_submitted':
+                #     drawing_and_design.submitted_count = str(current_submitted_count)  # Keep it unchanged
                 drawing_and_design.save()
                 
                 return Response({"status": True, "message": "Drawing and design updated successfully", "data": []})
@@ -1878,7 +1878,33 @@ class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Invalid approval status."})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
+
+class DrawingandDesignResubmittedActionViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DrawingandDesignSerializer
+    queryset = DrawingAndDesignManagement.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            drawing_and_design_id = self.kwargs.get('drawing_and_design_id')
+            if not drawing_and_design_id:
+                return Response({"status": False, "message": "Drawing and design not found."})
+            
+            drawing_and_design = DrawingAndDesignManagement.objects.get(id=drawing_and_design_id)
+            
+            if not drawing_and_design:
+                return Response({"status": True, "message": "Drawing and design Data is not found"})
+            current_submitted_count = int(drawing_and_design.submitted_count) if drawing_and_design.submitted_count else 0
+            remarks = request.data.get('remarks')
+            drawing_and_design.approval_status = 'submitted'
+            drawing_and_design.submitted_count = current_submitted_count + 1
+            re_submitted = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = drawing_and_design.project , user=user, remarks = remarks,submitted_count = current_submitted_count + 1)
+            re_submitted.save()
+            drawing_and_design.save()
+            return Response({"status": True, "message": "Drawing and design resubmitted successfully", "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
         
 class ProjectIdwiseGetDrawingandDesignViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
