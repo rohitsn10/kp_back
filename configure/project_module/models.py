@@ -245,7 +245,8 @@ class DrawingAndDesignManagement(models.Model):
         ('not_submitted', 'Not Submitted'),  # This is the default status when create
         ('commented', 'Commented'),  # this is the status when user commented on rejection
         ('submitted', 'Submitted'),  # this is the status when user re-submitted
-        ('approved', 'Approved'),    # this is the status when user approved
+        ('approved', 'Approved'),   # this is the status when user approved
+        ('send_back', 'Send Back'),   # this is the status when user send back
     ]
     
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
@@ -258,6 +259,7 @@ class DrawingAndDesignManagement(models.Model):
     drawing_number = models.CharField(max_length=100,null=True, blank=True)
     auto_drawing_number = models.CharField(max_length=500,null=True, blank=True)
     name_of_drawing = models.CharField(max_length=500,null=True, blank=True)
+    revision_version = models.CharField(max_length=100,null=True, blank=True,default="1")
     
     drawing_category = models.CharField(max_length=500, choices=DRAWING_CATEGORY, null=True, blank=True)
     type_of_approval = models.CharField(max_length=500, choices=TYPE_OF_APPROVAL, null=True, blank=True)
@@ -267,6 +269,7 @@ class DrawingAndDesignManagement(models.Model):
     is_approved = models.BooleanField(default=False)
     is_commented = models.BooleanField(default=False)
     is_submitted = models.BooleanField(default=False)
+    is_send_back = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -290,6 +293,7 @@ class DrawingAndDesignReSubmittedActions(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design = models.ForeignKey(DrawingAndDesignManagement, on_delete=models.CASCADE,null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    submitted_count = models.CharField(max_length=100,null=True, blank=True,default="1")
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

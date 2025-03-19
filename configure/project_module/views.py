@@ -1822,7 +1822,7 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                 if approval_status == 'submitted' and current_approval_status == 'commented':
                     drawing_and_design.submitted_count = current_submitted_count + 1
                     drawing_and_design.is_submitted = True
-                    resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = project , user=user, remarks = remarks)
+                    resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = project , user=user, remarks = remarks,submitted_count = current_submitted_count + 1)
                     resubmitted_actions.save()
                     
                     

@@ -342,18 +342,16 @@ class ReSubmittedActionsSerializer(serializers.ModelSerializer):
     drawing_and_design_name = serializers.CharField(source='drawing_and_design.name_of_drawing', read_only=True)
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     class Meta:
-        model = DrawingAndDesignCommentedActions
-        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks', 'created_at', 'updated_at']
+        model = DrawingAndDesignReSubmittedActions
+        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks','submitted_count','created_at', 'updated_at']
 
 class ApprovedActionsSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     drawing_and_design_name = serializers.CharField(source='drawing_and_design.name_of_drawing', read_only=True)
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     class Meta:
-        model = DrawingAndDesignCommentedActions
-        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks', 'created_at', 'updated_at']
-        
-
+        model = DrawingAndDesignApprovedActions
+        fields = ['id','drawing_and_design','drawing_and_design_name','project','project_name','user','user_full_name','remarks', 'created_at', 'updated_at']   
 class DrawingandDesignSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
@@ -373,7 +371,7 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
             'discipline', 'block', 'drawing_number', 'auto_drawing_number', 'name_of_drawing', 
             'drawing_category', 'type_of_approval', 'approval_status', 'commented_count', 
             'submitted_count', 'is_approved', 'is_commented', 'is_submitted', 'updated_at',
-            'commented_actions', 'resubmitted_actions', 'approved_actions'
+            'commented_actions', 'resubmitted_actions', 'approved_actions',
         ]
 
     def get_drawing_and_design_attachments(self, obj):
