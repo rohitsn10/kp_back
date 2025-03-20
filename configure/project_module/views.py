@@ -1819,17 +1819,47 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                     drawing_and_design.approval_status = approval_status
                 
                 # Only increment submitted_count if approval_status is 'submitted' 
-                # if approval_status == 'submitted' and current_approval_status == 'commented':
-                #     drawing_and_design.submitted_count = current_submitted_count + 1
-                #     drawing_and_design.is_submitted = True
-                #     resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = project , user=user, remarks = remarks,submitted_count = current_submitted_count + 1)
-                #     resubmitted_actions.save()
-                    
-                    
-                # # Don't update submitted_count if approval_status is 'not_submitted'
-                # if approval_status in ['not_submitted', 'commented', 'approved'] and current_approval_status == 'not_submitted':
-                #     drawing_and_design.submitted_count = str(current_submitted_count)  # Keep it unchanged
+                if approval_status == 'submitted' and current_approval_status == 'commented':
+                    # Increment submitted count
+                    drawing_and_design.submitted_count = current_submitted_count + 1
+                    drawing_and_design.is_commented = False
+                    drawing_and_design.is_submitted = True
+
+                    # Create new DrawingAndDesignReSubmittedActions record
+                    resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(
+                        drawing_and_design=drawing_and_design,
+                        project=project,
+                        user=user,
+                        remarks=remarks,
+                        submitted_count=current_submitted_count + 1
+                    )
+                    resubmitted_actions.save()
+
+                    # Copy existing attachments and save new ones
+                    new_drawing_attachments = []
+                    for attachment in drawing_and_design.drawing_and_design_attachments.all():
+                        new_attachment = DrawingAndDesignAttachments.objects.create(
+                            project=attachment.project,
+                            user=attachment.user,
+                            drawing_and_design_attachments=attachment.drawing_and_design_attachments
+                        )
+                        new_drawing_attachments.append(new_attachment)
+
+                    drawing_and_design.drawing_and_design_attachments.set(new_drawing_attachments)  # Assign new attachments
+
+                    new_other_drawing_attachments = []
+                    for attachment in drawing_and_design.other_drawing_and_design_attachments.all():
+                        new_attachment = OtherDrawingAndDesignAttachments.objects.create(
+                            project=attachment.project,
+                            user=attachment.user,
+                            other_drawing_and_design_attachments=attachment.other_drawing_and_design_attachments
+                        )
+                        new_other_drawing_attachments.append(new_attachment)
+
+                    drawing_and_design.other_drawing_and_design_attachments.set(new_other_drawing_attachments)  # Assign new attachments
+
                 drawing_and_design.save()
+
                 
                 return Response({"status": True, "message": "Drawing and design updated successfully", "data": []})
             except Exception as e:

@@ -389,11 +389,24 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
 
     def get_resubmitted_actions(self, obj):
         # Get related resubmitted actions, or return an empty list if no related actions exist
-        resubmitted_actions = obj.drawinganddesignresubmittedactions_set.all()
+        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=obj)
+    
         if resubmitted_actions.exists():
-            return ReSubmittedActionsSerializer(resubmitted_actions, many=True, context=self.context).data
+            data = []
+            for action in resubmitted_actions:
+                data.append({
+                    "id": action.id,
+                    "submitted_count": action.submitted_count,
+                    "remarks": action.remarks,
+                    "created_at": action.created_at,
+                    "attachments": {
+                        "drawing_and_design_attachments": get_file_data(self.context.get('request'), obj, 'drawing_and_design_attachments'),
+                        "other_drawing_and_design_attachments": get_file_data(self.context.get('request'), obj, 'other_drawing_and_design_attachments')
+                    }
+                })
+            return data
         return []
-
+    
     def get_approved_actions(self, obj):
         # Get related approved actions, or return an empty list if no related actions exist
         approved_actions = obj.drawinganddesignapprovedactions_set.all()
