@@ -387,25 +387,93 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
             return CommentedActionsSerializer(commented_actions, many=True, context=self.context).data
         return []
 
+    # def get_resubmitted_actions(self, obj):
+    #     # Get related resubmitted actions, or return an empty list if no related actions exist
+    #     resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=obj)
+    
+    #     if resubmitted_actions.exists():
+    #         data = []
+    #         for action in resubmitted_actions:
+    #             data.append({
+    #                 "id": action.id,
+    #                 "submitted_count": action.submitted_count,
+    #                 "remarks": action.remarks,
+    #                 "created_at": action.created_at,
+    #                 "attachments": {
+    #                     "drawing_and_design_attachments": get_file_data(self.context.get('request'), obj, 'drawing_and_design_attachments'),
+    #                     "other_drawing_and_design_attachments": get_file_data(self.context.get('request'), obj, 'other_drawing_and_design_attachments')
+    #                 }
+    #             })
+    #         return data
+    #     return []
+    
+
     def get_resubmitted_actions(self, obj):
         # Get related resubmitted actions, or return an empty list if no related actions exist
-        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=obj)
-    
-        if resubmitted_actions.exists():
-            data = []
-            for action in resubmitted_actions:
-                data.append({
+        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=obj).order_by("submitted_count")
+
+        # Prepare the response structure
+        response_data = {
+            "id": obj.id,
+            "project": obj.project.id if obj.project else None,
+            "project_name": obj.project.project_name if obj.project else None,
+            "user": obj.user.id if obj.user else None,
+            "user_full_name": obj.user.full_name if obj.user else None,
+            "discipline": obj.discipline,
+            "block": obj.block,
+            "drawing_number": obj.drawing_number,
+            "name_of_drawing": obj.name_of_drawing,
+            "drawing_category": obj.get_drawing_category_display() if obj.drawing_category else None,
+            "type_of_approval": obj.get_type_of_approval_display() if obj.type_of_approval else None,
+            "approval_status": obj.approval_status,
+            "is_approved": obj.is_approved,
+            "is_commented": obj.is_commented,
+            "is_submitted": obj.is_submitted,
+            "versions": []
+        }
+
+        # Iterate over each submission version
+        for action in resubmitted_actions:
+            version_data = {
+                "version_number": int(action.submitted_count),
+                "created_at": action.created_at,
+                "submitted_by": {
+                    "id": action.user.id if action.user else None,
+                    "name": action.user.full_name if action.user else None
+                },
+                "documents": {
+                    "drawing_and_design_attachments": [
+                        {
+                            "id": str(attachment.id),
+                            "url": attachment.drawing_and_design_attachments.url,
+                            "created_at": attachment.created_at,
+                            "updated_at": attachment.updated_at,
+                        } for attachment in obj.drawing_and_design_attachments.all()
+                    ],
+                    "other_drawing_and_design_attachments": [
+                        {
+                            "id": str(attachment.id),
+                            "url": attachment.other_drawing_and_design_attachments.url,
+                            "created_at": attachment.created_at,
+                            "updated_at": attachment.updated_at,
+                        } for attachment in obj.other_drawing_and_design_attachments.all()
+                    ]
+                },
+                "commented_actions": {
                     "id": action.id,
-                    "submitted_count": action.submitted_count,
+                    "drawing_and_design": obj.id,
+                    "drawing_and_design_name": obj.name_of_drawing,
+                    "project": obj.project.id if obj.project else None,
+                    "project_name": obj.project.project_name if obj.project else None,
+                    "user": action.user.id if action.user else None,
+                    "user_full_name": action.user.full_name if action.user else None,
                     "remarks": action.remarks,
                     "created_at": action.created_at,
-                    "attachments": {
-                        "drawing_and_design_attachments": get_file_data(self.context.get('request'), obj, 'drawing_and_design_attachments'),
-                        "other_drawing_and_design_attachments": get_file_data(self.context.get('request'), obj, 'other_drawing_and_design_attachments')
-                    }
-                })
-            return data
-        return []
+                    "updated_at": action.updated_at
+                }
+            }
+            response_data["versions"].append(version_data)
+        return response_data
     
     def get_approved_actions(self, obj):
         # Get related approved actions, or return an empty list if no related actions exist
@@ -413,7 +481,6 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
         if approved_actions.exists():
             return ApprovedActionsSerializer(approved_actions, many=True, context=self.context).data
         return []
-    
     
 class InFlowPaymentOnMilestoneSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
