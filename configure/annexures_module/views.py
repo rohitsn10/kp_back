@@ -690,7 +690,300 @@ class GetBoomLiftInspectionViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
-    
+
+class CraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CraneHydraInspectionsSerializer
+    queryset = CraneHydraInspections.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            equipment_name = request.data.get('equipment_name')
+            make_model = request.data.get('make_model')
+            identification_number = request.data.get('identification_number')
+            inspection_date = request.data.get('inspection_date')
+            site_name = request.data.get('site_name')
+            location = request.data.get('location')
+            all_valid_document_observations = request.data.get('all_valid_document_observations')
+            all_valid_document_action_by = request.data.get('all_valid_document_action_by')
+            all_valid_document_remarks = request.data.get('all_valid_document_remarks')
+            driver_fitness_certificate_observations = request.data.get('driver_fitness_certificate_observations')
+            driver_fitness_certificate_action_by = request.data.get('driver_fitness_certificate_action_by')
+            driver_fitness_certificate_remarks = request.data.get('driver_fitness_certificate_remarks')
+            main_horn_reverse_horn_observations = request.data.get('main_horn_reverse_horn_observations')
+            main_horn_reverse_horn_action_by = request.data.get('main_horn_reverse_horn_action_by')
+            main_horn_reverse_horn_remarks = request.data.get('main_horn_reverse_horn_remarks')
+            cutch_brake_observations = request.data.get('cutch_brake_observations')
+            cutch_brake_action_by = request.data.get('cutch_brake_action_by')
+            cutch_brake_remarks = request.data.get('cutch_brake_remarks')
+            tyre_pressure_condition_observations = request.data.get('tyre_pressure_condition_observations')
+            tyre_pressure_condition_action_by = request.data.get('tyre_pressure_condition_action_by')
+            tyre_pressure_condition_remarks = request.data.get('tyre_pressure_condition_remarks')
+            head_light_indicator_observations = request.data.get('head_light_indicator_observations')
+            head_light_indicator_action_by = request.data.get('head_light_indicator_action_by')
+            head_light_indicator_remarks = request.data.get('head_light_indicator_remarks')
+            seat_belt_observations = request.data.get('seat_belt_observations')
+            seat_belt_action_by = request.data.get('seat_belt_action_by')
+            seat_belt_remarks = request.data.get('seat_belt_remarks')
+            wiper_blade_observations = request.data.get('wiper_blade_observations')
+            wiper_blade_action_by = request.data.get('wiper_blade_action_by')
+            wiper_blade_remarks = request.data.get('wiper_blade_remarks')
+            side_mirror_observations = request.data.get('side_mirror_observations')
+            side_mirror_action_by = request.data.get('side_mirror_action_by')
+            side_mirror_remarks = request.data.get('side_mirror_remarks')
+            wind_screen_observations = request.data.get('wind_screen_observations')
+            wind_screen_action_by = request.data.get('wind_screen_action_by')
+            wind_screen_remarks = request.data.get('wind_screen_remarks')
+            door_lock_observations = request.data.get('door_lock_observations')
+            door_lock_action_by = request.data.get('door_lock_action_by')
+            door_lock_remarks = request.data.get('door_lock_remarks')
+            battery_condition_observations = request.data.get('battery_condition_observations')
+            battery_condition_action_by = request.data.get('battery_condition_action_by')
+            battery_condition_remarks = request.data.get('battery_condition_remarks')
+            hand_brake_observations = request.data.get('hand_brake_observations')
+            hand_brake_action_by = request.data.get('hand_brake_action_by')
+            hand_brake_remarks = request.data.get('hand_brake_remarks')
+            swl_on_boom_lift_observations = request.data.get('swl_on_boom_lift_observations')
+            swl_on_boom_lift_action_by = request.data.get('swl_on_boom_lift_action_by')
+            swl_on_boom_lift_remarks = request.data.get('swl_on_boom_lift_remarks')
+            any_leakage_observations = request.data.get('any_leakage_observations')
+            any_leakage_action_by = request.data.get('any_leakage_action_by')
+            any_leakage_remarks = request.data.get('any_leakage_remarks')
+            speedometere_observations = request.data.get('speedometere_observations')
+            speedometere_action_by = request.data.get('speedometere_action_by')
+            speedometere_remarks = request.data.get('speedometere_remarks')
+            guard_parts_observations = request.data.get('guard_parts_observations')
+            guard_parts_action_by = request.data.get('guard_parts_action_by')
+            guard_parts_remarks = request.data.get('guard_parts_remarks')
+            ppe_observations = request.data.get('ppe_observations')
+            ppe_action_by = request.data.get('ppe_action_by')
+            ppe_remarks = request.data.get('ppe_remarks')
+
+            crane_hydra_inspection = CraneHydraInspections.objects.create(
+                user=user,
+                equipment_name=equipment_name,
+                make_model=make_model,
+                identification_number=identification_number,
+                inspection_date=inspection_date,
+                site_name=site_name,
+                location=location,
+                all_valid_document_observations=all_valid_document_observations,
+                all_valid_document_action_by=all_valid_document_action_by,
+                all_valid_document_remarks=all_valid_document_remarks,
+                driver_fitness_certificate_observations=driver_fitness_certificate_observations,
+                driver_fitness_certificate_action_by=driver_fitness_certificate_action_by,
+                driver_fitness_certificate_remarks=driver_fitness_certificate_remarks,
+                main_horn_reverse_horn_observations=main_horn_reverse_horn_observations,
+                main_horn_reverse_horn_action_by=main_horn_reverse_horn_action_by,
+                main_horn_reverse_horn_remarks=main_horn_reverse_horn_remarks,
+                cutch_brake_observations=cutch_brake_observations,
+                cutch_brake_action_by=cutch_brake_action_by,
+                cutch_brake_remarks=cutch_brake_remarks,
+                tyre_pressure_condition_observations=tyre_pressure_condition_observations,
+                tyre_pressure_condition_action_by=tyre_pressure_condition_action_by,
+                tyre_pressure_condition_remarks=tyre_pressure_condition_remarks,
+                head_light_indicator_observations=head_light_indicator_observations,
+                head_light_indicator_action_by=head_light_indicator_action_by,
+                head_light_indicator_remarks=head_light_indicator_remarks,
+                seat_belt_observations=seat_belt_observations,
+                seat_belt_action_by=seat_belt_action_by,
+                seat_belt_remarks=seat_belt_remarks,
+                wiper_blade_observations=wiper_blade_observations,
+                wiper_blade_action_by=wiper_blade_action_by,
+                wiper_blade_remarks=wiper_blade_remarks,
+                side_mirror_observations=side_mirror_observations,
+                side_mirror_action_by=side_mirror_action_by,
+                side_mirror_remarks=side_mirror_remarks,
+                wind_screen_observations=wind_screen_observations,
+                wind_screen_action_by=wind_screen_action_by,
+                wind_screen_remarks=wind_screen_remarks,
+                door_lock_observations=door_lock_observations,
+                door_lock_action_by=door_lock_action_by,
+                door_lock_remarks=door_lock_remarks,
+                battery_condition_observations=battery_condition_observations,
+                battery_condition_action_by=battery_condition_action_by,
+                battery_condition_remarks=battery_condition_remarks,
+                hand_brake_observations=hand_brake_observations,
+                hand_brake_action_by=hand_brake_action_by,
+                hand_brake_remarks=hand_brake_remarks,
+                swl_on_boom_lift_observations=swl_on_boom_lift_observations,
+                swl_on_boom_lift_action_by=swl_on_boom_lift_action_by,
+                swl_on_boom_lift_remarks=swl_on_boom_lift_remarks,
+                any_leakage_observations=any_leakage_observations,
+                any_leakage_action_by=any_leakage_action_by,
+                any_leakage_remarks=any_leakage_remarks,
+                speedometere_observations=speedometere_observations,
+                speedometere_action_by=speedometere_action_by,
+                speedometere_remarks=speedometere_remarks,
+                guard_parts_observations=guard_parts_observations,
+                guard_parts_action_by=guard_parts_action_by,
+                guard_parts_remarks=guard_parts_remarks,
+                ppe_observations=ppe_observations,
+                ppe_action_by=ppe_action_by,
+                ppe_remarks=ppe_remarks
+            )
+
+            serializer = CraneHydraInspectionsSerializer(crane_hydra_inspection)
+            return Response({"status": True, "message": "Crane hydra inspection created successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
+
+class GetCraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CraneHydraInspectionsSerializer
+    queryset = CraneHydraInspections.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = CraneHydraInspections.objects.all()
+            serializer = CraneHydraInspectionsSerializer(queryset, many=True)
+            return Response({"status": True, "message": "Crane hydra inspection checklist retrieved successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
+
+class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TrailerInspectionChecklistSerializer
+    queryset = TrailerInspectionChecklist.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            equipment_name = request.data.get('equipment_name')
+            make_model = request.data.get('make_model')
+            identification_number = request.data.get('identification_number')
+            inspection_date = request.data.get('inspection_date')
+            site_name = request.data.get('site_name')
+            location = request.data.get('location')
+            all_valid_document_observations = request.data.get('all_valid_document_observations')
+            all_valid_document_action_by = request.data.get('all_valid_document_action_by')
+            all_valid_document_remarks = request.data.get('all_valid_document_remarks')
+            driver_fitness_certificate_observations = request.data.get('driver_fitness_certificate_observations')
+            driver_fitness_certificate_action_by = request.data.get('driver_fitness_certificate_action_by')
+            driver_fitness_certificate_remarks = request.data.get('driver_fitness_certificate_remarks')
+            main_horn_reverse_horn_observations = request.data.get('main_horn_reverse_horn_observations')
+            main_horn_reverse_horn_action_by = request.data.get('main_horn_reverse_horn_action_by')
+            main_horn_reverse_horn_remarks = request.data.get('main_horn_reverse_horn_remarks')
+            cutch_brake_observations = request.data.get('cutch_brake_observations')
+            cutch_brake_action_by = request.data.get('cutch_brake_action_by')
+            cutch_brake_remarks = request.data.get('cutch_brake_remarks')
+            tyre_pressure_condition_observations = request.data.get('tyre_pressure_condition_observations')
+            tyre_pressure_condition_action_by = request.data.get('tyre_pressure_condition_action_by')
+            tyre_pressure_condition_remarks = request.data.get('tyre_pressure_condition_remarks')
+            head_light_indicator_observations = request.data.get('head_light_indicator_observations')
+            head_light_indicator_action_by = request.data.get('head_light_indicator_action_by')
+            head_light_indicator_remarks = request.data.get('head_light_indicator_remarks')
+            seat_belt_observations = request.data.get('seat_belt_observations')
+            seat_belt_action_by = request.data.get('seat_belt_action_by')
+            seat_belt_remarks = request.data.get('seat_belt_remarks')
+            wiper_blade_observations = request.data.get('wiper_blade_observations')
+            wiper_blade_action_by = request.data.get('wiper_blade_action_by')
+            wiper_blade_remarks = request.data.get('wiper_blade_remarks')
+            side_mirror_observations = request.data.get('side_mirror_observations')
+            side_mirror_action_by = request.data.get('side_mirror_action_by')
+            side_mirror_remarks = request.data.get('side_mirror_remarks')
+            wind_screen_observations = request.data.get('wind_screen_observations')
+            wind_screen_action_by = request.data.get('wind_screen_action_by')
+            wind_screen_remarks = request.data.get('wind_screen_remarks')
+            door_lock = request.data.get('door_lock')
+            battery_condition_observations = request.data.get('battery_condition_observations')
+            battery_condition_action_by = request.data.get('battery_condition_action_by')
+            battery_condition_remarks = request.data.get('battery_condition_remarks')
+            hand_brake_observations = request.data.get('hand_brake_observations')
+            hand_brake_action_by = request.data.get('hand_brake_action_by')
+            hand_brake_remarks = request.data.get('hand_brake_remarks')
+            any_leakage_observations = request.data.get('any_leakage_observations')
+            any_leakage_action_by = request.data.get('any_leakage_action_by')
+            any_leakage_remarks = request.data.get('any_leakage_remarks')
+            speedometere_observations = request.data.get('speedometere_observations')
+            speedometere_action_by = request.data.get('speedometere_action_by')
+            speedometere_remarks = request.data.get('speedometere_remarks')
+            guard_parts_observations = request.data.get('guard_parts_observations')
+            guard_parts_action_by = request.data.get('guard_parts_action_by')
+            guard_parts_remarks = request.data.get('guard_parts_remarks')
+            ppe_observations = request.data.get('ppe_observations')
+            ppe_action_by = request.data.get('ppe_action_by')
+            ppe_remarks = request.data.get('ppe_remarks')
+
+            trailer_inspection = TrailerInspectionChecklist.objects.create(
+                user=user,
+                equipment_name=equipment_name,
+                make_model=make_model,
+                identification_number=identification_number,
+                inspection_date=inspection_date,
+                site_name=site_name,
+                location=location,
+                all_valid_document_observations=all_valid_document_observations,
+                all_valid_document_action_by=all_valid_document_action_by,
+                all_valid_document_remarks=all_valid_document_remarks,
+                driver_fitness_certificate_observations=driver_fitness_certificate_observations,
+                driver_fitness_certificate_action_by=driver_fitness_certificate_action_by,
+                driver_fitness_certificate_remarks=driver_fitness_certificate_remarks,
+                main_horn_reverse_horn_observations=main_horn_reverse_horn_observations,
+                main_horn_reverse_horn_action_by=main_horn_reverse_horn_action_by,
+                main_horn_reverse_horn_remarks=main_horn_reverse_horn_remarks,
+                cutch_brake_observations=cutch_brake_observations,
+                cutch_brake_action_by=cutch_brake_action_by,
+                cutch_brake_remarks=cutch_brake_remarks,
+                tyre_pressure_condition_observations=tyre_pressure_condition_observations,
+                tyre_pressure_condition_action_by=tyre_pressure_condition_action_by,
+                tyre_pressure_condition_remarks=tyre_pressure_condition_remarks,
+                head_light_indicator_observations=head_light_indicator_observations,
+                head_light_indicator_action_by=head_light_indicator_action_by,
+                head_light_indicator_remarks=head_light_indicator_remarks,
+                seat_belt_observations=seat_belt_observations,
+                seat_belt_action_by=seat_belt_action_by,
+                seat_belt_remarks=seat_belt_remarks,
+                wiper_blade_observations=wiper_blade_observations,
+                wiper_blade_action_by=wiper_blade_action_by,
+                wiper_blade_remarks=wiper_blade_remarks,
+                side_mirror_observations=side_mirror_observations,
+                side_mirror_action_by=side_mirror_action_by,
+                side_mirror_remarks=side_mirror_remarks,
+                wind_screen_observations=wind_screen_observations,
+                wind_screen_action_by=wind_screen_action_by,
+                wind_screen_remarks=wind_screen_remarks,
+                door_lock=door_lock,
+                battery_condition_observations=battery_condition_observations,
+                battery_condition_action_by=battery_condition_action_by,
+                battery_condition_remarks=battery_condition_remarks,
+                hand_brake_observations=hand_brake_observations,
+                hand_brake_action_by=hand_brake_action_by,
+                hand_brake_remarks=hand_brake_remarks,
+                any_leakage_observations=any_leakage_observations,
+                any_leakage_action_by=any_leakage_action_by,
+                any_leakage_remarks=any_leakage_remarks,
+                speedometere_observations=speedometere_observations,
+                speedometere_action_by=speedometere_action_by,
+                speedometere_remarks=speedometere_remarks,
+                guard_parts_observations=guard_parts_observations,
+                guard_parts_action_by=guard_parts_action_by,
+                guard_parts_remarks=guard_parts_remarks,
+                ppe_observations=ppe_observations,
+                ppe_action_by=ppe_action_by,
+                ppe_remarks=ppe_remarks
+            )
+            serializer = TrailerInspectionChecklistSerializer(trailer_inspection)
+            return Response({"status": True, "message": "Trailer inspection created successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class GetTrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TrailerInspectionChecklistSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            trailer_inspection = TrailerInspectionChecklist.objects.all().order_by('-id')
+            serializer = TrailerInspectionChecklistSerializer(trailer_inspection, many=True)
+            return Response({"status": True, "message": "Trailer inspection fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
 class MockDrillReportViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = MockDrillReportSerializer

@@ -27,6 +27,12 @@ urlpatterns = [
     path('create_boom_lift_inspection', BoomLiftInspectionViewSet.as_view({'post': 'create'}), name='create_boom_lift_inspection'),
     path('get_boom_lift_inspection', GetBoomLiftInspectionViewSet.as_view({'get': 'list'}), name='get_boom_lift_inspection'),
 
+    path('create_crane_hydra_inspection', CraneHydraInspectionChecklistViewSet.as_view({'post': 'create'}), name='create_crane_hydra_inspection'),
+    path('get_crane_hydra_inspection', GetCraneHydraInspectionChecklistViewSet.as_view({'get': 'list'}), name='get_crane_hydra_inspection'),      
+
+    path('create_trailer_inspection', TrailerInspectionChecklistViewSet.as_view({'post': 'create'}), name='create_trailer_inspection'),
+    path('get_trailer_inspection', GetTrailerInspectionChecklistViewSet.as_view({'get': 'list'}), name='get_trailer_inspection'),   
+
     path('create_mock_drill_report', MockDrillReportViewSet.as_view({'post': 'create'}), name='create_mock_drill_report'),
     path('get_mock_drill_report', GetMockDrillReportViewSet.as_view({'get': 'list'}), name='get_mock_drill_report'),
 ]

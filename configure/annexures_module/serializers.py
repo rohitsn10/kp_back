@@ -87,6 +87,92 @@ class BoomLiftInspectionSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
 
+
+class CraneHydraInspectionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CraneHydraInspections
+        fields = [
+            "user", "equipment_name", "make_model", "identification_number", "inspection_date",
+            "site_name", "location", "all_valid_document_observations", "all_valid_document_action_by",
+            "all_valid_document_remarks", "driver_fitness_certificate_observations", "driver_fitness_certificate_action_by",
+            "driver_fitness_certificate_remarks", "main_horn_reverse_horn_observations", "main_horn_reverse_horn_action_by",
+            "main_horn_reverse_horn_remarks", "cutch_brake_observations", "cutch_brake_action_by", "cutch_brake_remarks",
+            "tyre_pressure_condition_observations", "tyre_pressure_condition_action_by", "tyre_pressure_condition_remarks",
+            "head_light_indicator_observations", "head_light_indicator_action_by", "head_light_indicator_remarks",
+            "seat_belt_observations", "seat_belt_action_by", "seat_belt_remarks", "wiper_blade_observations",
+            "wiper_blade_action_by", "wiper_blade_remarks", "side_mirror_observations", "side_mirror_action_by",
+            "side_mirror_remarks", "wind_screen_observations", "wind_screen_action_by", "wind_screen_remarks",
+            "door_lock_observations", "door_lock_action_by", "door_lock_remarks", "battery_condition_observations",
+            "battery_condition_action_by", "battery_condition_remarks", "hand_brake_observations", "hand_brake_action_by",
+            "hand_brake_remarks", "swl_on_boom_lift_observations", "swl_on_boom_lift_action_by", "swl_on_boom_lift_remarks",
+            "any_leakage_observations", "any_leakage_action_by", "any_leakage_remarks", "speedometere_observations",
+            "speedometere_action_by", "speedometere_remarks", "guard_parts_observations", "guard_parts_action_by",
+            "guard_parts_remarks", "ppe_observations", "ppe_action_by", "ppe_remarks", "created_at", "updated_at"
+        ]
+
+class TrailerInspectionChecklistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrailerInspectionChecklist
+        fields = [
+            'id',
+            "user",
+            "equipment_name",
+            "make_model",
+            "identification_number",
+            "inspection_date",
+            "site_name",
+            "location",
+            "all_valid_document_observations",
+            "all_valid_document_action_by",
+            "all_valid_document_remarks",
+            "driver_fitness_certificate_observations",
+            "driver_fitness_certificate_action_by",
+            "driver_fitness_certificate_remarks",
+            "main_horn_reverse_horn_observations",
+            "main_horn_reverse_horn_action_by",
+            "main_horn_reverse_horn_remarks",
+            "cutch_brake_observations",
+            "cutch_brake_action_by",
+            "cutch_brake_remarks",
+            "tyre_pressure_condition_observations",
+            "tyre_pressure_condition_action_by",
+            "tyre_pressure_condition_remarks",
+            "head_light_indicator_observations",
+            "head_light_indicator_action_by",
+            "head_light_indicator_remarks",
+            "seat_belt_observations",
+            "seat_belt_action_by",
+            "seat_belt_remarks",
+            "wiper_blade_observations",
+            "wiper_blade_action_by",
+            "wiper_blade_remarks",
+            "side_mirror_observations",
+            "side_mirror_action_by",
+            "side_mirror_remarks",
+            "wind_screen_observations",
+            "wind_screen_action_by",
+            "wind_screen_remarks",
+            "door_lock",
+            "battery_condition_observations",
+            "battery_condition_action_by",
+            "battery_condition_remarks",
+            "hand_brake_observations",
+            "hand_brake_action_by",
+            "hand_brake_remarks",
+            "any_leakage_observations",
+            "any_leakage_action_by",
+            "any_leakage_remarks",
+            "speedometere_observations",
+            "speedometere_action_by",
+            "speedometere_remarks",
+            "guard_parts_observations",
+            "guard_parts_action_by",
+            "guard_parts_remarks",
+            "ppe_observations",
+            "ppe_action_by",
+            "ppe_remarks"
+        ]
+
 class MockDrillReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = MockDrillReport
