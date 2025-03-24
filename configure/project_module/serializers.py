@@ -368,7 +368,7 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
     class Meta:
         model = DrawingAndDesignManagement
         fields = [
-            'id', 'project', 'project_name', 'user', 'user_full_name', 
+            'id', 'project', 'project_name', 'user', 'user_full_name','version_number',
             'drawing_and_design_attachments','other_drawing_and_design_attachments','assign_to_user', 'assign_to_user_full_name', 
             'discipline', 'block', 'drawing_number', 'auto_drawing_number', 'name_of_drawing', 
             'drawing_category', 'type_of_approval', 'approval_status', 'commented_count', 
@@ -411,41 +411,48 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
     
 
     def get_resubmitted_actions(self, obj):
-        # Get related resubmitted actions, ordered by submitted_count
-        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(
-            drawing_and_design=obj
-        ).order_by("submitted_count")
+        # Fetch all resubmitted actions related to this drawing and design object
+        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=obj)
 
+        # Base URLs for constructing file URLs
         base_url = settings.MEDIA_URL.rstrip("/")
         site_url = getattr(settings, "SITE_URL", "").rstrip("/")
+
         # Prepare response structure
         response_data = []
 
         for action in resubmitted_actions:
-            # Get attachments linked to this specific resubmission
+            # Get the latest commented action that was created before or at the time of resubmission
+            commented_action = DrawingAndDesignCommentedActions.objects.filter(
+                drawing_and_design=obj,
+                created_at__lte=action.created_at
+            ).order_by('-created_at').first()
+
+            # Fetch resubmission attachments
             drawing_attachments = [
                 {
                     "id": str(attachment.id),
-                    "url": f"{site_url}{base_url}/{attachment.drawing_and_design_attachments.name}",
+                    "url": f"{site_url}{base_url}/{attachment.drawing_and_design_resubmission_attachments.name}",
                     "created_at": attachment.created_at,
                     "updated_at": attachment.updated_at,
                 }
                 for attachment in action.drawing_and_design_attachments.all()
             ]
 
+            # Fetch other resubmission attachments
             other_drawing_attachments = [
                 {
                     "id": str(attachment.id),
-                    "url": f"{site_url}{base_url}/{attachment.other_drawing_and_design_attachments.name}",
+                    "url": f"{site_url}{base_url}/{attachment.other_drawing_and_design_resubmission_attachments.name}",
                     "created_at": attachment.created_at,
                     "updated_at": attachment.updated_at,
                 }
                 for attachment in action.other_drawing_and_design_attachments.all()
             ]
-            # Fetch remarks from DrawingAndDesignCommentedActions table
-            commented_action = DrawingAndDesignCommentedActions.objects.filter(drawing_and_design=obj).first()
+
+            # Construct the response for each resubmitted action
             version_data = {
-                "version_number": int(action.submitted_count),
+                "version_number": int(action.submitted_count) if action.submitted_count else None,
                 "remarks": action.remarks,
                 "created_at": action.created_at,
                 "submitted_by": {
@@ -455,7 +462,7 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
                 "documents": {
                     "drawing_and_design_attachments": drawing_attachments,
                     "other_drawing_and_design_attachments": other_drawing_attachments,
-                } if drawing_attachments or other_drawing_attachments else {},  # Include only if there are new attachments
+                } if drawing_attachments or other_drawing_attachments else {},  # Include only if attachments exist
                 "commented_actions": {
                     "id": commented_action.id if commented_action else None,
                     "drawing_and_design": obj.id,
@@ -464,7 +471,7 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
                     "project_name": obj.project.project_name if obj.project else None,
                     "user": commented_action.user.id if commented_action and commented_action.user else None,
                     "user_full_name": commented_action.user.full_name if commented_action and commented_action.user else None,
-                    "remarks": commented_action.remarks if commented_action else None,  # Updated to get remarks from commented actions
+                    "remarks": commented_action.remarks if commented_action else None,  
                     "created_at": commented_action.created_at if commented_action else None,
                     "updated_at": commented_action.updated_at if commented_action else None,
                 },

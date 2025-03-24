@@ -1728,20 +1728,21 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
             drawing_and_design = DrawingAndDesignManagement.objects.get(id=drawing_and_design_id)
             
             if not drawing_and_design:
-                return Response({"status": True, "message": "Drawing and design Data is not found"})
+                return Response({"status": True, "message": "Drawing and design data not found."})
             
             # Retrieve the current approval status and submitted_count
             current_approval_status = drawing_and_design.approval_status
-            # Get the latest submitted count from DrawingAndDesignReSubmittedActions
-            latest_resubmission = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=drawing_and_design).order_by('-created_at').first()
+            latest_resubmission = DrawingAndDesignReSubmittedActions.objects.filter(
+                drawing_and_design=drawing_and_design
+            ).order_by('-created_at').first()
             current_submitted_count = int(latest_resubmission.submitted_count) if latest_resubmission else 1
             
             # Retrieve the request data
             project_id = request.data.get('project_id')
-            drawing_and_design_attachments = request.data.getlist('drawing_and_design_attachments', []) or []
-            remove_drawing_and_design_attachments = request.data.get('remove_drawing_and_design_attachments_id', []) or []
-            other_drawing_and_design_attachments = request.data.getlist('other_drawing_and_design_attachments', []) or []
-            remove_other_drawing_and_design_attachments = request.data.get('remove_other_drawing_and_design_attachments_id', []) or []
+            drawing_and_design_attachments = request.FILES.getlist('drawing_and_design_attachments', [])
+            remove_drawing_and_design_attachments = request.data.getlist('remove_drawing_and_design_attachments_id', [])
+            other_drawing_and_design_attachments = request.FILES.getlist('other_drawing_and_design_attachments', [])
+            remove_other_drawing_and_design_attachments = request.data.getlist('remove_other_drawing_and_design_attachments_id', [])
             assign_to_user = request.data.get('assign_to_user')
             discipline = request.data.get('discipline')
             block = request.data.get('block')
@@ -1752,124 +1753,124 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
             type_of_approval = request.data.get('type_of_approval')
             approval_status = request.data.get('approval_status')
             remarks = request.data.get('remarks')
+
             if approval_status in ['commented', 'approved']:
                 return Response({"status": False, "message": "You cannot update the approval status to commented or approved."})
-            
             remove_drawing_and_design_attachments = process_file_ids(remove_drawing_and_design_attachments)
             remove_other_drawing_and_design_attachments = process_file_ids(remove_other_drawing_and_design_attachments)
-            try:
-                # Update fields only if they are provided in the request
-                if project_id:
-                    project = Project.objects.get(id=project_id)
-                    drawing_and_design.project = project
-                
-                if drawing_and_design_attachments:
-                    new_drawing_attachments = []
-                    for attachment in drawing_and_design_attachments:
-                        new_attachment = DrawingAndDesignAttachments.objects.create(
-                            project=project, user=user, drawing_and_design_attachments=attachment)
-                        new_drawing_attachments.append(new_attachment)
-                
-                    drawing_and_design.drawing_and_design_attachments.add(*new_drawing_attachments)
-                        
-                if remove_drawing_and_design_attachments:
-                    for file_id in remove_drawing_and_design_attachments:
-                        try:
-                            file_instance = DrawingAndDesignAttachments.objects.get(id=file_id)
-                            drawing_and_design.drawing_and_design_attachments.remove(file_instance)
-                            file_instance.delete()
-                        except DrawingAndDesignAttachments.DoesNotExist:
-                            pass
-                if other_drawing_and_design_attachments:
-                    new_other_drawing_attachments = []
-                    for attachment in other_drawing_and_design_attachments:
-                        new_attachment = OtherDrawingAndDesignAttachments.objects.create(
-                            project=project, user=user, other_drawing_and_design_attachments=attachment)
-                        new_other_drawing_attachments.append(new_attachment)
-                
-                    drawing_and_design.other_drawing_and_design_attachments.add(*new_other_drawing_attachments)
-                        
-                if remove_other_drawing_and_design_attachments:
-                    for file_id in remove_other_drawing_and_design_attachments:
-                        try:
-                            file_instance = OtherDrawingAndDesignAttachments.objects.get(id=file_id)
-                            drawing_and_design.other_drawing_and_design_attachments.remove(file_instance)
-                            file_instance.delete()
-                        except OtherDrawingAndDesignAttachments.DoesNotExist:
-                            pass
-                        
-                if assign_to_user:
-                    assign_to_user = CustomUser.objects.get(id=assign_to_user)
-                    drawing_and_design.assign_to_user = assign_to_user
-                
-                if discipline:
-                    drawing_and_design.discipline = discipline
-                
-                if block:
-                    drawing_and_design.block = block
-                
-                if drawing_number:
-                    drawing_and_design.drawing_number = drawing_number
-                
-                if auto_drawing_number:
-                    drawing_and_design.auto_drawing_number = auto_drawing_number
-                
-                if name_of_drawing:
-                    drawing_and_design.name_of_drawing = name_of_drawing
-                
-                if drawing_category:
-                    drawing_and_design.drawing_category = drawing_category
-                
-                if type_of_approval:
-                    drawing_and_design.type_of_approval = type_of_approval
-                
-                if approval_status:
-                    drawing_and_design.approval_status = approval_status
-                
-                # Only increment submitted_count if approval_status is 'submitted' 
-                if approval_status == 'submitted' and current_approval_status == 'commented':
-                    # Increment submitted count
-                    # drawing_and_design.submitted_count = current_submitted_count + 1
-                    drawing_and_design.is_commented = False
-                    drawing_and_design.is_submitted = True
+            # Handle project assignment
+            if project_id:
+                project = Project.objects.get(id=project_id)
+                drawing_and_design.project = project
 
-                    # Create new resubmission entry
-                    resubmitted_action = DrawingAndDesignReSubmittedActions.objects.create(
-                        drawing_and_design=drawing_and_design,
-                        project=project,
-                        user=user,
-                        remarks=remarks,
-                        submitted_count=current_submitted_count + 1
+            # Handle attachment removals
+            for file_id in remove_drawing_and_design_attachments:
+                try:
+                    file_instance = DrawingAndDesignAttachments.objects.get(id=file_id)
+                    drawing_and_design.drawing_and_design_attachments.remove(file_instance)
+                    file_instance.delete()
+                except DrawingAndDesignAttachments.DoesNotExist:
+                    pass
+
+            for file_id in remove_other_drawing_and_design_attachments:
+                try:
+                    file_instance = OtherDrawingAndDesignAttachments.objects.get(id=file_id)
+                    drawing_and_design.other_drawing_and_design_attachments.remove(file_instance)
+                    file_instance.delete()
+                except OtherDrawingAndDesignAttachments.DoesNotExist:
+                    pass
+
+            # Handle field updates
+            if assign_to_user:
+                assign_to_user = CustomUser.objects.get(id=assign_to_user)
+                drawing_and_design.assign_to_user = assign_to_user
+
+            if discipline:
+                drawing_and_design.discipline = discipline
+
+            if block:
+                drawing_and_design.block = block
+
+            if drawing_number:
+                drawing_and_design.drawing_number = drawing_number
+
+            if auto_drawing_number:
+                drawing_and_design.auto_drawing_number = auto_drawing_number
+
+            if name_of_drawing:
+                drawing_and_design.name_of_drawing = name_of_drawing
+
+            if drawing_category:
+                drawing_and_design.drawing_category = drawing_category
+
+            if type_of_approval:
+                drawing_and_design.type_of_approval = type_of_approval
+
+            if approval_status:
+                drawing_and_design.approval_status = approval_status
+
+            # Handle resubmission scenario
+            if approval_status == 'submitted' and current_approval_status == 'commented':
+                drawing_and_design.is_commented = False
+                drawing_and_design.is_submitted = True
+                drawing_and_design.submitted_count = current_submitted_count + 1
+                # Create new resubmission entry
+                resubmitted_action = DrawingAndDesignReSubmittedActions.objects.create(
+                    drawing_and_design=drawing_and_design,
+                    project=project,
+                    user=user,
+                    remarks=remarks,
+                    submitted_count=current_submitted_count + 1
+                )
+
+                # Save resubmission attachments
+                new_resubmission_attachments = []
+                for attachment in drawing_and_design_attachments:
+                    new_attachment = DrawingAndDesignResubmissionAttachments.objects.create(
+                        project=project, user=user, drawing_and_design_resubmission_attachments=attachment
                     )
+                    new_resubmission_attachments.append(new_attachment)
 
-                    # Store newly uploaded attachments separately
-                    new_drawing_attachments = []
-                    for attachment in drawing_and_design_attachments:
-                        new_attachment = DrawingAndDesignAttachments.objects.create(
-                            project=project, user=user, drawing_and_design_attachments=attachment
-                        )
-                        new_drawing_attachments.append(new_attachment)
+                resubmitted_action.drawing_and_design_attachments.set(new_resubmission_attachments)
 
-                    # Store new attachments in the resubmission record
-                    resubmitted_action.drawing_and_design_attachments.set(new_drawing_attachments)
+                new_other_resubmission_attachments = []
+                for attachment in other_drawing_and_design_attachments:
+                    new_attachment = OtherDrawingAndDesignResubmissionAttachments.objects.create(
+                        project=project, user=user, other_drawing_and_design_resubmission_attachments=attachment
+                    )
+                    new_other_resubmission_attachments.append(new_attachment)
 
-                    new_other_drawing_attachments = []
-                    for attachment in other_drawing_and_design_attachments:
-                        new_attachment = OtherDrawingAndDesignAttachments.objects.create(
-                            project=project, user=user, other_drawing_and_design_attachments=attachment
-                        )
-                        new_other_drawing_attachments.append(new_attachment)
+                resubmitted_action.other_drawing_and_design_attachments.set(new_other_resubmission_attachments)
 
-                    resubmitted_action.other_drawing_and_design_attachments.set(new_other_drawing_attachments)
+                resubmitted_action.save()
 
-                    drawing_and_design.save()
-                    resubmitted_action.save()
-                    
-                return Response({"status": True, "message": "Drawing and design updated successfully", "data": []})
-            except Exception as e:
-                return Response({"status": False, "message": str(e), "data": []})
+            # Handle attachments when it's not a resubmission
+            else:
+                new_drawing_attachments = []
+                for attachment in drawing_and_design_attachments:
+                    new_attachment = DrawingAndDesignAttachments.objects.create(
+                        project=project, user=user, drawing_and_design_attachments=attachment
+                    )
+                    new_drawing_attachments.append(new_attachment)
+
+                drawing_and_design.drawing_and_design_attachments.add(*new_drawing_attachments)
+
+                new_other_drawing_attachments = []
+                for attachment in other_drawing_and_design_attachments:
+                    new_attachment = OtherDrawingAndDesignAttachments.objects.create(
+                        project=project, user=user, other_drawing_and_design_attachments=attachment
+                    )
+                    new_other_drawing_attachments.append(new_attachment)
+
+                drawing_and_design.other_drawing_and_design_attachments.add(*new_other_drawing_attachments)
+
+            drawing_and_design.save()
+            
+            return Response({"status": True, "message": "Drawing and design updated successfully", "data": []})
+
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
 
         
 
@@ -1901,9 +1902,11 @@ class ApprovalOrCommentedActionOnDrawingandDesignViewSet(viewsets.ModelViewSet):
                 drawing_and_design.save()
                 return Response({"status": True, "message": "Drawing and design approved successfully", "data": []})
             elif approval_status == 'commented':
+                current_commented_count = int(drawing_and_design.commented_count) if drawing_and_design.commented_count else 0
                 drawing_and_design.approval_status = approval_status
                 drawing_and_design.is_commented = True
                 drawing_and_design.is_submitted = False
+                drawing_and_design.commented_count = current_commented_count + 1
                 commented_actions = DrawingAndDesignCommentedActions.objects.create(drawing_and_design = drawing_and_design,project = drawing_and_design.project , user=user, remarks = remarks)
                 commented_actions.save()
                 drawing_and_design.save()
