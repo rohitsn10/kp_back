@@ -2,6 +2,8 @@ from project_module.models import *
 from rest_framework import serializers
 from user_profile.function_call import *
 from activity_module.serializers import *
+from django.conf import settings
+
 
 class ExpenseTrackingSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
@@ -409,56 +411,49 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
     
 
     def get_resubmitted_actions(self, obj):
-        # Get related resubmitted actions, or return an empty list if no related actions exist
-        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=obj).order_by("submitted_count")
+        # Get related resubmitted actions, ordered by submitted_count
+        resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.filter(
+            drawing_and_design=obj
+        ).order_by("submitted_count")
 
-        # Prepare the response structure
-        response_data = {
-            "id": obj.id,
-            "project": obj.project.id if obj.project else None,
-            "project_name": obj.project.project_name if obj.project else None,
-            "user": obj.user.id if obj.user else None,
-            "user_full_name": obj.user.full_name if obj.user else None,
-            "discipline": obj.discipline,
-            "block": obj.block,
-            "drawing_number": obj.drawing_number,
-            "name_of_drawing": obj.name_of_drawing,
-            "drawing_category": obj.get_drawing_category_display() if obj.drawing_category else None,
-            "type_of_approval": obj.get_type_of_approval_display() if obj.type_of_approval else None,
-            "approval_status": obj.approval_status,
-            "is_approved": obj.is_approved,
-            "is_commented": obj.is_commented,
-            "is_submitted": obj.is_submitted,
-            "versions": []
-        }
+        base_url = settings.MEDIA_URL.rstrip("/")
+        site_url = getattr(settings, "SITE_URL", "").rstrip("/")
+        # Prepare response structure
+        response_data = []
 
-        # Iterate over each submission version
         for action in resubmitted_actions:
+            # Get attachments linked to this specific resubmission
+            drawing_attachments = [
+                {
+                    "id": str(attachment.id),
+                    "url": f"{site_url}{base_url}/{attachment.drawing_and_design_attachments.name}",
+                    "created_at": attachment.created_at,
+                    "updated_at": attachment.updated_at,
+                }
+                for attachment in action.drawing_and_design_attachments.all()
+            ]
+
+            other_drawing_attachments = [
+                {
+                    "id": str(attachment.id),
+                    "url": f"{site_url}{base_url}/{attachment.other_drawing_and_design_attachments.name}",
+                    "created_at": attachment.created_at,
+                    "updated_at": attachment.updated_at,
+                }
+                for attachment in action.other_drawing_and_design_attachments.all()
+            ]
+
             version_data = {
                 "version_number": int(action.submitted_count),
                 "created_at": action.created_at,
                 "submitted_by": {
                     "id": action.user.id if action.user else None,
-                    "name": action.user.full_name if action.user else None
+                    "name": action.user.full_name if action.user else None,
                 },
                 "documents": {
-                    "drawing_and_design_attachments": [
-                        {
-                            "id": str(attachment.id),
-                            "url": attachment.drawing_and_design_attachments.url,
-                            "created_at": attachment.created_at,
-                            "updated_at": attachment.updated_at,
-                        } for attachment in obj.drawing_and_design_attachments.all()
-                    ],
-                    "other_drawing_and_design_attachments": [
-                        {
-                            "id": str(attachment.id),
-                            "url": attachment.other_drawing_and_design_attachments.url,
-                            "created_at": attachment.created_at,
-                            "updated_at": attachment.updated_at,
-                        } for attachment in obj.other_drawing_and_design_attachments.all()
-                    ]
-                },
+                    "drawing_and_design_attachments": drawing_attachments,
+                    "other_drawing_and_design_attachments": other_drawing_attachments,
+                } if drawing_attachments or other_drawing_attachments else {},  # Include only if there are new attachments
                 "commented_actions": {
                     "id": action.id,
                     "drawing_and_design": obj.id,
@@ -469,12 +464,14 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
                     "user_full_name": action.user.full_name if action.user else None,
                     "remarks": action.remarks,
                     "created_at": action.created_at,
-                    "updated_at": action.updated_at
-                }
+                    "updated_at": action.updated_at,
+                },
             }
-            response_data["versions"].append(version_data)
+
+            response_data.append(version_data)
+
         return response_data
-    
+
     def get_approved_actions(self, obj):
         # Get related approved actions, or return an empty list if no related actions exist
         approved_actions = obj.drawinganddesignapprovedactions_set.all()
