@@ -294,6 +294,8 @@ class DrawingAndDesignReSubmittedActions(models.Model):
     drawing_and_design = models.ForeignKey(DrawingAndDesignManagement, on_delete=models.CASCADE,null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
     submitted_count = models.CharField(max_length=100,null=True, blank=True,default="1")
+    drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignAttachments, blank=True)  # Track attachments
+    other_drawing_and_design_attachments = models.ManyToManyField(OtherDrawingAndDesignAttachments, blank=True)  # Track other attachments
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

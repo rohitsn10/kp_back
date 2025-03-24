@@ -1762,10 +1762,13 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                     drawing_and_design.project = project
                 
                 if drawing_and_design_attachments:
+                    new_drawing_attachments = []
                     for attachment in drawing_and_design_attachments:
-                        drawing_and_design_attachments = DrawingAndDesignAttachments.objects.create(
+                        new_attachment = DrawingAndDesignAttachments.objects.create(
                             project=project, user=user, drawing_and_design_attachments=attachment)
-                        drawing_and_design.drawing_and_design_attachments.add(drawing_and_design_attachments)
+                        new_drawing_attachments.append(new_attachment)
+                
+                    drawing_and_design.drawing_and_design_attachments.add(*new_drawing_attachments)
                         
                 if remove_drawing_and_design_attachments:
                     for file_id in remove_drawing_and_design_attachments:
@@ -1776,10 +1779,13 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                         except DrawingAndDesignAttachments.DoesNotExist:
                             pass
                 if other_drawing_and_design_attachments:
+                    new_other_drawing_attachments = []
                     for attachment in other_drawing_and_design_attachments:
-                        other_drawing_and_design_attachments = OtherDrawingAndDesignAttachments.objects.create(
+                        new_attachment = OtherDrawingAndDesignAttachments.objects.create(
                             project=project, user=user, other_drawing_and_design_attachments=attachment)
-                        drawing_and_design.other_drawing_and_design_attachments.add(other_drawing_and_design_attachments)
+                        new_other_drawing_attachments.append(new_attachment)
+                
+                    drawing_and_design.other_drawing_and_design_attachments.add(*new_other_drawing_attachments)
                         
                 if remove_other_drawing_and_design_attachments:
                     for file_id in remove_other_drawing_and_design_attachments:
@@ -1825,42 +1831,38 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                     drawing_and_design.is_commented = False
                     drawing_and_design.is_submitted = True
 
-                    # Create new DrawingAndDesignReSubmittedActions record
-                    resubmitted_actions = DrawingAndDesignReSubmittedActions.objects.create(
+                    # Create new resubmission entry
+                    resubmitted_action = DrawingAndDesignReSubmittedActions.objects.create(
                         drawing_and_design=drawing_and_design,
                         project=project,
                         user=user,
                         remarks=remarks,
                         submitted_count=current_submitted_count + 1
                     )
-                    resubmitted_actions.save()
 
-                    # Copy existing attachments and save new ones
+                    # Store newly uploaded attachments separately
                     new_drawing_attachments = []
-                    for attachment in drawing_and_design.drawing_and_design_attachments.all():
+                    for attachment in drawing_and_design_attachments:
                         new_attachment = DrawingAndDesignAttachments.objects.create(
-                            project=attachment.project,
-                            user=attachment.user,
-                            drawing_and_design_attachments=attachment.drawing_and_design_attachments
+                            project=project, user=user, drawing_and_design_attachments=attachment
                         )
                         new_drawing_attachments.append(new_attachment)
 
-                    drawing_and_design.drawing_and_design_attachments.set(new_drawing_attachments)  # Assign new attachments
+                    # Store new attachments in the resubmission record
+                    resubmitted_action.drawing_and_design_attachments.set(new_drawing_attachments)
 
                     new_other_drawing_attachments = []
-                    for attachment in drawing_and_design.other_drawing_and_design_attachments.all():
+                    for attachment in other_drawing_and_design_attachments:
                         new_attachment = OtherDrawingAndDesignAttachments.objects.create(
-                            project=attachment.project,
-                            user=attachment.user,
-                            other_drawing_and_design_attachments=attachment.other_drawing_and_design_attachments
+                            project=project, user=user, other_drawing_and_design_attachments=attachment
                         )
                         new_other_drawing_attachments.append(new_attachment)
 
-                    drawing_and_design.other_drawing_and_design_attachments.set(new_other_drawing_attachments)  # Assign new attachments
+                    resubmitted_action.other_drawing_and_design_attachments.set(new_other_drawing_attachments)
 
-                drawing_and_design.save()
-
-                
+                    drawing_and_design.save()
+                    resubmitted_action.save()
+                    
                 return Response({"status": True, "message": "Drawing and design updated successfully", "data": []})
             except Exception as e:
                 return Response({"status": False, "message": str(e), "data": []})
