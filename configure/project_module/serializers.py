@@ -442,9 +442,11 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
                 }
                 for attachment in action.other_drawing_and_design_attachments.all()
             ]
-
+            # Fetch remarks from DrawingAndDesignCommentedActions table
+            commented_action = DrawingAndDesignCommentedActions.objects.filter(drawing_and_design=obj).first()
             version_data = {
                 "version_number": int(action.submitted_count),
+                "remarks": action.remarks,
                 "created_at": action.created_at,
                 "submitted_by": {
                     "id": action.user.id if action.user else None,
@@ -455,16 +457,16 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
                     "other_drawing_and_design_attachments": other_drawing_attachments,
                 } if drawing_attachments or other_drawing_attachments else {},  # Include only if there are new attachments
                 "commented_actions": {
-                    "id": action.id,
+                    "id": commented_action.id if commented_action else None,
                     "drawing_and_design": obj.id,
                     "drawing_and_design_name": obj.name_of_drawing,
                     "project": obj.project.id if obj.project else None,
                     "project_name": obj.project.project_name if obj.project else None,
-                    "user": action.user.id if action.user else None,
-                    "user_full_name": action.user.full_name if action.user else None,
-                    "remarks": action.remarks,
-                    "created_at": action.created_at,
-                    "updated_at": action.updated_at,
+                    "user": commented_action.user.id if commented_action and commented_action.user else None,
+                    "user_full_name": commented_action.user.full_name if commented_action and commented_action.user else None,
+                    "remarks": commented_action.remarks if commented_action else None,  # Updated to get remarks from commented actions
+                    "created_at": commented_action.created_at if commented_action else None,
+                    "updated_at": commented_action.updated_at if commented_action else None,
                 },
             }
 
