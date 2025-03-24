@@ -1732,7 +1732,9 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
             
             # Retrieve the current approval status and submitted_count
             current_approval_status = drawing_and_design.approval_status
-            current_submitted_count = int(drawing_and_design.submitted_count) if drawing_and_design.submitted_count else 0
+            # Get the latest submitted count from DrawingAndDesignReSubmittedActions
+            latest_resubmission = DrawingAndDesignReSubmittedActions.objects.filter(drawing_and_design=drawing_and_design).order_by('-created_at').first()
+            current_submitted_count = int(latest_resubmission.submitted_count) if latest_resubmission else 1
             
             # Retrieve the request data
             project_id = request.data.get('project_id')
@@ -1827,7 +1829,7 @@ class DrawingandDesignUpdateViewSet(viewsets.ModelViewSet):
                 # Only increment submitted_count if approval_status is 'submitted' 
                 if approval_status == 'submitted' and current_approval_status == 'commented':
                     # Increment submitted count
-                    drawing_and_design.submitted_count = current_submitted_count + 1
+                    # drawing_and_design.submitted_count = current_submitted_count + 1
                     drawing_and_design.is_commented = False
                     drawing_and_design.is_submitted = True
 
