@@ -259,7 +259,7 @@ class DrawingAndDesignManagement(models.Model):
     drawing_number = models.CharField(max_length=100,null=True, blank=True)
     auto_drawing_number = models.CharField(max_length=500,null=True, blank=True)
     name_of_drawing = models.CharField(max_length=500,null=True, blank=True)
-    revision_version = models.CharField(max_length=100,null=True, blank=True,default="1")
+    version_number = models.CharField(max_length=100,null=True, blank=True,default="1")
     
     drawing_category = models.CharField(max_length=500, choices=DRAWING_CATEGORY, null=True, blank=True)
     type_of_approval = models.CharField(max_length=500, choices=TYPE_OF_APPROVAL, null=True, blank=True)
@@ -288,14 +288,28 @@ class DrawingAndDesignCommentedActions(models.Model):
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class DrawingAndDesignResubmissionAttachments(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    drawing_and_design_resubmission_attachments = models.FileField(upload_to='drawing_and_design_resubmission_attachments',null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class OtherDrawingAndDesignResubmissionAttachments(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    other_drawing_and_design_resubmission_attachments = models.FileField(upload_to='other_drawing_and_design_resubmission_attachments',null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
 class DrawingAndDesignReSubmittedActions(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design = models.ForeignKey(DrawingAndDesignManagement, on_delete=models.CASCADE,null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
     submitted_count = models.CharField(max_length=100,null=True, blank=True,default="1")
-    drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignAttachments, blank=True)  # Track attachments
-    other_drawing_and_design_attachments = models.ManyToManyField(OtherDrawingAndDesignAttachments, blank=True)  # Track other attachments
+    drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignResubmissionAttachments, blank=True)  # Track attachments
+    other_drawing_and_design_attachments = models.ManyToManyField(OtherDrawingAndDesignResubmissionAttachments, blank=True)  # Track other attachments
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
