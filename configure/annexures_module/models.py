@@ -1,6 +1,6 @@
 from django.db import models
 from user_profile.models import *
-
+from land_module.models import *
 
 class PermitToWork(models.Model):
     DEPARTMENT_CHOICES = (
@@ -47,6 +47,7 @@ class PermitToWork(models.Model):
         ('work permit procedure', 'Work permit Procedure'),
         ('other', 'Other'),
     )
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     site_name = models.CharField(max_length=255, blank=True, null=True)
     department = models.CharField(max_length=25, choices=DEPARTMENT_CHOICES, blank=True, null=True)

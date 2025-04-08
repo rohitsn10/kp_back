@@ -16,6 +16,7 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             user = self.request.user
+            location_id = request.data.get('location_id')
             site_name = request.data.get('site_name')
             department = request.data.get('department')
             permit_number = request.data.get('permit_number')
@@ -36,6 +37,13 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
             fire_protection = request.data.get('fire_protection', [])
             other_fire_protection = request.data.get('other_fire_protection')
             
+            location_instance = None
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+    
             permit_issued_for_str = ",".join(permit_issued_for) if permit_issued_for else ""
             hazard_consideration_str = ",".join(hazard_consideration) if hazard_consideration else ""
             fire_protection_str = ",".join(fire_protection) if fire_protection else ""
@@ -49,6 +57,7 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
 
             permit_to_work = PermitToWork.objects.create(
                 user=user,
+                location=location_instance,
                 site_name=site_name,
                 department=department,
                 permit_number=permit_number,
@@ -86,6 +95,24 @@ class GetPermitToWorkViewSet(viewsets.ModelViewSet):
         try:
             serializer = self.serializer_class(self.get_queryset(), many=True)
             return Response({"status": True, "message": "Permit to work list fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
+class LocationIdWisePermitToWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PermitToWorkSerializer
+    queryset = PermitToWork.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location_id=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         

@@ -782,7 +782,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_name = request.data.get('project_name')
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
-            # location_id = request.data.get('location_id', '')
+            location_name_str = request.data.get('location_name', '').strip()
             # location_survey = request.data.get('location_survey', '')
             alloted_land_area = request.data.get('alloted_land_area')
             available_land_area = request.data.get('available_land_area')
@@ -820,8 +820,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not end_date:
                 return Response({"status": False, "message": "End date is required."})
 
-            # if not location_id:
-            #     return Response({"status": False, "message": "Location is required."})
+            try:
+                location_obj = LandBankLocation.objects.create(
+                    user=user,
+                    land_bank_id=landbank_id,
+                    land_bank_location_name=location_name_str
+                )
+            except Exception as e:
+                return Response({"status": False, "message": f"Error creating location: {str(e)}"})
 
             if not cod_commission_date:
                 return Response({"status": False, "message": "COD commission date is required."})
@@ -854,11 +860,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             except Electricity.DoesNotExist:
                 return Response({"status": False, "message": "Invalid electricity line."})
             
-            # try:
-            #     location = LandBankLocation.objects.get(id=location_id)
-            # except LandBankLocation.DoesNotExist:
-            #     return Response({"status": False, "message": "Invalid location."})
-            
             try:
                 by_spoc_user = CustomUser.objects.get(id=spoc_user)
             except CustomUser.DoesNotExist:
@@ -881,7 +882,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Invalid SubSubActivity names."})
             try:
                 landbank_ins = LandBankMaster.objects.get(id=landbank_id)
-                print(landbank_id,"==")
             except LandBankMaster.DoesNotExist:
                 return Response({"status": False, "message": "Invalid Landbank ID."})
 
@@ -900,6 +900,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 end_date=end_date,
                 project_predicted_date=end_date,
                 cod_commission_date=cod_commission_date,
+                location_name=location_obj,
                 # total_area_of_project=total_area_of_project,
                 capacity=capacity,
                 ci_or_utility=ci_or_utility,
@@ -909,15 +910,19 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 alloted_land_area=alloted_land_area,
                 available_land_area=available_land_area
             )
-            serializer = self.serializer_class(project)
-            data = serializer.data
+            
             land_remaining_area = landbank_ins.remaining_land_area
-            print(land_remaining_area)
-            if land_remaining_area is None:
+            if land_remaining_area is None or land_remaining_area == '':
                 land_remaining_area = 0.0
+            else:
+                land_remaining_area = float(land_remaining_area)
 
-            landbank_ins.remaining_land_area = land_remaining_area - float(alloted_land_area)
-            landbank_ins.save()
+            try:
+                alloted_land_area_float = float(alloted_land_area)
+            except (TypeError, ValueError):
+                return Response({"status": False, "message": "Invalid alloted land area."})
+
+            landbank_ins.remaining_land_area = land_remaining_area - alloted_land_area_float
             # Add ManyToMany relationships
             # if location_survey:
             #     project.location_survey.set(location_survey)
@@ -931,7 +936,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             if assigned_users:
                 project.assigned_users.set(assigned_users)
-                
+            
+            serializer = self.serializer_class(project)
+            data = serializer.data
             return Response({"status": True,"message": "Project created successfully","data": data})
 
         except Exception as e:
@@ -2113,6 +2120,25 @@ class MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Payment data fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-            
+        
+        
+class ProjectIdwiseGetLandBankLocationViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectIdWiseLandBankLocationSerializer
+    queryset = Project.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = self.kwargs.get('project_id')
+            if not project_id:
+                return Response({"status": False, "message": "Project Id is required", "data": []})
+            queryset = self.filter_queryset(self.get_queryset()).filter(id=project_id)
+            serializer = ProjectIdWiseLandBankLocationSerializer(queryset, many=True)   
+            data = serializer.data
+            return Response({"status": True, "message": "Land Bank Location data fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+        
 
           

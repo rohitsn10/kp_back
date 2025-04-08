@@ -5,6 +5,7 @@ urlpatterns = [
 
     path('create_permit_to_work', PermitToWorkViewSet.as_view({'post': 'create'}), name='create_permit_to_work'),
     path('get_permit_to_work', GetPermitToWorkViewSet.as_view({'get': 'list'}), name='get_permit_to_work'),
+    path('loaction_id_wise_permit_to_work/<int:location_id>', LocationIdWisePermitToWorkViewSet.as_view({'get': 'list'}), name='loaction_id_wise_permit_to_work'),
 
     path('update_permit_to_work/<int:permit_id>', UpdatePermitToWorkViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_permit_to_work'),
     path('approve_permit/<int:permit_id>', ApprovePermitToWorkViewSet.as_view({'put':'update'}), name='approve_permit'),
