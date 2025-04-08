@@ -276,7 +276,7 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
         try:
             user = request.user
             site_name = request.data.get('site_name')
-            location = request.data.get('location')
+            location_id = request.data.get('location')
             date_of_occurrence = request.data.get('date_of_occurrence')
             date_of_report = request.data.get('date_of_report')
             category = request.data.get('category')
@@ -288,11 +288,15 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
             system_factor = request.data.get('system_factor')
             recommendation_for_preventive_action = request.data.get('recommendation_for_preventive_action', {})
             committee_members = request.data.get('committee_members', {})
-
+            location_instance = None
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
             incident_nearmiss = IncidentNearMiss.objects.create(
                 user=user,
                 site_name=site_name,
-                location=location,
                 date_of_occurrence=date_of_occurrence,
                 date_of_report=date_of_report,
                 category=category,
@@ -915,7 +919,9 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
             wind_screen_observations = request.data.get('wind_screen_observations')
             wind_screen_action_by = request.data.get('wind_screen_action_by')
             wind_screen_remarks = request.data.get('wind_screen_remarks')
-            door_lock = request.data.get('door_lock')
+            door_lock_action_by = request.data.get('door_lock_action_by')
+            door_lock_remarks = request.data.get('door_lock_remarks')
+            door_lock_observations = request.data.get('door_lock_observations')
             battery_condition_observations = request.data.get('battery_condition_observations')
             battery_condition_action_by = request.data.get('battery_condition_action_by')
             battery_condition_remarks = request.data.get('battery_condition_remarks')
@@ -973,7 +979,9 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
                 wind_screen_observations=wind_screen_observations,
                 wind_screen_action_by=wind_screen_action_by,
                 wind_screen_remarks=wind_screen_remarks,
-                door_lock=door_lock,
+                door_lock_action_by=door_lock_action_by,
+                door_lock_remarks=door_lock_remarks,
+                door_lock_observations=door_lock_observations,
                 battery_condition_observations=battery_condition_observations,
                 battery_condition_action_by=battery_condition_action_by,
                 battery_condition_remarks=battery_condition_remarks,

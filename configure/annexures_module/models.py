@@ -106,6 +106,7 @@ class IncidentNearMiss(models.Model):
         ('nearmiss', 'Nearmiss'),
     )
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     site_name = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     date_of_occurrence = models.DateTimeField(max_length=255, blank=True, null=True)
@@ -147,6 +148,7 @@ class ReportOfIncidentNearmiss(models.Model):
 
 class SafetyViolationReportAgainstUnsafeACT(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     site_name = models.CharField(max_length=255, blank=True, null=True)
     issued_to = models.CharField(max_length=255, blank=True, null=True)
     issued_to_violator_name = models.CharField(max_length=255, blank=True, null=True)
@@ -165,6 +167,7 @@ class SafetyViolationReportAgainstUnsafeACT(models.Model):
 
 class BoomLiftInspection(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     equipment_name = models.CharField(max_length=255, blank=True, null=True)
     make_model = models.CharField(max_length=255, blank=True, null=True)
     identification_number = models.CharField(max_length=255, blank=True, null=True)
@@ -230,6 +233,7 @@ class BoomLiftInspection(models.Model):
 
 class CraneHydraInspections(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     equipment_name = models.CharField(max_length=255, blank=True, null=True)
     make_model = models.CharField(max_length=255, blank=True, null=True)
     identification_number = models.CharField(max_length=255, blank=True, null=True)
@@ -295,6 +299,7 @@ class CraneHydraInspections(models.Model):
 
 class TrailerInspectionChecklist(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     equipment_name = models.CharField(max_length=255, blank=True, null=True)
     make_model = models.CharField(max_length=255, blank=True, null=True)
     identification_number = models.CharField(max_length=255, blank=True, null=True)
@@ -380,6 +385,7 @@ class MockDrillReport(models.Model):
         ('rescue', 'Rescue'),
     )
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     site_plant_name = models.CharField(max_length=255, blank=True,null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     emergncy_scenario_mock_drill = models.CharField(max_length=255, blank=True, null=True)
