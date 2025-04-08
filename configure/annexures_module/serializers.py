@@ -153,7 +153,9 @@ class TrailerInspectionChecklistSerializer(serializers.ModelSerializer):
             "wind_screen_observations",
             "wind_screen_action_by",
             "wind_screen_remarks",
-            "door_lock",
+            "door_lock_action_by"
+            "door_lock_remarks",
+            "door_lock_observations",
             "battery_condition_observations",
             "battery_condition_action_by",
             "battery_condition_remarks",
