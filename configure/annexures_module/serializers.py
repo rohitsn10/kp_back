@@ -3,10 +3,11 @@ from .models import *
 
 
 class PermitToWorkSerializer(serializers.ModelSerializer):
+    location_name = serializers.CharField(source= 'location.land_bank_location_name', read_only=True)
     class Meta:
         model = PermitToWork
         fields = [
-            'id','user', 'site_name', 'department', 'permit_number', 'name_of_external_agency', 
+            'id','user','location','location_name','site_name', 'department', 'permit_number', 'name_of_external_agency', 
             'type_of_permit', 'job_activity_details', 'location_area', 'tools_equipment', 
             'permit_issue_for', 'hazard_consideration', 'fire_protection', 'job_preparation',
             'other_permit_description', 'other_hazard_consideration', 'other_fire_protection',

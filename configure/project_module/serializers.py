@@ -78,6 +78,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     landbank_name = serializers.CharField(source='landbank.land_name', read_only=True)
     electricity_name = serializers.CharField(source='electricity_line.electricity_line', read_only=True)
     assigned_users = serializers.SerializerMethodField()
+    land_location_name = serializers.CharField(source='location_name.land_bank_location_name', read_only=True)
 
     class Meta:
         model = Project
@@ -86,7 +87,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
             'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'created_at',
             'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
-            'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name','assigned_users'
+            'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name','assigned_users','location_name','land_location_name'
         ]
 
     def get_assigned_users(self, obj):
@@ -140,12 +141,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             for user in assigned_users if user
         ]
         return representation
-
-
-
-
-
-
 
 
 class ClientDetailsSerializer(serializers.ModelSerializer):
@@ -494,7 +489,10 @@ class InFlowPaymentOnMilestoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = InFlowPaymentOnMilestone
         fields = ['id','project','project_name','milestone','milestone_name','party_name','invoice_number','total_amount','gst_amount','paid_amount','pending_amount','payment_date','notes','created_at','updated_at']
-
-
-
-
+        
+        
+class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
+    land_bank_location_name = serializers.CharField(source='location_name.land_bank_location_name', read_only=True)
+    class Meta:
+        model = Project
+        fields = ['id','location_name','land_bank_location_name']
