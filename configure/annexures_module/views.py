@@ -1161,3 +1161,136 @@ class GetMockDrillReportViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Mock drill report fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+
+
+class SafetyTrainingAttendanceViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TrainingAttendanceSerializer
+    queryset = SafetyTrainingAttendance.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            data = request.data
+
+            attendance = SafetyTrainingAttendance.objects.create(
+                topic=data.get('topic'),
+                date=data.get('date'),
+                trainer_name=data.get('trainer_name'),
+                attendees=data.get('attendees'),
+                remarks=data.get('remarks'),
+                file_upload=data.get('file_upload')
+            )
+
+            serializer = TrainingAttendanceSerializer(attendance)
+            return Response({
+                "status": True,
+                "message": "Training attendance created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            }),
+
+
+class GetTrainingAttendanceViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TrainingAttendanceSerializer
+    queryset = SafetyTrainingAttendance.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = SafetyTrainingAttendance.objects.all().order_by('-date')
+            serializer = TrainingAttendanceSerializer(queryset, many=True)
+            return Response({
+                "status": True,
+                "message": "Training attendance fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+class InternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternalAuditReportSerializer
+    queryset = InternalAuditReport.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            data = request.data
+
+            report = InternalAuditReport.objects.create(
+                site_name=data.get('site_name'),
+                date=data.get('date'),
+
+                observer_name=data.get('observer_name'),
+                observer_sign=data.get('observer_sign'),
+
+                auditee_name=data.get('auditee_name'),
+                auditee_sign=data.get('auditee_sign'),
+
+                agreed_completion_date=data.get('agreed_completion_date'),
+                correction_details=data.get('correction_details'),
+                root_cause=data.get('root_cause'),
+                corrective_action=data.get('corrective_action'),
+
+                correction_auditee_name=data.get('correction_auditee_name'),
+                correction_auditee_sign=data.get('correction_auditee_sign'),
+                correction_auditee_date=data.get('correction_auditee_date'),
+
+                verification_auditor_name=data.get('verification_auditor_name'),
+                verification_auditor_sign=data.get('verification_auditor_sign'),
+                verification_auditor_date=data.get('verification_auditor_date'),
+
+                report_closure=data.get('report_closure'),
+
+                siteincharge_name=data.get('siteincharge_name'),
+                siteincharge_sign=data.get('siteincharge_sign'),
+                siteincharge_date=data.get('siteincharge_date'),
+            )
+
+            serializer = InternalAuditReportSerializer(report)
+            return Response({
+                "status": True,
+                "message": "Internal audit report created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+
+class GetInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternalAuditReportSerializer
+    queryset = InternalAuditReport.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            reports = InternalAuditReport.objects.all().order_by('-date')
+            serializer = InternalAuditReportSerializer(reports, many=True)
+            return Response({
+                "status": True,
+                "message": "Internal audit reports fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
