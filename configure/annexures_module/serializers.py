@@ -182,8 +182,67 @@ class MockDrillReportSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'site_plant_name', 'location', 'emergncy_scenario_mock_drill',
             'type_of_mock_drill', 'mock_drill_date', 'mock_drill_time', 'completed_time',
-            'overall_time', 'team_leader_incident_controller', 'performance', 'traffic_or_evacuation',
-            'ambulance_first_aid_ppe_rescue', 'team_member1', 'team_member2', 'table_top_records',
+            'overall_time', 'drill_details', 'team_members', 'table_top_records',
             'description_of_control', 'head_count_at_assembly_point', 'rating_of_emergency_team_members',
             'overall_rating', 'observation', 'recommendations', 'created_at', 'updated_at'
         ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        request = self.context.get("request")
+
+        # Format drill_details with full image URLs
+        drill_details = representation.get("drill_details", {})
+        formatted_details = {}
+        for key, value in drill_details.items():
+            if isinstance(value, dict):
+                formatted_details[key] = value.get("value")
+                image_url = value.get("image")
+                if image_url and request:
+                    image_url = request.build_absolute_uri(image_url)
+                formatted_details[f"{key}_image"] = image_url
+            else:
+                formatted_details[key] = value
+        representation["drill_details"] = formatted_details
+
+        # Format team_members with full image URLs
+        team_members = representation.get("team_members", [])
+        formatted_members = []
+        for member in team_members:
+            member_name = member.get("name")
+            member_image = member.get("image")
+            if member_image and request:
+                member_image = request.build_absolute_uri(member_image)
+
+            formatted_member = {
+                "member_name": member_name,
+                "member_image": member_image,
+            }
+
+            formatted_members.append(formatted_member)
+        representation["team_members"] = formatted_members
+        head_count_data = representation.get("head_count_at_assembly_point", {})
+        formatted_head_count = {
+            "people_present_as_per_record": {
+                "no_of_kpi_employee": head_count_data.get("people_present_as_per_record", {}).get("no_of_kpi_employee"),
+                "no_of_contractor_employee": head_count_data.get("people_present_as_per_record", {}).get("no_of_contractor_employee"),
+                "no_of_visitor_angies": head_count_data.get("people_present_as_per_record", {}).get("no_of_visitor_angies"),
+                "remarks": head_count_data.get("people_present_as_per_record", {}).get("head_count_remarks")
+            },
+            "actual_participants_participate_in_drill": {
+                "no_of_kpi_employee": head_count_data.get("actual_participants_participate_in_drill", {}).get("no_of_kpi_employee"),
+                "no_of_contractor_employee": head_count_data.get("actual_participants_participate_in_drill", {}).get("no_of_contractor_employee"),
+                "no_of_visitor_angies": head_count_data.get("actual_participants_participate_in_drill", {}).get("no_of_visitor_angies"),
+                "remarks": head_count_data.get("actual_participants_participate_in_drill", {}).get("actual_remarks")
+            },
+            "no_of_people_not_participated_in_drill": {
+                "no_of_kpi_employee": head_count_data.get("no_of_people_not_participated_in_drill", {}).get("no_of_kpi_employee"),
+                "no_of_contractor_employee": head_count_data.get("no_of_people_not_participated_in_drill", {}).get("no_of_contractor_employee"),
+                "no_of_visitor_angies": head_count_data.get("no_of_people_not_participated_in_drill", {}).get("no_of_visitor_angies"),
+                "remarks": head_count_data.get("no_of_people_not_participated_in_drill", {}).get("not_participated_remarks")
+            }
+        }
+        representation["head_count_at_assembly_point"] = formatted_head_count
+        return representation
+
+

@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from annexures_module.serializers import *
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
-
+from django.core.files.storage import default_storage
+import json
 
 class PermitToWorkViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -1028,43 +1029,110 @@ class MockDrillReportViewSet(viewsets.ModelViewSet):
         try:
             user = request.user
             site_plant_name = request.data.get('site_plant_name')
-            location = request.data.get('location')
+            location_id = request.data.get('location')
             emergncy_scenario_mock_drill = request.data.get('emergncy_scenario_mock_drill')
             type_of_mock_drill = request.data.get('type_of_mock_drill')
             mock_drill_date = request.data.get('mock_drill_date')
             mock_drill_time = request.data.get('mock_drill_time')
             completed_time = request.data.get('completed_time')
             overall_time = request.data.get('overall_time')
-            team_leader_incident_controller = request.data.get('team_leader_incident_controller')
-            performance = request.data.get('performance')
-            traffic_or_evacuation = request.data.get('traffic_or_evacuation')
-            ambulance_first_aid_ppe_rescue = request.data.get('ambulance_first_aid_ppe_rescue')
-            team_member1 = request.data.get('team_member1')
-            team_member2 = request.data.get('team_member2')
             table_top_records = request.data.get('table_top_records', {})
             description_of_control = request.data.get('description_of_control')
-            head_count_at_assembly_point = request.data.get('head_count_at_assembly_point', {})
-            rating_of_emergency_team_members = request.data.get('rating_of_emergency_team_members', {})
+            rating_data_raw = request.data.get('rating_of_emergency_team_members', '[]')
+            rating_of_emergency_team_members = json.loads(rating_data_raw)
             overall_rating = request.data.get('overall_rating')
             observation = request.data.get('observation')
-            recommendations = request.data.get('recommendations', {})
+            recommendations_data_raw = request.data.get('recommendations', '{}')
+            recommendations = json.loads(recommendations_data_raw)
+            
+            head_count_at_assembly_point = {
+                "people_present_as_per_record": {
+                    "no_of_kpi_employee": request.data.get('no_of_kpi_employee'),
+                    "no_of_contractor_employee": request.data.get('no_of_contractor_employee'),
+                    "no_of_visitor_angies": request.data.get('no_of_visitor_angies'),
+                    "head_count_remarks": request.data.get('head_count_remarks')
+                },
+                "actual_participants_participate_in_drill": {
+                    "no_of_kpi_employee": request.data.get('no_of_kpi_employee'),
+                    "no_of_contractor_employee": request.data.get('no_of_contractor_employee'),
+                    "no_of_visitor_angies": request.data.get('no_of_visitor_angies'),
+                    "actual_remarks": request.data.get('actual_remarks')
+                },
+                "no_of_people_not_participated_in_drill": {
+                    "no_of_kpi_employee": request.data.get('not_participated_kpi'),
+                    "no_of_contractor_employee": request.data.get('not_participated_contractor'),
+                    "no_of_visitor_angies": request.data.get('not_participated_visitor'),
+                    "not_participated_remarks": request.data.get('not_participated_remarks')
+                }
+            }
 
-            mock_drill_report = MockDrillReport.objects.create(
+
+            # Handle location
+            location_instance = None
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
+            # ✅ Process drill_details with optional image upload
+            fields = [
+                "team_leader_incident_controller",
+                "performance",
+                "traffic_or_evacuation",
+                "ambulance_first_aid_ppe_rescue"
+            ]
+            drill_details = {}
+            for field in fields:
+                value = request.data.get(field)
+                image = request.FILES.get(f"{field}_image")
+                image_path = None
+
+                if image:
+                    file_name = default_storage.save(f"mock_drills/{image.name}", image)
+                    image_path = default_storage.url(file_name)
+
+                drill_details[field] = {
+                    "value": value,
+                    "image": image_path
+                }
+
+            team_members = []
+            index = 0
+            while True:
+                name = request.data.get(f'team_member_name_{index}')
+                image = request.FILES.get(f'team_member_image_{index}')
+
+                if not name and not image:
+                    break
+
+                image_path = None
+                if image:
+                    file_name = default_storage.save(f"mock_drills/team_members/{image.name}", image)
+                    image_path = default_storage.url(file_name)
+
+                member = {
+                    "name": name,
+                    "image": image_path
+                }
+                team_members.append(member)
+                index += 1
+
+            # ✅ Create the report
+            report = MockDrillReport.objects.create(
                 user=user,
                 site_plant_name=site_plant_name,
-                location=location,
+                location=location_instance,
                 emergncy_scenario_mock_drill=emergncy_scenario_mock_drill,
                 type_of_mock_drill=type_of_mock_drill,
                 mock_drill_date=mock_drill_date,
                 mock_drill_time=mock_drill_time,
                 completed_time=completed_time,
                 overall_time=overall_time,
-                team_leader_incident_controller=team_leader_incident_controller,
-                performance=performance,
-                traffic_or_evacuation=traffic_or_evacuation,
-                ambulance_first_aid_ppe_rescue=ambulance_first_aid_ppe_rescue,
-                team_member1=team_member1,
-                team_member2=team_member2,
+                
+                drill_details=drill_details,
+                team_members=team_members,
+                
                 table_top_records=table_top_records,
                 description_of_control=description_of_control,
                 head_count_at_assembly_point=head_count_at_assembly_point,
@@ -1073,10 +1141,13 @@ class MockDrillReportViewSet(viewsets.ModelViewSet):
                 observation=observation,
                 recommendations=recommendations
             )
-            serializer = MockDrillReportSerializer(mock_drill_report)
+
+            serializer = MockDrillReportSerializer(report, context={'request': request})
             return Response({"status": True, "message": "Mock drill report created successfully", "data": serializer.data})
+
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
         
 
 class GetMockDrillReportViewSet(viewsets.ModelViewSet):
