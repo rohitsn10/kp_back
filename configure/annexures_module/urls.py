@@ -36,4 +36,13 @@ urlpatterns = [
 
     path('create_mock_drill_report', MockDrillReportViewSet.as_view({'post': 'create'}), name='create_mock_drill_report'),
     path('get_mock_drill_report', GetMockDrillReportViewSet.as_view({'get': 'list'}), name='get_mock_drill_report'),
+
+    path('create_safety_training_attendance', SafetyTrainingAttendanceViewSet.as_view({'post': 'create'}), name='create_safety_training_attendance'),
+    path('get_safety_training_attendance', GetTrainingAttendanceViewSet.as_view({'get': 'list'}), name='get_safety_training_attendance'),
+
+    path('create_internal_audit_report', InternalAuditReportViewSet.as_view({'post': 'create'}), name='create_internal_audit_report'),
+    path('get_internal_audit_report', GetInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_internal_audit_report'),
+
+
+
 ]

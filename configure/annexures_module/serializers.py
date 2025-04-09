@@ -246,3 +246,29 @@ class MockDrillReportSerializer(serializers.ModelSerializer):
         return representation
 
 
+
+
+class ParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ['id', 'name', 'designation', 'signature']
+
+class TrainingAttendanceSerializer(serializers.ModelSerializer):
+    participants = ParticipantSerializer(many=True)
+
+    class Meta:
+        model = SafetyTrainingAttendance
+        fields = ['id', 'site_name', 'date', 'training_topic', 'faculty_name', 'faculty_signature', 'participants']
+
+    def create(self, validated_data):
+        participants_data = validated_data.pop('participants')
+        training = SafetyTrainingAttendance.objects.create(**validated_data)
+        for participant_data in participants_data:
+            Participant.objects.create(training=training, **participant_data)
+        return training
+
+
+class InternalAuditReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InternalAuditReport
+        fields = '__all__'

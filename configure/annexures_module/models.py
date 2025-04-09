@@ -407,3 +407,61 @@ class MockDrillReport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+
+
+
+class SafetyTrainingAttendance(models.Model):
+    site_name = models.CharField(max_length=255)
+    date = models.DateField()
+    training_topic = models.CharField(max_length=255)
+    faculty_name = models.CharField(max_length=255)
+    faculty_signature = models.FileField(upload_to='signatures/faculty/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.site_name} - {self.training_topic} - {self.date}"
+
+class Participant(models.Model):
+    training = models.ForeignKey(SafetyTrainingAttendance, on_delete=models.CASCADE, related_name='participants')
+    name = models.CharField(max_length=255)
+    designation = models.CharField(max_length=255)
+    signature = models.FileField(upload_to='signatures/participants/', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.designation}"
+    
+
+class InternalAuditReport(models.Model):
+    site_name = models.CharField(max_length=255)
+    date = models.DateField()
+
+    observer_name = models.CharField(max_length=255)
+    observer_sign = models.FileField(upload_to='signatures/observer/', null=True, blank=True)
+
+    auditee_name = models.CharField(max_length=255)
+    auditee_sign = models.FileField(upload_to='signatures/auditee/', null=True, blank=True)
+
+    agreed_completion_date = models.DateField()
+    correction_details = models.TextField()
+    root_cause = models.TextField()
+    corrective_action = models.TextField()
+
+    correction_auditee_name = models.CharField(max_length=255)
+    correction_auditee_sign = models.FileField(upload_to='signatures/correction_auditee/', null=True, blank=True)
+    correction_auditee_date = models.DateField()
+
+    verification_auditor_name = models.CharField(max_length=255)
+    verification_auditor_sign = models.FileField(upload_to='signatures/verification_auditor/', null=True, blank=True)
+    verification_auditor_date = models.DateField()
+
+    report_closure = models.TextField()
+
+    siteincharge_name = models.CharField(max_length=255)
+    siteincharge_sign = models.FileField(upload_to='signatures/siteincharge/', null=True, blank=True)
+    siteincharge_date = models.DateField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.site_name} - {self.date}"
