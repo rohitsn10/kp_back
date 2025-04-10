@@ -272,3 +272,44 @@ class InternalAuditReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = InternalAuditReport
         fields = '__all__'
+
+
+class ToollboxTalkAttendenceSerializer(serializers.ModelSerializer):
+    tbt_conducted_by_signature = serializers.SerializerMethodField()
+    participant_upload_attachments = serializers.SerializerMethodField()
+    class Meta:
+        model = ToollboxTalkAttendence
+        fields = [
+            'id', 'site_name', 'location', 'date', 'time',
+            'tbt_against_permit_no', 'permit_date', 'tbt_conducted_by_name',
+            'tbt_conducted_by_signature', 'name_of_contractor',
+            'job_activity_in_detail',
+            'use_of_ppes_topic_discussed', 'use_of_tools_topic_discussed',
+            'hazard_at_work_place_topic_discussed',
+            'use_of_action_in_an_emergency_topic_discussed',
+            'use_of_health_status_topic_discussed',
+            'use_of_others_topic_discussed',
+            'participant_upload_attachments', 'remarks',
+            'created_at', 'updated_at'
+        ]
+
+    def get_tbt_conducted_by_signature(self, obj):
+        if obj.tbt_conducted_by_signature:
+            return self.context['request'].build_absolute_uri(obj.tbt_conducted_by_signature.url)
+        return None
+
+    def get_participant_upload_attachments(self, obj):
+        if obj.participant_upload_attachments:
+            return self.context['request'].build_absolute_uri(obj.participant_upload_attachments.url)
+        return None
+
+
+class FirstAidRecordSerializer(serializers.ModelSerializer):
+    location_name = serializers.CharField(source='location.land_bank_location_name', read_only=True)
+    class Meta:
+        model = FirstAidRecord
+        fields = [
+            'id', 'site_name', 'location','location_name','date',
+            'first_aid_name', 'designation', 'employee_of', 'description',
+            'created_at', 'updated_at'
+        ]

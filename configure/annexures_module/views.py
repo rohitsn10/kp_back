@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.core.files.storage import default_storage
 import json
+from django.core.files.base import ContentFile  
 
 class PermitToWorkViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -1294,3 +1295,149 @@ class GetInternalAuditReportViewSet(viewsets.ModelViewSet):
                 "message": str(e),
                 "data": []
             })
+            
+         
+class ToollboxTalkAttendenceCreateViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ToollboxTalkAttendenceSerializer
+    queryset = ToollboxTalkAttendence.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data
+
+            attendance = ToollboxTalkAttendence.objects.create(
+                site_name=data.get('site_name'),
+                location_id=data.get('location'),
+                date=data.get('date'),
+                time=data.get('time'),
+                tbt_against_permit_no=data.get('tbt_against_permit_no'),
+                permit_date=data.get('permit_date'),
+                tbt_conducted_by_name=data.get('tbt_conducted_by_name'),
+                tbt_conducted_by_signature=request.FILES.get('tbt_conducted_by_signature'),
+                name_of_contractor=data.get('name_of_contractor'),
+                job_activity_in_detail=data.get('job_activity_in_detail'),
+                use_of_ppes_topic_discussed=data.get('use_of_ppes_topic_discussed'),
+                use_of_tools_topic_discussed=data.get('use_of_tools_topic_discussed'),
+                hazard_at_work_place_topic_discussed=data.get('hazard_at_work_place_topic_discussed'),
+                use_of_action_in_an_emergency_topic_discussed=data.get('use_of_action_in_an_emergency_topic_discussed'),
+                use_of_health_status_topic_discussed=data.get('use_of_health_status_topic_discussed'),
+                use_of_others_topic_discussed=data.get('use_of_others_topic_discussed'),
+                participant_upload_attachments=request.FILES.get('participant_upload_attachments'),
+                remarks=data.get('remarks'),
+            )
+
+            serializer = ToollboxTalkAttendenceSerializer(attendance, context={'request': request})
+            return Response({
+                "status": True,
+                "message": "Toolbox talk attendance created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+            
+class ToollboxTalkAttendenceGetViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ToollboxTalkAttendenceSerializer
+    queryset = ToollboxTalkAttendence.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            attendance = ToollboxTalkAttendence.objects.all().order_by('-id')
+            serializer = ToollboxTalkAttendenceSerializer(attendance, context={'request': request}, many=True)
+            data = serializer.data
+            return Response({"status": True,"message": "Toolbox talk attendance fetched successfully","data": data})
+        except Exception as e:
+            return Response({"status": False,"message": str(e),"data": []})
+        
+        
+class LocationIdwiseGetToollboxTalkAttendenceGetViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ToollboxTalkAttendenceSerializer
+    queryset = ToollboxTalkAttendence.objects.all()
+    
+    def list(self,request,*args,**kwargs):
+        try:
+            location_id = kwargs.get('location_id')
+            if not location_id:
+                return Response({"status": False, "message": "Location Id is required", "data": []})
+            attendance = ToollboxTalkAttendence.objects.filter(location_id=location_id).order_by('-id')
+            serializer = ToollboxTalkAttendenceSerializer(attendance, context={'request': request}, many=True)
+            data = serializer.data
+            return Response({"status": True,"message": "Toolbox talk attendance fetched successfully","data": data})
+        except Exception as e:
+            return Response({"status": False,"message": str(e),"data": []})
+            
+            
+            
+class FirstAidRecordViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FirstAidRecordSerializer
+    queryset = FirstAidRecord.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            first_aid_record = FirstAidRecord.objects.create(
+                site_name=data.get('site_name'),
+                location_id=data.get('location'),
+                date=data.get('date'),
+                first_aid_name = data.get('first_aid_name'),
+                designation = data.get('designation'),
+                employee_of = data.get('employee_of'),
+                description = data.get('description'),
+                
+            )
+            serializer = FirstAidRecordSerializer(first_aid_record, context={'request': request})
+            data = serializer.data
+            return Response({
+                "status": True,
+                "message": "First Aid Record created successfully",
+                "data": data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+            
+            
+class GetListFirstrecordViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FirstAidRecordSerializer
+    queryset = FirstAidRecord.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            first_aid_record = FirstAidRecord.objects.all().order_by('-id')
+            serializer = FirstAidRecordSerializer(first_aid_record, context={'request': request}, many=True)
+            data = serializer.data
+            return Response({"status": True,"message": "First Aid Record fetched successfully","data": data})
+        except Exception as e:
+            return Response({"status": False,"message": str(e),"data": []})
+        
+        
+class LocationIdwiseGetListFirstrecordViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FirstAidRecordSerializer
+    queryset = FirstAidRecord.objects.all()
+    
+    def list(self,request,*args,**kwargs):
+        try:
+            location_id = kwargs.get('location_id')
+            if not location_id:
+                return Response({"status": False, "message": "Location Id is required", "data": []})
+            first_aid_record = FirstAidRecord.objects.filter(location_id=location_id).order_by('-id')
+            serializer = FirstAidRecordSerializer(first_aid_record, context={'request': request}, many=True)
+            data = serializer.data
+            return Response({"status": True,"message": "First Aid Record fetched successfully","data": data})
+        except Exception as e:
+            return Response({"status": False,"message": str(e),"data": []})
+        
