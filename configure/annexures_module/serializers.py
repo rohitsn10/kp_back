@@ -281,24 +281,25 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 
 class InductionTrainingSerializer(serializers.ModelSerializer):
-    participants = ParticipantSerializer(many=True)
-    training_topics = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=TrainingTopic.objects.all()
-    )
+    # participants = ParticipantSerializer(many=True)
+    # training_topics = serializers.PrimaryKeyRelatedField(
+    #     many=True,
+    #     queryset=TrainingTopic.objects.all()
+    # )
 
     class Meta:
         model = InductionTraining
-        fields = ['id', 'site_name', 'date', 'faculty_name', 'faculty_signature', 'training_topics', 'participants']
+        fields = ['id', 'site_name', 'date', 'faculty_name', 'faculty_signature', 'training_topics', 'participants_file', 'topic_1', 'topic_2', 'topic_3',
+                  'topic_4', 'topic_5', 'topic_6', 'topic_7', 'topic_8', 'topic_9', 'topic_10', 'topic_11', 'topic_12', 'topic_13', 'topic_14']
 
-    def create(self, validated_data):
-        participants_data = validated_data.pop('participants')
-        training_topics = validated_data.pop('training_topics')
-        training = InductionTraining.objects.create(**validated_data)
-        training.training_topics.set(training_topics)
-        for participant_data in participants_data:
-            Participant.objects.create(training=training, **participant_data)
-        return training
+    # def create(self, validated_data):
+    #     # participants_data = validated_data.pop('participants')
+    #     training_topics = validated_data.pop('training_topics')
+    #     training = InductionTraining.objects.create(**validated_data)
+    #     training.training_topics.set(training_topics)
+    #     # for participant_data in participants_data:
+    #     #     Participant.objects.create(training=training, **participant_data)
+    #     return training
     
 
 
@@ -308,12 +309,25 @@ class FireExtinguisherDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'inspection': {'required': False}}
 
+import json
 class FireExtinguisherInspectionSerializer(serializers.ModelSerializer):
-    extinguishers = FireExtinguisherDetailSerializer(many=True)
+    extinguishers = FireExtinguisherDetailSerializer(many=True, required=True)
 
     class Meta:
         model = FireExtinguisherInspection
         fields = ['id', 'site_name', 'date_of_inspection', 'checked_by_name', 'signature', 'extinguishers']
+
+    def to_internal_value(self, data):
+        # Check and parse 'extinguishers' if it's a JSON string (comes as string in multipart/form-data)
+        if 'extinguishers' in data and isinstance(data.get('extinguishers'), str):
+            try:
+                data = data.copy()  # Make a mutable copy for QueryDict
+                data['extinguishers'] = json.loads(data['extinguishers'])
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({
+                    'extinguishers': 'Invalid JSON format.'
+                })
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
         extinguisher_data = validated_data.pop('extinguishers')

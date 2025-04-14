@@ -480,7 +480,22 @@ class InductionTraining(models.Model):
     date = models.DateField()
     faculty_name = models.CharField(max_length=255)
     faculty_signature = models.FileField(upload_to='faculty_signatures/')
-    training_topics = models.ManyToManyField(TrainingTopic, related_name='induction_trainings')
+    training_topics = models.CharField(max_length=255, null=True, blank=True)
+    participants_file = models.FileField(upload_to="participants_files/", null=True, blank=True)
+    topic_1 = models.CharField(max_length=255, null=True, blank=True)
+    topic_2 = models.CharField(max_length=255, null=True, blank=True)
+    topic_3 = models.CharField(max_length=255, null=True, blank=True)
+    topic_4 = models.CharField(max_length=255, null=True, blank=True)
+    topic_5 = models.CharField(max_length=255, null=True, blank=True)
+    topic_6 = models.CharField(max_length=255, null=True, blank=True)
+    topic_7 = models.CharField(max_length=255, null=True, blank=True)
+    topic_8 = models.CharField(max_length=255, null=True, blank=True)
+    topic_9 = models.CharField(max_length=255, null=True, blank=True)
+    topic_10 = models.CharField(max_length=255, null=True, blank=True)
+    topic_11 = models.CharField(max_length=255, null=True, blank=True)
+    topic_12 = models.CharField(max_length=255, null=True, blank=True)
+    topic_13 =models.CharField(max_length=255, null=True, blank=True)
+    topic_14 = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return f"{self.site_name} - {self.date}"
