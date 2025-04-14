@@ -1294,3 +1294,95 @@ class GetInternalAuditReportViewSet(viewsets.ModelViewSet):
                 "message": str(e),
                 "data": []
             })
+        
+
+
+
+
+class CreateInductionTrainingViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InductionTrainingSerializer
+    queryset = InductionTraining.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": True,
+                    "message": "Induction training created successfully",
+                    "data": serializer.data
+                })
+            return Response({
+                "status": False,
+                "message": serializer.errors,
+                "data": []
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+
+class GetInductionTrainingViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InductionTrainingSerializer
+    queryset = InductionTraining.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            records = InductionTraining.objects.all().order_by('-date')
+            serializer = InductionTrainingSerializer(records, many=True)
+            return Response({
+                "status": True,
+                "message": "Induction training records fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })     
+
+
+class FireExtinguisherInspectionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FireExtinguisherInspectionSerializer
+    queryset = FireExtinguisherInspection.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response({
+                "status": True,
+                "message": "Fire extinguisher inspection created successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })            
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            inspections = self.get_queryset()
+            serializer = self.get_serializer(inspections, many=True)
+            return Response({
+                "status": True,
+                "message": "Fire extinguisher inspections fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })    

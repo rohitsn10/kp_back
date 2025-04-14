@@ -43,6 +43,12 @@ urlpatterns = [
     path('create_internal_audit_report', InternalAuditReportViewSet.as_view({'post': 'create'}), name='create_internal_audit_report'),
     path('get_internal_audit_report', GetInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_internal_audit_report'),
 
+    path('create_induction_training', CreateInductionTrainingViewSet.as_view({'post': 'create'}), name='create_induction_training'),
+    path('get_induction_training', GetInductionTrainingViewSet.as_view({'get': 'list'}), name='get_induction_training'),
+
+    path('create_fire_extinguisher_inspection', FireExtinguisherInspectionViewSet.as_view({'post': 'create'}), name='create_fire_extinguisher_inspection'),
+    path('get_fire_extinguisher_inspection', FireExtinguisherInspectionViewSet.as_view({'get': 'list'}), name='get_fire_extinguisher_inspection'),
+
 
 
 ]
