@@ -465,6 +465,7 @@ class InternalAuditReport(models.Model):
 
     def __str__(self):
         return f"{self.site_name} - {self.date}"
+
     
 
 class TrainingTopic(models.Model):
@@ -516,3 +517,42 @@ class FireExtinguisherDetail(models.Model):
     due_date_hydro_test = models.DateField()
     access = models.CharField(max_length=255)
     remarks = models.TextField(blank=True, null=True)
+
+
+
+class ToollboxTalkAttendence(models.Model):
+    site_name = models.CharField(max_length=255,null=True,blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField(null=True,blank=True)
+    time = models.TimeField(null=True,blank=True)
+    tbt_against_permit_no = models.CharField(max_length=255,null=True,blank=True)
+    permit_date = models.DateField(null=True,blank=True)
+    tbt_conducted_by_name = models.CharField(max_length=255,null=True,blank=True)
+    tbt_conducted_by_signature = models.FileField(upload_to='signatures/tbt_conducted_by/', null=True, blank=True)
+    name_of_contractor = models.CharField(max_length=255,null=True,blank=True)
+    job_activity_in_detail = models.TextField(null=True,blank=True)
+    
+    use_of_ppes_topic_discussed = models.CharField(max_length=500,null=True,blank=True)
+    use_of_tools_topic_discussed = models.CharField(max_length=500,null=True,blank=True)
+    hazard_at_work_place_topic_discussed = models.CharField(max_length=500,null=True,blank=True)
+    use_of_action_in_an_emergency_topic_discussed = models.CharField(max_length=500,null=True,blank=True)
+    use_of_health_status_topic_discussed = models.CharField(max_length=500,null=True,blank=True)
+    use_of_others_topic_discussed = models.CharField(max_length=500,null=True,blank=True)
+    participant_upload_attachments = models.FileField(upload_to='signatures/participants/', null=True, blank=True)
+    
+    remarks = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    
+class FirstAidRecord(models.Model):
+    site_name = models.CharField(max_length=255,null=True,blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField(null=True,blank=True)
+    first_aid_name = models.CharField(max_length=255,null=True,blank=True)
+    designation = models.CharField(max_length=255,null=True,blank=True)
+    employee_of = models.CharField(max_length=255,null=True,blank=True)
+    description = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)

@@ -43,12 +43,23 @@ urlpatterns = [
     path('create_internal_audit_report', InternalAuditReportViewSet.as_view({'post': 'create'}), name='create_internal_audit_report'),
     path('get_internal_audit_report', GetInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_internal_audit_report'),
 
+
     path('create_induction_training', CreateInductionTrainingViewSet.as_view({'post': 'create'}), name='create_induction_training'),
     path('get_induction_training', GetInductionTrainingViewSet.as_view({'get': 'list'}), name='get_induction_training'),
 
     path('create_fire_extinguisher_inspection', FireExtinguisherInspectionViewSet.as_view({'post': 'create'}), name='create_fire_extinguisher_inspection'),
     path('get_fire_extinguisher_inspection', FireExtinguisherInspectionViewSet.as_view({'get': 'list'}), name='get_fire_extinguisher_inspection'),
 
+
+
+    
+    path('create_tooltalk_attendence',ToollboxTalkAttendenceCreateViewSet.as_view({'post': 'create'}),name = 'create_tooltalk_attendence'),
+    path('get_tooltalk_attendence',ToollboxTalkAttendenceGetViewSet.as_view({'get': 'list'}),name = 'get_tooltalk_attendence'),
+    path('location_wise_get_tooltalk_attendence/<int:location_id>',LocationIdwiseGetToollboxTalkAttendenceGetViewSet.as_view({'get': 'list'}),name = 'get_location_wise_tooltalk_attendence'),
+    
+    path('create_first_aid_record',FirstAidRecordViewSet.as_view({'post': 'create'}),name = 'create_first_aid_record'),
+    path('get_first_aid_record',GetListFirstrecordViewSet.as_view({'get': 'list'}),name = 'get_first_aid_record'),
+    path('get_location_wise_first_aid_record/<int:location_id>',LocationIdwiseGetListFirstrecordViewSet.as_view({'get': 'list'}),name = 'get_location_wise_first_aid_record'),
 
 
 ]
