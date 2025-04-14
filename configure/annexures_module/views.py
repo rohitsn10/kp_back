@@ -1321,6 +1321,8 @@ class CreateInductionTrainingViewSet(viewsets.ModelViewSet):
                 "message": serializer.errors,
                 "data": []
             })
+        except Exception as e:
+            return Response({"status": False,"message": str(e),"data": []})
 
             
          
@@ -1408,6 +1410,8 @@ class FireExtinguisherInspectionViewSet(viewsets.ModelViewSet):
                 "message": "Fire extinguisher inspection created successfully",
                 "data": serializer.data
             })
+        except Exception as e:
+            return Response({"status": False,"message": str(e),"data": []})
   
 class ToollboxTalkAttendenceGetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -1493,7 +1497,7 @@ class FirstAidRecordViewSet(viewsets.ModelViewSet):
                 "data": []
             })    
 
-            })
+           
             
             
 class GetListFirstrecordViewSet(viewsets.ModelViewSet):
