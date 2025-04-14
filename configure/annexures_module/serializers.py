@@ -274,6 +274,55 @@ class InternalAuditReportSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ['name', 'designation', 'remarks']
+
+
+class InductionTrainingSerializer(serializers.ModelSerializer):
+    participants = ParticipantSerializer(many=True)
+    training_topics = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=TrainingTopic.objects.all()
+    )
+
+    class Meta:
+        model = InductionTraining
+        fields = ['id', 'site_name', 'date', 'faculty_name', 'faculty_signature', 'training_topics', 'participants']
+
+    def create(self, validated_data):
+        participants_data = validated_data.pop('participants')
+        training_topics = validated_data.pop('training_topics')
+        training = InductionTraining.objects.create(**validated_data)
+        training.training_topics.set(training_topics)
+        for participant_data in participants_data:
+            Participant.objects.create(training=training, **participant_data)
+        return training
+    
+
+
+class FireExtinguisherDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FireExtinguisherDetail
+        fields = '__all__'
+        extra_kwargs = {'inspection': {'required': False}}
+
+class FireExtinguisherInspectionSerializer(serializers.ModelSerializer):
+    extinguishers = FireExtinguisherDetailSerializer(many=True)
+
+    class Meta:
+        model = FireExtinguisherInspection
+        fields = ['id', 'site_name', 'date_of_inspection', 'checked_by_name', 'signature', 'extinguishers']
+
+    def create(self, validated_data):
+        extinguisher_data = validated_data.pop('extinguishers')
+        inspection = FireExtinguisherInspection.objects.create(**validated_data)
+        for extinguisher in extinguisher_data:
+            FireExtinguisherDetail.objects.create(inspection=inspection, **extinguisher)
+        return inspection
+
+
 class ToollboxTalkAttendenceSerializer(serializers.ModelSerializer):
     tbt_conducted_by_signature = serializers.SerializerMethodField()
     participant_upload_attachments = serializers.SerializerMethodField()
@@ -313,3 +362,4 @@ class FirstAidRecordSerializer(serializers.ModelSerializer):
             'first_aid_name', 'designation', 'employee_of', 'description',
             'created_at', 'updated_at'
         ]
+

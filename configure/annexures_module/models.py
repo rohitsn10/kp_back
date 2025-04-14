@@ -466,6 +466,59 @@ class InternalAuditReport(models.Model):
     def __str__(self):
         return f"{self.site_name} - {self.date}"
 
+    
+
+class TrainingTopic(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class InductionTraining(models.Model):
+    site_name = models.CharField(max_length=255)  # Or models.ForeignKey(Site, on_delete=models.CASCADE)
+    date = models.DateField()
+    faculty_name = models.CharField(max_length=255)
+    faculty_signature = models.FileField(upload_to='faculty_signatures/')
+    training_topics = models.ManyToManyField(TrainingTopic, related_name='induction_trainings')
+
+    def __str__(self):
+        return f"{self.site_name} - {self.date}"
+
+
+class Participant(models.Model):
+    training = models.ForeignKey(InductionTraining, on_delete=models.CASCADE, related_name='participants')
+    name = models.CharField(max_length=255)
+    designation = models.CharField(max_length=255)
+    remarks = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name   
+
+
+class FireExtinguisherInspection(models.Model):
+    site_name = models.CharField(max_length=255)
+    date_of_inspection = models.DateField()
+    checked_by_name = models.CharField(max_length=255)
+    signature = models.FileField(upload_to='signatures/', null=True, blank=True)
+
+class FireExtinguisherDetail(models.Model):
+    inspection = models.ForeignKey(FireExtinguisherInspection, on_delete=models.CASCADE, related_name='extinguishers')
+    extinguisher_no = models.CharField(max_length=100)
+    extinguisher_type = models.CharField(max_length=100)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
+    location = models.CharField(max_length=255)
+    seal_intact = models.BooleanField(default=True)
+    pressure_in_gauge = models.CharField(max_length=100)
+    tube_nozzle = models.CharField(max_length=100)
+    painting_condition = models.CharField(max_length=100)
+    refilling_date = models.DateField()
+    due_date_refilling = models.DateField()
+    due_date_hydro_test = models.DateField()
+    access = models.CharField(max_length=255)
+    remarks = models.TextField(blank=True, null=True)
+
+
 
 class ToollboxTalkAttendence(models.Model):
     site_name = models.CharField(max_length=255,null=True,blank=True)
