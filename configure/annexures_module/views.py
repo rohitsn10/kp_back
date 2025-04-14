@@ -1300,11 +1300,12 @@ class GetInternalAuditReportViewSet(viewsets.ModelViewSet):
 
 
 
-
+from rest_framework.parsers import MultiPartParser, FormParser
 class CreateInductionTrainingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = InductionTrainingSerializer
     queryset = InductionTraining.objects.all()
+    parser_classes = [MultiPartParser, FormParser]
 
     def create(self, request, *args, **kwargs):
         try:
