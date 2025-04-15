@@ -533,6 +533,13 @@ class FireExtinguisherDetail(models.Model):
     access = models.CharField(max_length=255)
     remarks = models.TextField(blank=True, null=True)
 
+class FireExtinguisherInspectionJSONFormat(models.Model):
+    site_name = models.CharField(max_length=255)
+    date_of_inspection = models.DateField()
+    checked_by_name = models.CharField(max_length=255)
+    signature = models.FileField(upload_to='signatures/', null=True, blank=True)
+    fire_extinguisher_details = models.JSONField(default=dict, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
 
 
 class ToollboxTalkAttendence(models.Model):
