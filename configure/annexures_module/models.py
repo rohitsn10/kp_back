@@ -578,3 +578,53 @@ class FirstAidRecord(models.Model):
     description = models.TextField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
+
+class HarnessInspection(models.Model):
+    site_name = models.CharField(max_length=255)
+    make_model = models.CharField(max_length=255)
+    manufacturing_date = models.DateField()
+    date_of_inspection = models.DateField()
+
+    wear_or_twisted_strap_status = models.BooleanField()
+    wear_or_twisted_strap_remarks = models.TextField(blank=True)
+
+    waist_buckle_status = models.BooleanField()
+    waist_buckle_remarks = models.TextField(blank=True)
+
+    both_leg_strap_buckle_status = models.BooleanField()
+    both_leg_strap_buckle_remarks = models.TextField(blank=True)
+
+    waist_buckle_status_2 = models.BooleanField()
+    waist_buckle_remarks_2 = models.TextField(blank=True)
+
+    metal_d_ring_status = models.BooleanField()
+    metal_d_ring_remarks = models.TextField(blank=True)
+
+    buckle_working_status = models.BooleanField()
+    buckle_working_remarks = models.TextField(blank=True)
+
+    harness_shelf_life_status = models.BooleanField()
+    harness_shelf_life_remarks = models.TextField(blank=True)
+
+    lanyard_wear_twist_status = models.BooleanField()
+    lanyard_wear_twist_remarks = models.TextField(blank=True)
+
+    lanyard_two_ropes_status = models.BooleanField()
+    lanyard_two_ropes_remarks = models.TextField(blank=True)
+
+    sleeve_fissures_status = models.BooleanField()
+    sleeve_fissures_remarks = models.TextField(blank=True)
+
+    shock_absorber_status = models.BooleanField()
+    shock_absorber_remarks = models.TextField(blank=True)
+
+    snap_hooks_status = models.BooleanField()
+    snap_hooks_remarks = models.TextField(blank=True)
+
+    report = models.TextField(blank=True)
+
+    inspector_name = models.CharField(max_length=255)
+    inspector_signature = models.FileField(upload_to='harness_signatures/', blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)    

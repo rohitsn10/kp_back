@@ -383,3 +383,8 @@ class FirstAidRecordSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
 
+class HarnessInspectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HarnessInspection
+        fields = '__all__'
+
