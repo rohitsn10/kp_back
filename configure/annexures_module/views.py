@@ -1533,3 +1533,42 @@ class LocationIdwiseGetListFirstrecordViewSet(viewsets.ModelViewSet):
             return Response({"status": False,"message": str(e),"data": []})
         
 
+class HarnessInspectionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = HarnessInspectionSerializer
+    queryset = HarnessInspection.objects.all().order_by('-date_of_inspection')
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response({
+                "status": True,
+                "message": "Harness inspection report created successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+    def list(self, request, *args, **kwargs):
+        try:
+            inspections = self.get_queryset()
+            serializer = self.get_serializer(inspections, many=True)
+            return Response({
+                "status": True,
+                "message": "Harness inspection reports fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+
