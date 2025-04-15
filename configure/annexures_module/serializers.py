@@ -336,6 +336,12 @@ class FireExtinguisherInspectionSerializer(serializers.ModelSerializer):
             FireExtinguisherDetail.objects.create(inspection=inspection, **extinguisher)
         return inspection
 
+class FireExtinguisherInspectionJSONFormatSerializer(serializers.ModelSerializer):
+
+    class Meta: 
+        model = FireExtinguisherInspectionJSONFormat
+        fields = ['id', 'site_name', 'date_of_inspection', 'checked_by_name', 'signature', 'fire_extinguisher_details', 'created_at']
+
 
 class ToollboxTalkAttendenceSerializer(serializers.ModelSerializer):
     tbt_conducted_by_signature = serializers.SerializerMethodField()

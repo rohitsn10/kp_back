@@ -1398,14 +1398,27 @@ class GetInductionTrainingViewSet(viewsets.ModelViewSet):
 
 class FireExtinguisherInspectionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = FireExtinguisherInspectionSerializer
-    queryset = FireExtinguisherInspection.objects.all()
+    serializer_class = FireExtinguisherInspectionJSONFormatSerializer
+    queryset = FireExtinguisherInspectionJSONFormat.objects.all()
 
     def create(self, request, *args, **kwargs):
         try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
+            site_name = request.data.get('site_name')
+            date_of_inspection = request.data.get('date_of_inspection')
+            checked_by_name = request.data.get('checked_by_name')
+            signature = request.FILES.get('signature')
+            fire_extinguisher_details = request.data.get('fire_extinguisher_details', [])
+
+            fire_extinguisher_details = json.loads(fire_extinguisher_details)
+            fire_extinguisher_inspection = FireExtinguisherInspectionJSONFormat.objects.create(
+                site_name=site_name,
+                date_of_inspection=date_of_inspection,
+                checked_by_name=checked_by_name,
+                signature=signature,
+                fire_extinguisher_details=fire_extinguisher_details
+            )
+
+            serializer = FireExtinguisherInspectionJSONFormatSerializer(fire_extinguisher_inspection, context={'request': request})
             return Response({
                 "status": True,
                 "message": "Fire extinguisher inspection created successfully",
