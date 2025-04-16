@@ -820,14 +820,27 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not end_date:
                 return Response({"status": False, "message": "End date is required."})
 
-            try:
-                location_obj = LandBankLocation.objects.create(
-                    user=user,
-                    land_bank_id=landbank_id,
-                    land_bank_location_name=location_name_str
-                )
-            except Exception as e:
-                return Response({"status": False, "message": f"Error creating location: {str(e)}"})
+            # try:
+            #     location_obj = LandBankLocation.objects.create(
+            #         user=user,
+            #         land_bank_id=landbank_id,
+            #         land_bank_location_name=location_name_str
+            #     )
+            # except Exception as e:
+            #     return Response({"status": False, "message": f"Error creating location: {str(e)}"})
+            location_names = [name.strip() for name in location_name_str.split(',') if name.strip()]
+            location_objs = []
+
+            for loc_name in location_names:
+                try:
+                    loc_obj = LandBankLocation.objects.create(
+                        user=user,
+                        land_bank_id=landbank_id,
+                        land_bank_location_name=loc_name
+                    )
+                    location_objs.append(loc_obj)
+                except Exception as e:
+                    return Response({"status": False, "message": f"Error creating location '{loc_name}': {str(e)}"})
 
             if not cod_commission_date:
                 return Response({"status": False, "message": "COD commission date is required."})
