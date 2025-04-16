@@ -643,10 +643,16 @@ class BoomLiftInspectionViewSet(viewsets.ModelViewSet):
             ppe_action_by = request.data.get('ppe_action_by')
             ppe_remarks = request.data.get('ppe_remarks')
 
+            if location:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
             boom_lift_inspection = BoomLiftInspection.objects.create(
                 user=user,
                 site_name=site_name,
-                location=location,
+                location=location_instance,
                 equipment_name=equipment_name,
                 make_model=make_model,
                 identification_number=identification_number,
@@ -793,6 +799,12 @@ class CraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
             ppe_action_by = request.data.get('ppe_action_by')
             ppe_remarks = request.data.get('ppe_remarks')
 
+            if location:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
             crane_hydra_inspection = CraneHydraInspections.objects.create(
                 user=user,
                 equipment_name=equipment_name,
@@ -800,7 +812,7 @@ class CraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
                 identification_number=identification_number,
                 inspection_date=inspection_date,
                 site_name=site_name,
-                location=location,
+                location=location_instance,
                 all_valid_document_observations=all_valid_document_observations,
                 all_valid_document_action_by=all_valid_document_action_by,
                 all_valid_document_remarks=all_valid_document_remarks,
@@ -943,6 +955,12 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
             ppe_action_by = request.data.get('ppe_action_by')
             ppe_remarks = request.data.get('ppe_remarks')
 
+            if location:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
             trailer_inspection = TrailerInspectionChecklist.objects.create(
                 user=user,
                 equipment_name=equipment_name,
@@ -950,7 +968,7 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
                 identification_number=identification_number,
                 inspection_date=inspection_date,
                 site_name=site_name,
-                location=location,
+                location=location_instance,
                 all_valid_document_observations=all_valid_document_observations,
                 all_valid_document_action_by=all_valid_document_action_by,
                 all_valid_document_remarks=all_valid_document_remarks,
@@ -1334,27 +1352,50 @@ class ToollboxTalkAttendenceCreateViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            data = request.data
+            site_name= request.data.get('site_name')
+            location_id=request.data.get('location')
+            date=request.data.get('date')
+            time=request.data.get('time')
+            tbt_against_permit_no=request.data.get('tbt_against_permit_no')
+            permit_date=request.data.get('permit_date')
+            tbt_conducted_by_name=request.data.get('tbt_conducted_by_name')
+            tbt_conducted_by_signature=request.FILES.get('tbt_conducted_by_signature')
+            name_of_contractor=request.data.get('name_of_contractor')
+            job_activity_in_detail=request.data.get('job_activity_in_detail')
+            use_of_ppes_topic_discussed=request.data.get('use_of_ppes_topic_discussed')
+            use_of_tools_topic_discussed=request.data.get('use_of_tools_topic_discussed')
+            hazard_at_work_place_topic_discussed=request.data.get('hazard_at_work_place_topic_discussed')
+            use_of_action_in_an_emergency_topic_discussed=request.data.get('use_of_action_in_an_emergency_topic_discussed')
+            use_of_health_status_topic_discussed=request.data.get('use_of_health_status_topic_discussed')
+            use_of_others_topic_discussed=request.data.get('use_of_others_topic_discussed')
+            participant_upload_attachments=request.FILES.get('participant_upload_attachments')
+            remarks=request.data.get('remarks')
+
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
 
             attendance = ToollboxTalkAttendence.objects.create(
-                site_name=data.get('site_name'),
-                location_id=data.get('location'),
-                date=data.get('date'),
-                time=data.get('time'),
-                tbt_against_permit_no=data.get('tbt_against_permit_no'),
-                permit_date=data.get('permit_date'),
-                tbt_conducted_by_name=data.get('tbt_conducted_by_name'),
-                tbt_conducted_by_signature=request.FILES.get('tbt_conducted_by_signature'),
-                name_of_contractor=data.get('name_of_contractor'),
-                job_activity_in_detail=data.get('job_activity_in_detail'),
-                use_of_ppes_topic_discussed=data.get('use_of_ppes_topic_discussed'),
-                use_of_tools_topic_discussed=data.get('use_of_tools_topic_discussed'),
-                hazard_at_work_place_topic_discussed=data.get('hazard_at_work_place_topic_discussed'),
-                use_of_action_in_an_emergency_topic_discussed=data.get('use_of_action_in_an_emergency_topic_discussed'),
-                use_of_health_status_topic_discussed=data.get('use_of_health_status_topic_discussed'),
-                use_of_others_topic_discussed=data.get('use_of_others_topic_discussed'),
-                participant_upload_attachments=request.FILES.get('participant_upload_attachments'),
-                remarks=data.get('remarks'),
+                site_name=site_name,
+                location=location_instance,
+                date=date,
+                time=time,
+                tbt_against_permit_no=tbt_against_permit_no,
+                permit_date=permit_date,
+                tbt_conducted_by_name=tbt_conducted_by_name,
+                tbt_conducted_by_signature=tbt_conducted_by_signature,
+                name_of_contractor=name_of_contractor,
+                job_activity_in_detail=job_activity_in_detail,
+                use_of_ppes_topic_discussed=use_of_ppes_topic_discussed,
+                use_of_tools_topic_discussed=use_of_tools_topic_discussed,
+                hazard_at_work_place_topic_discussed=hazard_at_work_place_topic_discussed,
+                use_of_action_in_an_emergency_topic_discussed=use_of_action_in_an_emergency_topic_discussed,
+                use_of_health_status_topic_discussed=use_of_health_status_topic_discussed,
+                use_of_others_topic_discussed=use_of_others_topic_discussed,
+                participant_upload_attachments=participant_upload_attachments,
+                remarks=remarks
             )
 
             serializer = ToollboxTalkAttendenceSerializer(attendance, context={'request': request})
@@ -1468,16 +1509,28 @@ class FirstAidRecordViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         try:
-            data = request.data
-            first_aid_record = FirstAidRecord.objects.create(
-                site_name=data.get('site_name'),
-                location_id=data.get('location'),
-                date=data.get('date'),
-                first_aid_name = data.get('first_aid_name'),
-                designation = data.get('designation'),
-                employee_of = data.get('employee_of'),
-                description = data.get('description'),
+            site_name=request.data.get('site_name')
+            location_id=request.data.get('location')
+            date=request.data.get('date')
+            first_aid_name = request.data.get('first_aid_name')
+            designation = request.data.get('designation')
+            employee_of = request.data.get('employee_of')
+            description = request.data.get('description')
+
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
                 
+            first_aid_record = FirstAidRecord.objects.create(
+                site_name=site_name,
+                location=location_instance,
+                date=date,
+                first_aid_name=first_aid_name,
+                designation=designation,
+                employee_of=employee_of,
+                description=description
             )
             serializer = FirstAidRecordSerializer(first_aid_record, context={'request': request})
             data = serializer.data
