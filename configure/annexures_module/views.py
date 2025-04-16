@@ -1639,3 +1639,120 @@ class HarnessInspectionViewSet(viewsets.ModelViewSet):
             })
 
 
+class ExcavationPermitViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExcavationPermitSerializer
+    queryset = ExcavationPermit.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            site_name = request.data.get('site_name')
+            location_id = request.data.get('location')
+            permit_number = request.data.get('permit_number')
+            date = request.data.get('date')
+            description_of_work = request.data.get('description_of_work')
+            location_area_work = request.data.get('location_area_work')
+            length = request.data.get('length')
+            breadth = request.data.get('breadth')
+            start_work_date = request.data.get('start_work_date')
+            depth = request.data.get('depth')
+            start_work_time = request.data.get('start_work_time')
+            duration_work_day = request.data.get('duration_work_day')
+            duration_work_hors = request.data.get('duration_work_hors')
+            purpose_of_excavation = request.data.get('purpose_of_excavation')
+            electrical_cable_description = request.data.get('electrical_cable_description')
+            electrical_cable_name = request.data.get('electrical_cable_name')
+            electrical_cable_date = request.data.get('electrical_cable_date')
+            sign_upload = request.FILES.get('sign_upload', [])
+            water_gas_description = request.data.get('water_gas_description')
+            water_gas_name = request.data.get('water_gas_name')
+            water_gas_date = request.data.get('water_gas_date')
+            water_sign_upload = request.FILES.get('water_sign_upload', [])
+            telephone_description = request.data.get('telephone_description')
+            telephone_name = request.data.get('telephone_name')
+            telephone_date = request.data.get('telephone_date')
+            telephone_sign_upload = request.FILES.get('telephone_sign_upload', [])
+            road_barricading = request.data.get('road_barricading')
+            warning_sign = request.data.get('warning_sign')
+            barricading_excavated_area = request.data.get('barricading_excavated_area')
+            shoring_carried = request.data.get('shoring_carried')
+            any_other_precaution = request.data.get('any_other_precaution')
+            name_acceptor = request.data.get('name_acceptor')
+            acceptor_sign_upload = request.FILES.get('acceptor_sign_upload', [])
+            remarks = request.data.get('remarks')
+            check_by_name = request.data.get('check_by_name')
+            check_by_sign = request.FILES.get('check_by_sign', [])
+
+            location_instance = None
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
+            excavation_permit = ExcavationPermit.objects.create(
+                user=user,
+                site_name=site_name,
+                location=location_instance,
+                permit_number=permit_number,
+                date=date,
+                description_of_work=description_of_work,
+                location_area_work=location_area_work,
+                length=length,
+                breadth=breadth,
+                start_work_date=start_work_date,
+                depth=depth,
+                start_work_time=start_work_time,
+                duration_work_day=duration_work_day,
+                duration_work_hors=duration_work_hors,
+                purpose_of_excavation=purpose_of_excavation,
+                electrical_cable_description=electrical_cable_description,
+                electrical_cable_name=electrical_cable_name,
+                electrical_cable_date=electrical_cable_date,
+                sign_upload=sign_upload,
+                water_gas_description=water_gas_description,
+                water_gas_name=water_gas_name,
+                water_gas_date=water_gas_date,
+                water_sign_upload=water_sign_upload,
+                telephone_description=telephone_description,
+                telephone_name=telephone_name,
+                telephone_date=telephone_date,
+                telephone_sign_upload=telephone_sign_upload,
+                road_barricading=road_barricading,
+                warning_sign=warning_sign,
+                barricading_excavated_area=barricading_excavated_area,
+                shoring_carried=shoring_carried,
+                any_other_precaution=any_other_precaution,
+                name_acceptor=name_acceptor,
+                acceptor_sign_upload=acceptor_sign_upload,
+                remarks=remarks,
+                check_by_name=check_by_name,
+                check_by_sign=check_by_sign
+            )
+
+            serializer = ExcavationPermitSerializer(excavation_permit, context={'request': request})
+            return Response({
+                "status": True,
+                "message": "Excavation permit created successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+        
+
+class ExcavationPermitViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ExcavationPermitSerializer
+    queryset = ExcavationPermit.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            serializer = self.serializer_class(self.get_queryset(), many=True)
+            return Response({"status": True, "message": "ExcavationPermit fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
