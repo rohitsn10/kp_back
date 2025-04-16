@@ -2,6 +2,7 @@ from project_module.models import *
 from rest_framework import serializers
 from user_profile.function_call import *
 from activity_module.serializers import *
+from land_module.serializers import *
 from django.conf import settings
 
 
@@ -79,6 +80,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     electricity_name = serializers.CharField(source='electricity_line.electricity_line', read_only=True)
     assigned_users = serializers.SerializerMethodField()
     land_location_name = serializers.CharField(source='location_name.land_bank_location_name', read_only=True)
+    location_name_survey = LandBankLocationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Project
