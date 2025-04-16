@@ -59,7 +59,10 @@ urlpatterns = [
     path('get_location_wise_first_aid_record/<int:location_id>',LocationIdwiseGetListFirstrecordViewSet.as_view({'get': 'list'}),name = 'get_location_wise_first_aid_record'),
 
     path('create_harness_inspection', HarnessInspectionViewSet.as_view({'post': 'create'}), name='create_harness_inspection'),
-    path('get_harness_inspection', HarnessInspectionViewSet.as_view({'get': 'list'}), name='get_harness_inspection')
+    path('get_harness_inspection', HarnessInspectionViewSet.as_view({'get': 'list'}), name='get_harness_inspection'),
+
+    path('create_excavationpermit', ExcavationPermitViewSet.as_view({'post': 'create'}), name='create_harness_inspection'),
+    path('get_excavationpermit', ExcavationPermitViewSet.as_view({'get': 'list'}), name='get_harness_inspection')
 
 
 ]

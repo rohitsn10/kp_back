@@ -388,3 +388,15 @@ class HarnessInspectionSerializer(serializers.ModelSerializer):
         model = HarnessInspection
         fields = '__all__'
 
+class ExcavationPermitSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExcavationPermit
+        fields = [
+            'id', 'site_name', 'location', 'permit_number', 'date', 'description_of_work', 'location_area_work', 'length', 'breadth',
+            'depth', 'start_work_date', 'start_work_time', 'duration_work_day', 'duration_work_hors', 'purpose_of_excavation',
+            'electrical_cable_description', 'electrical_cable_name', 'electrical_cable_date', 'sign_upload', 'water_gas_description',
+            'water_gas_name', 'water_gas_date', 'water_sign_upload', 'telephone_description', 'telephone_name', 'telephone_date',
+            'telephone_sign_upload', 'road_barricading', 'warning_sign', 'barricading_excavated_area', 'shoring_carried', 'any_other_precaution',
+            'name_acceptor', 'acceptor_sign_upload', 'remarks', 'check_by_name', 'check_by_sign', 'created_at', 'updated_at'
+        ]
