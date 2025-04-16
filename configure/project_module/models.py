@@ -35,6 +35,7 @@ class Project(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     project_predicted_date = models.DateTimeField(null=True, blank=True)
     location_name = models.ForeignKey(LandBankLocation, on_delete=models.CASCADE, related_name='projects_location',null=True, blank=True)
+    location_name_survey = models.ManyToManyField(LandBankLocation, related_name='projects', blank=True)
     location_survey = models.ManyToManyField(LandSurveyNumber, related_name='projects_survey')
     cod_commission_date = models.DateTimeField(null=True, blank=True)
     total_area_of_project = models.TextField(null=True, blank=True)

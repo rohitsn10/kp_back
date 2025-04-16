@@ -913,7 +913,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 end_date=end_date,
                 project_predicted_date=end_date,
                 cod_commission_date=cod_commission_date,
-                location_name=location_obj,
+                location_name=location_objs[0],
                 # total_area_of_project=total_area_of_project,
                 capacity=capacity,
                 ci_or_utility=ci_or_utility,
@@ -949,6 +949,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             if assigned_users:
                 project.assigned_users.set(assigned_users)
+            
+            if location_objs:
+                project.location_name_survey.set(location_objs)
             
             serializer = self.serializer_class(project)
             data = serializer.data
