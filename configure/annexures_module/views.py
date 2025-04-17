@@ -1263,6 +1263,104 @@ class GetTrainingAttendanceViewSet(viewsets.ModelViewSet):
                 "message": str(e),
                 "data": []
             })
+        
+class MinutesSafetyTrainingViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MinutesSafetyTrainingSerializer
+    queryset = MinutesSafetyTraining.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            location_id = request.data.get('location')
+            site_name = request.data.get('site_name')
+            time = request.data.get('time')
+            mom_recorded_by = request.data.get('mom_recorded_by')
+            mom_issue_date = request.data.get('mom_issue_date')
+            chairman_name = request.data.get('chairman_name')
+            hse_performance_data = request.data.get('hse_performance_data', [])
+            incident_investigation = request.data.get('incident_investigation', [])
+            safety_training = request.data.get('safety_training', [])
+            internal_audit = request.data.get('internal_audit', [])
+            mock_drill = request.data.get('mock_drill', [])
+            procedure_checklist_update = request.data.get('procedure_checklist_update', [])
+            review_last_meeting = request.data.get('review_last_meeting', [])
+            new_points_discussed = request.data.get('new_points_discussed', [])
+            minutes_prepared_by = request.data.get('minutes_prepared_by')
+            signature_prepared_by = request.data.get('signature_prepared_by', [])
+            signature_chairman = request.data.get('signature_chairman', [])
+
+            location_ins = None
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "message": "Invalid location ID",
+                        "data": []
+                    })
+            
+            safety_training_create = MinutesSafetyTraining.objects.create(
+                user=user,
+                location=location_instance,
+                site_name=site_name,
+                time=time,
+                mom_recorded_by=mom_recorded_by,
+                mom_issue_date=mom_issue_date,
+                chairman_name=chairman_name,
+                hse_performance_data=hse_performance_data,
+                incident_investigation=incident_investigation,
+                safety_training=safety_training,
+                internal_audit=internal_audit,
+                mock_drill=mock_drill,
+                procedure_checklist_update=procedure_checklist_update,
+                review_last_meeting=review_last_meeting,
+                new_points_discussed=new_points_discussed,
+                minutes_prepared_by=minutes_prepared_by,
+                signature_prepared_by=signature_prepared_by,
+                signature_chairman=signature_chairman
+            )
+
+            serializer = MinutesSafetyTrainingSerializer(safety_training_create)
+            return Response({
+                "status": True,
+                "message": "Minutes of safety training created successfully",
+                "data": serializer.data
+            })
+        
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+        
+class GetMinutesSafetyTrainingViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MinutesSafetyTrainingSerializer
+    queryset = MinutesSafetyTraining.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            location_id = request.query_params.get('location_id')
+            if location_id:
+                queryset = MinutesSafetyTraining.objects.filter(location=location_id)
+            else:
+                queryset = MinutesSafetyTraining.objects.all()
+            serializer = MinutesSafetyTrainingSerializer(queryset, many=True)
+            return Response({
+                "status": True,
+                "message": "Minutes of safety training fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
 
 class InternalAuditReportViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

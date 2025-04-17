@@ -408,7 +408,26 @@ class MockDrillReport(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-
+class MinutesSafetyTraining(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    site_name = models.CharField(max_length=255, blank=True, null=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    time = models.CharField(max_length=255, blank=True, null=True)
+    mom_recorded_by = models.CharField(max_length=255, blank=True, null=True)
+    mom_issue_date = models.DateTimeField(max_length=255, blank=True, null=True)
+    chairman_name = models.CharField(max_length=255, blank=True, null=True)
+    hse_performance_data = models.JSONField(default=dict, blank=True, null=True)
+    incident_investigation = models.JSONField(default=dict, blank=True, null=True)
+    safety_training = models.JSONField(default=dict, blank=True, null=True)
+    internal_audit = models.JSONField(default=dict, blank=True, null=True)
+    mock_drill = models.JSONField(default=dict, blank=True, null=True)
+    procedure_checklist_update = models.JSONField(default=dict, blank=True, null=True)
+    review_last_meeting = models.JSONField(default=dict, blank=True, null=True)
+    new_points_discussed = models.JSONField(default=dict, blank=True, null=True)
+    minutes_prepared_by = models.CharField(max_length=255, blank=True, null=True)
+    signature_prepared_by = models.FileField(upload_to='signatures/minutes/', null=True, blank=True)
+    signature_chairman = models.FileField(upload_to='signatures/minutes/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
 
 class SafetyTrainingAttendance(models.Model):
