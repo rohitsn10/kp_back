@@ -62,7 +62,16 @@ urlpatterns = [
     path('get_harness_inspection/<int:location_id>', HarnessInspectionViewSet.as_view({'get': 'list'}), name='get_harness_inspection'),
 
     path('create_excavationpermit', ExcavationPermitViewSet.as_view({'post': 'create'}), name='create_harness_inspection'),
-    path('get_excavationpermit/<int:location_id>', ExcavationPermitViewSet.as_view({'get': 'list'}), name='get_harness_inspection')
+    path('get_excavationpermit/<int:location_id>', ExcavationPermitViewSet.as_view({'get': 'list'}), name='get_harness_inspection'),
+
+    path('create_ladder_inspection', LadderInspectionViewSet.as_view({'post': 'create'}), name='create_ladder_inspection'),
+    path('get_ladder_inspection', LadderInspectionViewSet.as_view({'get': 'list'}), name='get_ladder_inspection'),
+
+    path('create_suggestion_scheme_report', SuggestionSchemeReportViewSet.as_view({'post': 'create'}), name='create_suggestion_scheme_report'),
+    path('get_suggestion_scheme_report', SuggestionSchemeReportViewSet.as_view({'get': 'list'}), name='get_suggestion_scheme_report'),
+
+    path('create_loto_register', LotoRegisterViewSet.as_view({'post': 'create'}), name='create_loto_register'),
+    path('get_loto_register', GetLotoRegisterViewSet.as_view({'get': 'list'}), name='get_loto_register'),
 
 
 ]
