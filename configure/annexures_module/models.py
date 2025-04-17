@@ -413,6 +413,7 @@ class MockDrillReport(models.Model):
 
 class SafetyTrainingAttendance(models.Model):
     site_name = models.CharField(max_length=255)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
     training_topic = models.CharField(max_length=255)
     faculty_name = models.CharField(max_length=255)
@@ -434,6 +435,7 @@ class Participant(models.Model):
 
 class InternalAuditReport(models.Model):
     site_name = models.CharField(max_length=255)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
 
     observer_name = models.CharField(max_length=255)
@@ -477,6 +479,7 @@ class TrainingTopic(models.Model):
 
 class InductionTraining(models.Model):
     site_name = models.CharField(max_length=255)  # Or models.ForeignKey(Site, on_delete=models.CASCADE)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
     faculty_name = models.CharField(max_length=255)
     faculty_signature = models.FileField(upload_to='faculty_signatures/')
@@ -535,6 +538,7 @@ class FireExtinguisherDetail(models.Model):
 
 class FireExtinguisherInspectionJSONFormat(models.Model):
     site_name = models.CharField(max_length=255)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     date_of_inspection = models.DateField()
     checked_by_name = models.CharField(max_length=255)
     signature = models.FileField(upload_to='signatures/', null=True, blank=True)
@@ -582,6 +586,7 @@ class FirstAidRecord(models.Model):
 
 class HarnessInspection(models.Model):
     site_name = models.CharField(max_length=255)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     make_model = models.CharField(max_length=255)
     manufacturing_date = models.DateField()
     date_of_inspection = models.DateField()

@@ -258,7 +258,7 @@ class TrainingAttendanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SafetyTrainingAttendance
-        fields = ['id', 'site_name', 'date', 'training_topic', 'faculty_name', 'faculty_signature', 'participants']
+        fields = ['id', 'site_name', 'location', 'date', 'training_topic', 'faculty_name', 'faculty_signature', 'participants']
 
     def create(self, validated_data):
         participants_data = validated_data.pop('participants')
@@ -289,7 +289,7 @@ class InductionTrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InductionTraining
-        fields = ['id', 'site_name', 'date', 'faculty_name', 'faculty_signature', 'training_topics', 'participants_file', 'topic_1', 'topic_2', 'topic_3',
+        fields = ['id', 'site_name', 'location', 'date', 'faculty_name', 'faculty_signature', 'training_topics', 'participants_file', 'topic_1', 'topic_2', 'topic_3',
                   'topic_4', 'topic_5', 'topic_6', 'topic_7', 'topic_8', 'topic_9', 'topic_10', 'topic_11', 'topic_12', 'topic_13', 'topic_14']
 
     # def create(self, validated_data):
