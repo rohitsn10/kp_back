@@ -32,23 +32,23 @@ urlpatterns = [
     path('get_crane_hydra_inspection', GetCraneHydraInspectionChecklistViewSet.as_view({'get': 'list'}), name='get_crane_hydra_inspection'),      
 
     path('create_trailer_inspection', TrailerInspectionChecklistViewSet.as_view({'post': 'create'}), name='create_trailer_inspection'),
-    path('get_trailer_inspection', GetTrailerInspectionChecklistViewSet.as_view({'get': 'list'}), name='get_trailer_inspection'),   
+    path('get_trailer_inspection/<int:location_id>', GetTrailerInspectionChecklistViewSet.as_view({'get': 'list'}), name='get_trailer_inspection'),   
 
     path('create_mock_drill_report', MockDrillReportViewSet.as_view({'post': 'create'}), name='create_mock_drill_report'),
-    path('get_mock_drill_report', GetMockDrillReportViewSet.as_view({'get': 'list'}), name='get_mock_drill_report'),
+    path('get_mock_drill_report/<int:location_id>', GetMockDrillReportViewSet.as_view({'get': 'list'}), name='get_mock_drill_report'),
 
     path('create_safety_training_attendance', SafetyTrainingAttendanceViewSet.as_view({'post': 'create'}), name='create_safety_training_attendance'),
-    path('get_safety_training_attendance', GetTrainingAttendanceViewSet.as_view({'get': 'list'}), name='get_safety_training_attendance'),
+    path('get_safety_training_attendance/<int:location_id>', GetTrainingAttendanceViewSet.as_view({'get': 'list'}), name='get_safety_training_attendance'),
 
     path('create_internal_audit_report', InternalAuditReportViewSet.as_view({'post': 'create'}), name='create_internal_audit_report'),
-    path('get_internal_audit_report', GetInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_internal_audit_report'),
+    path('get_internal_audit_report/<int:location_id>', GetInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_internal_audit_report'),
 
 
     path('create_induction_training', CreateInductionTrainingViewSet.as_view({'post': 'create'}), name='create_induction_training'),
-    path('get_induction_training', GetInductionTrainingViewSet.as_view({'get': 'list'}), name='get_induction_training'),
+    path('get_induction_training/<int:location_id>', GetInductionTrainingViewSet.as_view({'get': 'list'}), name='get_induction_training'),
 
     path('create_fire_extinguisher_inspection', FireExtinguisherInspectionViewSet.as_view({'post': 'create'}), name='create_fire_extinguisher_inspection'),
-    path('get_fire_extinguisher_inspection', FireExtinguisherInspectionViewSet.as_view({'get': 'list'}), name='get_fire_extinguisher_inspection'),
+    path('get_fire_extinguisher_inspection/<int:location_id>', FireExtinguisherInspectionViewSet.as_view({'get': 'list'}), name='get_fire_extinguisher_inspection'),
 
     path('create_tooltalk_attendence',ToollboxTalkAttendenceCreateViewSet.as_view({'post': 'create'}),name = 'create_tooltalk_attendence'),
     path('get_tooltalk_attendence',ToollboxTalkAttendenceGetViewSet.as_view({'get': 'list'}),name = 'get_tooltalk_attendence'),
@@ -59,10 +59,10 @@ urlpatterns = [
     path('get_location_wise_first_aid_record/<int:location_id>',LocationIdwiseGetListFirstrecordViewSet.as_view({'get': 'list'}),name = 'get_location_wise_first_aid_record'),
 
     path('create_harness_inspection', HarnessInspectionViewSet.as_view({'post': 'create'}), name='create_harness_inspection'),
-    path('get_harness_inspection', HarnessInspectionViewSet.as_view({'get': 'list'}), name='get_harness_inspection'),
+    path('get_harness_inspection/<int:location_id>', HarnessInspectionViewSet.as_view({'get': 'list'}), name='get_harness_inspection'),
 
     path('create_excavationpermit', ExcavationPermitViewSet.as_view({'post': 'create'}), name='create_harness_inspection'),
-    path('get_excavationpermit', ExcavationPermitViewSet.as_view({'get': 'list'}), name='get_harness_inspection')
+    path('get_excavationpermit/<int:location_id>', ExcavationPermitViewSet.as_view({'get': 'list'}), name='get_harness_inspection')
 
 
 ]
