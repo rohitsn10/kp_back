@@ -245,7 +245,15 @@ class MockDrillReportSerializer(serializers.ModelSerializer):
         representation["head_count_at_assembly_point"] = formatted_head_count
         return representation
 
-
+class MinutesSafetyTrainingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MinutesSafetyTraining
+        fields = [
+            'id', 'user', 'site_name', 'location', 'time', 'mom_recorded_by', 'mom_issue_date',
+            'chairman_name', 'hse_performance_data', 'incident_investigation', 'safety_training', 'internal_audit', 'mock_drill',
+            'procedure_checklist_update', 'review_last_meeting', 'new_points_discussed','minutes_prepared_by', 'signature_prepared_by','signature_chairman',
+            'created_at'
+        ]
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
