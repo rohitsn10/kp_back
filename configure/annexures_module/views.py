@@ -1843,3 +1843,139 @@ class ExcavationPermitViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "ExcavationPermit fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+class LadderInspectionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LadderInspectionSerializer
+    queryset = LadderInspection.objects.all().order_by('-date_of_inspection')
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response({
+                "status": True,
+                "message": "Ladder inspection report created successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+    def list(self, request, *args, **kwargs):
+        try:
+            inspections = self.get_queryset()
+            serializer = self.get_serializer(inspections, many=True)
+            return Response({
+                "status": True,
+                "message": "Ladder inspection reports fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })        
+        
+
+class SuggestionSchemeReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SuggestionSchemeReportSerializer
+    queryset = SuggestionSchemeReport.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            report = SuggestionSchemeReport.objects.create(
+                site=data.get('site'),
+                date=data.get('date'),
+                name=data.get('name'),
+                designation=data.get('designation'),
+                suggestion_description=data.get('suggestion_description'),
+                benefits_upon_implementation=data.get('benefits_upon_implementation'),
+                evaluated_by=data.get('evaluated_by'),
+                evaluator_name=data.get('evaluator_name'),
+                evaluator_designation=data.get('evaluator_designation'),
+                evaluation_remarks=data.get('evaluation_remarks'),
+                evaluator_signature=data.get('evaluator_signature'),
+            )
+
+            serializer = SuggestionSchemeReportSerializer(report)
+            return Response({
+                "status": True,
+                "message": "Suggestion scheme report created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+    def list(self, request, *args, **kwargs):
+        try:
+            reports = SuggestionSchemeReport.objects.all().order_by('-date')
+            serializer = SuggestionSchemeReportSerializer(reports, many=True)
+            return Response({
+                "status": True,
+                "message": "Suggestion scheme reports fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+        
+
+class LotoRegisterViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LotoRegisterSerializer
+    queryset = LotoRegister.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response({
+                "status": True,
+                "message": "LOTO register created successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+
+class GetLotoRegisterViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LotoRegisterSerializer
+    queryset = LotoRegister.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            reports = LotoRegister.objects.all().order_by('-removed_datetime')
+            serializer = self.get_serializer(reports, many=True)
+            return Response({
+                "status": True,
+                "message": "LOTO register reports fetched successfully",
+                "data": serializer.data
+            })
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })        

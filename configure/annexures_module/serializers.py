@@ -400,3 +400,38 @@ class ExcavationPermitSerializer(serializers.ModelSerializer):
             'telephone_sign_upload', 'road_barricading', 'warning_sign', 'barricading_excavated_area', 'shoring_carried', 'any_other_precaution',
             'name_acceptor', 'acceptor_sign_upload', 'remarks', 'check_by_name', 'check_by_sign', 'created_at', 'updated_at'
         ]
+
+class LadderInspectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LadderInspection
+        fields = '__all__'        
+
+class SuggestionSchemeReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SuggestionSchemeReport
+        fields = [
+            'id','site','date','name','designation','suggestion_description','benefits_upon_implementation','evaluated_by','evaluator_name','evaluator_designation','evaluation_remarks','evaluator_signature'
+        ]     
+
+class LotoAppliedInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LotoAppliedInfo
+        fields = [
+            'id','site_name','applied_datetime','applied_lock_tag_number','applied_permit_number','applied_by_name','applied_by_signature','applied_approved_by_name','applied_approved_by_signature',
+        ]
+
+
+class LotoRegisterSerializer(serializers.ModelSerializer):
+    applied_info = LotoAppliedInfoSerializer()
+
+    class Meta:
+        model = LotoRegister
+        fields = [
+            'id','applied_info','removed_datetime','removed_lock_tag_number','removed_permit_number','removed_by_name','removed_by_signature','removed_site_incharge_name','removed_approved_by_signature',
+        ]
+
+    def create(self, validated_data):
+        applied_info_data = validated_data.pop('applied_info')
+        applied_info = LotoAppliedInfo.objects.create(**applied_info_data)
+        loto_register = LotoRegister.objects.create(applied_info=applied_info, **validated_data)
+        return loto_register           

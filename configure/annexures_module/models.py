@@ -673,3 +673,68 @@ class ExcavationPermit(models.Model):
     check_by_sign = models.FileField(upload_to='excavation_signatures/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
+class LadderInspection(models.Model):
+    site_name = models.CharField(max_length=255)
+    ladder_no = models.CharField(max_length=100)
+    date_of_inspection = models.DateField()
+
+    rail_strings_damaged = models.BooleanField()
+    rung_missing = models.BooleanField()
+    rung_broken = models.BooleanField()
+    rung_distance_uneven = models.BooleanField()
+    rungs_loose = models.BooleanField()
+    top_hook_missing_damaged = models.BooleanField()
+    bottom_non_skid_pad_missing_damaged = models.BooleanField()
+    non_slip_bases = models.BooleanField()
+    custom_check = models.BooleanField()
+
+    remarks = models.TextField(blank=True)
+
+    inspected_by_name = models.CharField(max_length=255)
+    inspected_by_signature = models.FileField(upload_to='ladder_signatures/', blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)    
+
+
+class SuggestionSchemeReport(models.Model):
+    site = models.CharField(max_length=255)
+    date = models.DateField()
+    name = models.CharField(max_length=255)
+    designation = models.CharField(max_length=255)
+    suggestion_description = models.TextField()
+    benefits_upon_implementation = models.TextField()
+    evaluated_by = models.CharField(max_length=255)
+    evaluator_name = models.CharField(max_length=255)
+    evaluator_designation = models.CharField(max_length=255)
+    evaluation_remarks = models.TextField()
+    evaluator_signature = models.FileField(upload_to='suggestion_signatures/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)      
+
+class LotoAppliedInfo(models.Model):
+    site_name = models.CharField(max_length=255)
+    applied_datetime = models.DateTimeField()
+    applied_lock_tag_number = models.CharField(max_length=100)
+    applied_permit_number = models.CharField(max_length=100)
+    applied_by_name = models.CharField(max_length=255)
+    applied_by_signature = models.FileField(upload_to='signatures/')
+    applied_approved_by_name = models.CharField(max_length=255)
+    applied_approved_by_signature = models.FileField(upload_to='signatures/')
+
+    def __str__(self):
+        return f"{self.site_name} - {self.applied_lock_tag_number}"
+
+
+class LotoRegister(models.Model):
+    applied_info = models.ForeignKey(LotoAppliedInfo, on_delete=models.CASCADE, related_name='removal_info')
+    
+    removed_datetime = models.DateTimeField()
+    removed_lock_tag_number = models.CharField(max_length=100)
+    removed_permit_number = models.CharField(max_length=100)
+    removed_by_name = models.CharField(max_length=255)
+    removed_by_signature = models.FileField(upload_to='signatures/')
+    removed_site_incharge_name = models.CharField(max_length=255)
+    removed_approved_by_signature = models.FileField(upload_to='signatures/')
+
+    def __str__(self):
+        return f"Removal - {self.removed_lock_tag_number}"          
