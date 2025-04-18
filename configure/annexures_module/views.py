@@ -324,8 +324,13 @@ class GetIncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            serializer = self.serializer_class(self.get_queryset(), many=True)
-            return Response({"status": True, "message": "Incident nearmisses fetched successfully", "data": serializer.data})
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
@@ -532,13 +537,21 @@ class SafetyViolationReportViewSet(viewsets.ModelViewSet):
             issued_to_violator_name = request.data.get('issued_to_violator_name')
             issued_to_designation = request.data.get('issued_to_designation')
             issued_to_department = request.data.get('issued_to_department')
+            issued_to_sign = request.FILES.get('issued_to_sign', [])
             issued_by = request.data.get('issued_by')
             issued_by_name = request.data.get('issued_by_name')
             issued_by_designation = request.data.get('issued_by_designation')
             issued_by_department = request.data.get('issued_by_department')
+            issued_by_sign = request.FILES.get('issued_by_sign', [])
             contractors_name = request.data.get('contractors_name')
             description_safety_violation = request.data.get('description_safety_violation')
             action_taken = request.data.get('action_taken')
+            hseo_name = request.data.get('hseo_name')
+            hseo_sign = request.FILES.get('hseo_sign', [])
+            site_incharge_name = request.data.get('site_incharge_name')
+            site_incharge_sign = request.FILES.get('site_incharge_sign', [])
+            manager_name = request.data.get('manager_name')
+            manager_sign = request.FILES.get('manager_sign', [])
 
             safety_violation_report = SafetyViolationReportAgainstUnsafeACT.objects.create(
                 user=user,
@@ -547,13 +560,21 @@ class SafetyViolationReportViewSet(viewsets.ModelViewSet):
                 issued_to_violator_name=issued_to_violator_name,
                 issued_to_designation=issued_to_designation,
                 issued_to_department=issued_to_department,
+                issued_to_sign=issued_to_sign,
                 issued_by=issued_by,
                 issued_by_name=issued_by_name,
                 issued_by_designation=issued_by_designation,
                 issued_by_department=issued_by_department,
+                issued_by_sign=issued_by_sign,
                 contractors_name=contractors_name,
                 description_safety_violation=description_safety_violation,
                 action_taken=action_taken,
+                hseo_name=hseo_name,
+                hseo_sign=hseo_sign,
+                site_incharge_name=site_incharge_name,
+                site_incharge_sign=site_incharge_sign,
+                manager_name=manager_name,
+                manager_sign=manager_sign
             )
             serializer = SafetyViolationReportAgainstUnsafeACTSerializer(safety_violation_report)   
             return Response({"status": True, "message": "Safety violation report created successfully", "data": serializer.data})
@@ -568,9 +589,13 @@ class GetSafetyViolationReportViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            safety_violation_report = SafetyViolationReportAgainstUnsafeACT.objects.all()
-            serializer = SafetyViolationReportAgainstUnsafeACTSerializer(safety_violation_report, many=True)
-            return Response({"status": True, "message": "Safety violation report fetched successfully", "data": serializer.data})
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
@@ -642,6 +667,8 @@ class BoomLiftInspectionViewSet(viewsets.ModelViewSet):
             ppe_observations = request.data.get('ppe_observations')
             ppe_action_by = request.data.get('ppe_action_by')
             ppe_remarks = request.data.get('ppe_remarks')
+            inspected_name = request.data.get('inspected_name')
+            inspected_sign = request.FILES.get('inspected_sign', [])
 
             if location:
                 try:
@@ -710,7 +737,9 @@ class BoomLiftInspectionViewSet(viewsets.ModelViewSet):
                 operator_list_remarks=operator_list_remarks,
                 ppe_observations=ppe_observations,
                 ppe_action_by=ppe_action_by,
-                ppe_remarks=ppe_remarks
+                ppe_remarks=ppe_remarks,
+                inspected_name=inspected_name,
+                inspected_sign=inspected_sign
             )
             serializer = BoomLiftInspectionSerializer(boom_lift_inspection)
             return Response({"status": True, "message": "Boom lift inspection created successfully", "data": serializer.data})
@@ -720,12 +749,17 @@ class BoomLiftInspectionViewSet(viewsets.ModelViewSet):
 class GetBoomLiftInspectionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = BoomLiftInspectionSerializer
+    queryset = BoomLiftInspection.objects.all()
 
     def list(self, request, *args, **kwargs):
         try:
-            boom_lift = BoomLiftInspection.objects.all().order_by('-id')
-            serializer = BoomLiftInspectionSerializer(boom_lift, many=True)
-            return Response({"status": True, "message": "Boom lift inspection fetched successfully", "data": serializer.data})
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
@@ -798,6 +832,8 @@ class CraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
             ppe_observations = request.data.get('ppe_observations')
             ppe_action_by = request.data.get('ppe_action_by')
             ppe_remarks = request.data.get('ppe_remarks')
+            inspected_name = request.data.get('inspected_name')
+            inspected_sign = request.FILES.get('inspected_sign', [])
 
             if location:
                 try:
@@ -866,7 +902,9 @@ class CraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
                 guard_parts_remarks=guard_parts_remarks,
                 ppe_observations=ppe_observations,
                 ppe_action_by=ppe_action_by,
-                ppe_remarks=ppe_remarks
+                ppe_remarks=ppe_remarks,
+                inspected_name=inspected_name,
+                inspected_sign=inspected_sign
             )
 
             serializer = CraneHydraInspectionsSerializer(crane_hydra_inspection)
@@ -882,9 +920,13 @@ class GetCraneHydraInspectionChecklistViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            queryset = CraneHydraInspections.objects.all()
-            serializer = CraneHydraInspectionsSerializer(queryset, many=True)
-            return Response({"status": True, "message": "Crane hydra inspection checklist retrieved successfully", "data": serializer.data})
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
@@ -954,6 +996,8 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
             ppe_observations = request.data.get('ppe_observations')
             ppe_action_by = request.data.get('ppe_action_by')
             ppe_remarks = request.data.get('ppe_remarks')
+            inspected_name = request.data.get('inspected_name')
+            inspected_sign = request.FILES.get('inspected_sign', [])
 
             if location:
                 try:
@@ -1019,7 +1063,9 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
                 guard_parts_remarks=guard_parts_remarks,
                 ppe_observations=ppe_observations,
                 ppe_action_by=ppe_action_by,
-                ppe_remarks=ppe_remarks
+                ppe_remarks=ppe_remarks,
+                inspected_name=inspected_name,
+                inspected_sign=inspected_sign
             )
             serializer = TrailerInspectionChecklistSerializer(trailer_inspection)
             return Response({"status": True, "message": "Trailer inspection created successfully", "data": serializer.data})
@@ -1033,13 +1079,13 @@ class GetTrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                trailer_inspection = TrailerInspectionChecklist.objects.filter(location=location_id).order_by('-id')
-            else:
-                trailer_inspection = TrailerInspectionChecklist.objects.all().order_by('-id')
-            serializer = TrailerInspectionChecklistSerializer(trailer_inspection, many=True)
-            return Response({"status": True, "message": "Trailer inspection fetched successfully", "data": serializer.data})
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
@@ -1179,13 +1225,13 @@ class GetMockDrillReportViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                mock_drill_report = MockDrillReport.objects.filter(location=location_id)
-            else:
-                mock_drill_report = MockDrillReport.objects.all()
-            serializer = MockDrillReportSerializer(mock_drill_report, many=True)
-            return Response({"status": True, "message": "Mock drill report fetched successfully", "data": serializer.data})
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
@@ -1246,23 +1292,15 @@ class GetTrainingAttendanceViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                queryset = SafetyTrainingAttendance.objects.filter(location=location_id)
-            else:
-                queryset = SafetyTrainingAttendance.objects.all()
-            serializer = TrainingAttendanceSerializer(queryset, many=True)
-            return Response({
-                "status": True,
-                "message": "Training attendance fetched successfully",
-                "data": serializer.data
-            })
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })
+            return Response({"status": False, "message": str(e), "data": []})
         
 class MinutesSafetyTrainingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -1279,13 +1317,21 @@ class MinutesSafetyTrainingViewSet(viewsets.ModelViewSet):
             mom_issue_date = request.data.get('mom_issue_date')
             chairman_name = request.data.get('chairman_name')
             hse_performance_data = request.data.get('hse_performance_data', [])
+            hse_performance_data_json = json.loads(hse_performance_data)
             incident_investigation = request.data.get('incident_investigation', [])
+            incident_investigation_json = json.loads(incident_investigation)
             safety_training = request.data.get('safety_training', [])
+            safety_training_json = json.loads(safety_training)
             internal_audit = request.data.get('internal_audit', [])
+            internal_audit_json = json.loads(internal_audit)
             mock_drill = request.data.get('mock_drill', [])
+            mock_drill_json = json.loads(mock_drill)
             procedure_checklist_update = request.data.get('procedure_checklist_update', [])
+            procedure_checklist_update_json = json.loads(procedure_checklist_update)
             review_last_meeting = request.data.get('review_last_meeting', [])
+            review_last_meeting_json = json.loads(review_last_meeting)
             new_points_discussed = request.data.get('new_points_discussed', [])
+            new_points_discussed_json = json.loads(new_points_discussed)
             minutes_prepared_by = request.data.get('minutes_prepared_by')
             signature_prepared_by = request.data.get('signature_prepared_by', [])
             signature_chairman = request.data.get('signature_chairman', [])
@@ -1309,14 +1355,14 @@ class MinutesSafetyTrainingViewSet(viewsets.ModelViewSet):
                 mom_recorded_by=mom_recorded_by,
                 mom_issue_date=mom_issue_date,
                 chairman_name=chairman_name,
-                hse_performance_data=hse_performance_data,
-                incident_investigation=incident_investigation,
-                safety_training=safety_training,
-                internal_audit=internal_audit,
-                mock_drill=mock_drill,
-                procedure_checklist_update=procedure_checklist_update,
-                review_last_meeting=review_last_meeting,
-                new_points_discussed=new_points_discussed,
+                hse_performance_data=hse_performance_data_json,
+                incident_investigation=incident_investigation_json,
+                safety_training=safety_training_json,
+                internal_audit=internal_audit_json,
+                mock_drill=mock_drill_json,
+                procedure_checklist_update=procedure_checklist_update_json,
+                review_last_meeting=review_last_meeting_json,
+                new_points_discussed=new_points_discussed_json,
                 minutes_prepared_by=minutes_prepared_by,
                 signature_prepared_by=signature_prepared_by,
                 signature_chairman=signature_chairman
@@ -1343,23 +1389,15 @@ class GetMinutesSafetyTrainingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                queryset = MinutesSafetyTraining.objects.filter(location=location_id)
-            else:
-                queryset = MinutesSafetyTraining.objects.all()
-            serializer = MinutesSafetyTrainingSerializer(queryset, many=True)
-            return Response({
-                "status": True,
-                "message": "Minutes of safety training fetched successfully",
-                "data": serializer.data
-            })
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })
+            return Response({"status": False, "message": str(e), "data": []})
 
 
 class InternalAuditReportViewSet(viewsets.ModelViewSet):
@@ -1438,23 +1476,15 @@ class GetInternalAuditReportViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                reports = InternalAuditReport.objects.filter(location=location_id)
-            else:
-                reports = InternalAuditReport.objects.all()
-            serializer = InternalAuditReportSerializer(reports, many=True)
-            return Response({
-                "status": True,
-                "message": "Internal audit reports fetched successfully",
-                "data": serializer.data
-            })
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })
+            return Response({"status": False, "message": str(e), "data": []})
 
         
 
@@ -1564,23 +1594,15 @@ class GetInductionTrainingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                records = InductionTraining.objects.filter(location=location_id)
-            else:
-                records = InductionTraining.objects.all()
-            serializer = InductionTrainingSerializer(records, many=True)
-            return Response({
-                "status": True,
-                "message": "Induction training records fetched successfully",
-                "data": serializer.data
-            })
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })     
+            return Response({"status": False, "message": str(e), "data": []})    
 
 
 class FireExtinguisherInspectionViewSet(viewsets.ModelViewSet):
@@ -1622,26 +1644,22 @@ class FireExtinguisherInspectionViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False,"message": str(e),"data": []})
         
+class GetFireExtinguisherInspectionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FireExtinguisherInspectionJSONFormatSerializer
+    queryset = FireExtinguisherInspectionJSONFormat.objects.all()
+
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
-
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                inspections = FireExtinguisherInspectionJSONFormat.objects.filter(location=location_id)
-            else:
-                inspections = FireExtinguisherInspectionJSONFormat.objects.all()
-            serializer = FireExtinguisherInspectionJSONFormatSerializer(inspections, many=True)
-            return Response({
-                "status": True,
-                "message": "Fire extinguisher inspections fetched successfully",
-                "data": serializer.data
-            })
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })
+            return Response({"status": False, "message": str(e), "data": []})   
   
 class ToollboxTalkAttendenceGetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -1797,26 +1815,21 @@ class HarnessInspectionViewSet(viewsets.ModelViewSet):
                 "data": []
             })
 
+class GetHarnessInspectionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = HarnessInspectionSerializer
+    queryset = HarnessInspection.objects.all()
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
-            inspections = self.get_queryset()
-
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                inspections = HarnessInspection.objects.filter(location=location_id)
-
-            serializer = self.get_serializer(inspections, many=True)
-            return Response({
-                "status": True,
-                "message": "Harness inspection reports fetched successfully",
-                "data": serializer.data
-            })
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })
+            return Response({"status": False, "message": str(e), "data": []})   
 
 
 class ExcavationPermitViewSet(viewsets.ModelViewSet):
@@ -1925,27 +1938,27 @@ class ExcavationPermitViewSet(viewsets.ModelViewSet):
             })
         
 
-class ExcavationPermitViewSet(viewsets.ModelViewSet):
+class GetExcavationPermitViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ExcavationPermitSerializer
     queryset = ExcavationPermit.objects.all()
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = request.query_params.get('location_id')
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                queryset = ExcavationPermit.objects.filter(location=location_id)
-            else:
-                queryset = ExcavationPermit.objects.all()
+                queryset = queryset.filter(location=location_id)
             serializer = self.serializer_class(queryset, many=True)
-            return Response({"status": True, "message": "ExcavationPermit fetched successfully", "data": serializer.data})
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            return Response({"status": False, "message": str(e), "data": []})   
         
 class LadderInspectionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = LadderInspectionSerializer
-    queryset = LadderInspection.objects.all().order_by('-date_of_inspection')
+    queryset = LadderInspection.objects.all()
 
     def create(self, request, *args, **kwargs):
         try:
@@ -1964,21 +1977,21 @@ class LadderInspectionViewSet(viewsets.ModelViewSet):
                 "data": []
             })
 
+class GetLadderInspectionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LadderInspectionSerializer
+    queryset = LadderInspection.objects.all()
     def list(self, request, *args, **kwargs):
         try:
-            inspections = self.get_queryset()
-            serializer = self.get_serializer(inspections, many=True)
-            return Response({
-                "status": True,
-                "message": "Ladder inspection reports fetched successfully",
-                "data": serializer.data
-            })
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })        
+            return Response({"status": False, "message": str(e), "data": []})       
         
 
 class SuggestionSchemeReportViewSet(viewsets.ModelViewSet):
@@ -1989,8 +2002,17 @@ class SuggestionSchemeReportViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             data = request.data
+
+            location = request.data.get('location')
+
+            if location:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
             report = SuggestionSchemeReport.objects.create(
                 site=data.get('site'),
+                location=location_instance,
                 date=data.get('date'),
                 name=data.get('name'),
                 designation=data.get('designation'),
@@ -2017,21 +2039,21 @@ class SuggestionSchemeReportViewSet(viewsets.ModelViewSet):
                 "data": []
             })
 
+class GetSuggestionSchemeReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SuggestionSchemeReportSerializer
+    queryset = SuggestionSchemeReport.objects.all()
     def list(self, request, *args, **kwargs):
         try:
-            reports = SuggestionSchemeReport.objects.all().order_by('-date')
-            serializer = SuggestionSchemeReportSerializer(reports, many=True)
-            return Response({
-                "status": True,
-                "message": "Suggestion scheme reports fetched successfully",
-                "data": serializer.data
-            })
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })
+            return Response({"status": False, "message": str(e), "data": []})
         
 
 class LotoRegisterViewSet(viewsets.ModelViewSet):
@@ -2064,16 +2086,12 @@ class GetLotoRegisterViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            reports = LotoRegister.objects.all().order_by('-removed_datetime')
-            serializer = self.get_serializer(reports, many=True)
-            return Response({
-                "status": True,
-                "message": "LOTO register reports fetched successfully",
-                "data": serializer.data
-            })
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
-            return Response({
-                "status": False,
-                "message": str(e),
-                "data": []
-            })        
+            return Response({"status": False, "message": str(e), "data": []})   

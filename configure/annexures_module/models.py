@@ -154,13 +154,21 @@ class SafetyViolationReportAgainstUnsafeACT(models.Model):
     issued_to_violator_name = models.CharField(max_length=255, blank=True, null=True)
     issued_to_designation = models.CharField(max_length=255, blank=True, null=True)
     issued_to_department = models.CharField(max_length=255, blank=True, null=True)
+    issued_to_sign = models.FileField(upload_to='safetyviolation/', null=True, blank=True)
     issued_by = models.CharField(max_length=255, blank=True, null=True)
     issued_by_name = models.CharField(max_length=255, blank=True, null=True)
     issued_by_designation = models.CharField(max_length=255, blank=True, null=True)
     issued_by_department = models.CharField(max_length=255, blank=True, null=True)
+    issued_by_sign = models.FileField(upload_to='safetyviolation/', null=True, blank=True)
     contractors_name = models.CharField(max_length=255, blank=True, null=True)
     description_safety_violation = models.TextField(max_length=255, blank=True, null=True)
     action_taken = models.CharField(max_length=255, blank=True, null=True)
+    hseo_name = models.CharField(max_length=255, blank=True, null=True)
+    hseo_sign = models.FileField(upload_to='safetyviolation/', null=True, blank=True)
+    site_incharge_name = models.CharField(max_length=255, blank=True, null=True)
+    site_incharge_sign = models.FileField(upload_to='safetyviolation/', null=True, blank=True)
+    manager_name = models.CharField(max_length=255, blank=True, null=True)
+    manager_sign = models.FileField(upload_to='safetyviolation/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -228,8 +236,10 @@ class BoomLiftInspection(models.Model):
     ppe_observations = models.CharField(max_length=255, blank=True, null=True)
     ppe_action_by = models.CharField(max_length=255, blank=True, null=True)
     ppe_remarks = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    inspected_name = models.CharField(max_length=255, blank=True, null=True)
+    inspected_sign = models.FileField(upload_to='boomlift/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
 class CraneHydraInspections(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
@@ -294,6 +304,8 @@ class CraneHydraInspections(models.Model):
     ppe_observations = models.CharField(max_length=255, blank=True, null=True)
     ppe_action_by = models.CharField(max_length=255, blank=True, null=True)
     ppe_remarks = models.CharField(max_length=255, blank=True, null=True)
+    inspected_name = models.CharField(max_length=255, blank=True, null=True)
+    inspected_sign = models.FileField(upload_to='cranehydra/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -357,6 +369,8 @@ class TrailerInspectionChecklist(models.Model):
     ppe_observations = models.CharField(max_length=255, blank=True, null=True)
     ppe_action_by = models.CharField(max_length=255, blank=True, null=True)
     ppe_remarks = models.CharField(max_length=255, blank=True, null=True)
+    inspected_name = models.CharField(max_length=255, blank=True, null=True)
+    inspected_sign = models.FileField(upload_to='trailerinspection/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -431,13 +445,13 @@ class MinutesSafetyTraining(models.Model):
 
 
 class SafetyTrainingAttendance(models.Model):
-    site_name = models.CharField(max_length=255)
+    site_name = models.CharField(max_length=255, null=True, blank=True)
     location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateField()
-    training_topic = models.CharField(max_length=255)
-    faculty_name = models.CharField(max_length=255)
+    date = models.DateField(null=True, blank=True)
+    training_topic = models.CharField(max_length=255, null=True, blank=True)
+    faculty_name = models.CharField(max_length=255, null=True, blank=True)
     faculty_signature = models.FileField(upload_to='signatures/faculty/', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.site_name} - {self.training_topic} - {self.date}"
@@ -694,9 +708,10 @@ class ExcavationPermit(models.Model):
     updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
 
 class LadderInspection(models.Model):
-    site_name = models.CharField(max_length=255)
-    ladder_no = models.CharField(max_length=100)
-    date_of_inspection = models.DateField()
+    site_name = models.CharField(max_length=255,null=True,blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    ladder_no = models.CharField(max_length=100,null=True,blank=True)
+    date_of_inspection = models.DateField(null=True,blank=True)
 
     rail_strings_damaged = models.BooleanField()
     rung_missing = models.BooleanField()
@@ -708,36 +723,38 @@ class LadderInspection(models.Model):
     non_slip_bases = models.BooleanField()
     custom_check = models.BooleanField()
 
-    remarks = models.TextField(blank=True)
+    remarks = models.TextField(blank=True,null=True)
 
-    inspected_by_name = models.CharField(max_length=255)
+    inspected_by_name = models.CharField(max_length=255,null=True,blank=True)
     inspected_by_signature = models.FileField(upload_to='ladder_signatures/', blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)    
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)    
 
 
 class SuggestionSchemeReport(models.Model):
-    site = models.CharField(max_length=255)
-    date = models.DateField()
-    name = models.CharField(max_length=255)
-    designation = models.CharField(max_length=255)
-    suggestion_description = models.TextField()
-    benefits_upon_implementation = models.TextField()
-    evaluated_by = models.CharField(max_length=255)
-    evaluator_name = models.CharField(max_length=255)
-    evaluator_designation = models.CharField(max_length=255)
-    evaluation_remarks = models.TextField()
+    site = models.CharField(max_length=255,null=True,blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField(null=True,blank=True)
+    name = models.CharField(max_length=255,null=True,blank=True)
+    designation = models.CharField(max_length=255,null=True,blank=True)
+    suggestion_description = models.TextField(null=True,blank=True)
+    benefits_upon_implementation = models.TextField(null=True,blank=True)
+    evaluated_by = models.CharField(max_length=255,null=True,blank=True)
+    evaluator_name = models.CharField(max_length=255,null=True,blank=True)
+    evaluator_designation = models.CharField(max_length=255,null=True,blank=True)
+    evaluation_remarks = models.TextField(null=True,blank=True)
     evaluator_signature = models.FileField(upload_to='suggestion_signatures/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)      
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)      
 
 class LotoAppliedInfo(models.Model):
-    site_name = models.CharField(max_length=255)
-    applied_datetime = models.DateTimeField()
-    applied_lock_tag_number = models.CharField(max_length=100)
-    applied_permit_number = models.CharField(max_length=100)
-    applied_by_name = models.CharField(max_length=255)
+    site_name = models.CharField(max_length=255,null=True,blank=True)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    applied_datetime = models.DateTimeField(null=True,blank=True)
+    applied_lock_tag_number = models.CharField(max_length=100,null=True,blank=True)
+    applied_permit_number = models.CharField(max_length=100,null=True,blank=True)
+    applied_by_name = models.CharField(max_length=255,null=True,blank=True)
     applied_by_signature = models.FileField(upload_to='signatures/')
-    applied_approved_by_name = models.CharField(max_length=255)
+    applied_approved_by_name = models.CharField(max_length=255,null=True,blank=True)
     applied_approved_by_signature = models.FileField(upload_to='signatures/')
 
     def __str__(self):
@@ -746,13 +763,13 @@ class LotoAppliedInfo(models.Model):
 
 class LotoRegister(models.Model):
     applied_info = models.ForeignKey(LotoAppliedInfo, on_delete=models.CASCADE, related_name='removal_info')
-    
-    removed_datetime = models.DateTimeField()
-    removed_lock_tag_number = models.CharField(max_length=100)
-    removed_permit_number = models.CharField(max_length=100)
-    removed_by_name = models.CharField(max_length=255)
+    location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
+    removed_datetime = models.DateTimeField(null=True,blank=True)
+    removed_lock_tag_number = models.CharField(max_length=100,null=True,blank=True)
+    removed_permit_number = models.CharField(max_length=100,null=True,blank=True)
+    removed_by_name = models.CharField(max_length=255,null=True,blank=True)
     removed_by_signature = models.FileField(upload_to='signatures/')
-    removed_site_incharge_name = models.CharField(max_length=255)
+    removed_site_incharge_name = models.CharField(max_length=255,null=True,blank=True)
     removed_approved_by_signature = models.FileField(upload_to='signatures/')
 
     def __str__(self):
