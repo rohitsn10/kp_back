@@ -497,21 +497,63 @@ class ApproveByIncidentNearmissViewSet(viewsets.ModelViewSet):
 class ReportOfIncidentNearmissViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ReportOfIncidentNearmissSerializer
-
+    queryset = ReportOfIncidentNearmiss.objects.all()
 
     def create(self, request, *args, **kwargs):
         try:
             user = request.user
-            incident_nearmiss_id = kwargs.get('incident_nearmiss_id')
+            location = request.data.get('location')
+            site_name = request.data.get('site_name')
+            date_of_occurrence = request.data.get('date_of_occurrence')
+            date_of_report = request.data.get('date_of_report')
+            reported_by = request.data.get('reported_by')
+            designation = request.data.get('designation')
+            employee_code = request.data.get('employee_code')
+            vendor_name = request.data.get('vendor_name')
+            category = request.data.get('category')
+            description = request.data.get('description')
+            member_1 = request.data.get('member_1')
+            member_2 = request.data.get('member_2')
+            member_3 = request.data.get('member_3')
+            member_1_sign = request.FILES.get('member_1_sign', [])
+            member_2_sign = request.FILES.get('member_2_sign', [])
+            member_3_sign = request.FILES.get('member_3_sign', [])
+            site_incharge_name = request.data.get('site_incharge_name')
+            site_incharge_designation = request.data.get('site_incharge_designation')
+            site_incharge_sign  = request.FILES.get('site_incharge_sign', [])
             immediate_action_taken = request.data.get('immediate_action_taken')
             apparent_cause = request.data.get('apparent_cause')
             preventive_action = request.data.get('preventive_action')
 
-            incident_nearmiss = IncidentNearMiss.objects.get(id=incident_nearmiss_id)
+            location_instance = None
+            if location:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
 
             report = ReportOfIncidentNearmiss.objects.create(
                 user=user,
-                incident_nearmiss=incident_nearmiss,
+                location=location_instance,
+                site_name=site_name,
+                date_of_occurrence=date_of_occurrence,
+                date_of_report=date_of_report,
+                reported_by=reported_by,
+                designation=designation,
+                employee_code=employee_code,
+                vendor_name=vendor_name,
+                category=category,
+                description=description,
+                member_1=member_1,
+                member_2=member_2,
+                member_3=member_3,
+                member_1_sign=member_1_sign,
+                member_2_sign=member_2_sign,
+                member_3_sign=member_3_sign,
+                site_incharge_name=site_incharge_name,
+                site_incharge_designation=site_incharge_designation,
+                site_incharge_sign=site_incharge_sign,
                 immediate_action_taken=immediate_action_taken,
                 apparent_cause=apparent_cause,
                 preventive_action=preventive_action,
@@ -523,6 +565,23 @@ class ReportOfIncidentNearmissViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+class GetReportOfIncidentNearmissViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReportOfIncidentNearmissSerializer
+    queryset = ReportOfIncidentNearmiss.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
 
 class SafetyViolationReportViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
