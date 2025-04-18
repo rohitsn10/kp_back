@@ -57,7 +57,7 @@ class ApproveIncidentNearMissSerializer(serializers.ModelSerializer):
 class ReportOfIncidentNearmissSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportOfIncidentNearmiss
-        fields = ['id','user', 'incident_nearmiss', 'immediate_action_taken', 'apparent_cause', 'preventive_action', 'created_at']
+        fields = ['id','user', 'location', 'site_name', 'date_of_occurrence', 'date_of_report', 'reported_by', 'designation', 'employee_code', 'vendor_name', 'category', 'description', 'member_1', 'member_2', 'member_3', 'member_1_sign', 'member_2_sign', 'member_3_sign', 'site_incharge_name', 'site_incharge_designation', 'site_incharge_sign', 'immediate_action_taken', 'apparent_cause', 'preventive_action', 'created_at']
 
 class SafetyViolationReportAgainstUnsafeACTSerializer(serializers.ModelSerializer):
     class Meta:

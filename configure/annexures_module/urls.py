@@ -20,7 +20,8 @@ urlpatterns = [
     path('reviewed_incident_nearmiss_by_reviewer/<int:id>', ReviewByIncidentNearmissViewSet.as_view({'put':'update'}), name='reviewed_incident_nearmiss_by_reviewer'),
     path('approve_incident_nearmiss_by_reviewer/<int:id>', ApproveByIncidentNearmissViewSet.as_view({'put':'update'}), name='approve_incident_nearmiss_by_reviewer'),
 
-    path('create_report_of_incident_nearmiss/<int:incident_nearmiss_id>', ReportOfIncidentNearmissViewSet.as_view({'post': 'create'}), name='create_report_of_incident_nearmiss'),
+    path('create_report_of_incident_nearmiss', ReportOfIncidentNearmissViewSet.as_view({'post': 'create'}), name='create_report_of_incident_nearmiss'),
+    path('get_report_of_incident_nearmiss/<int:location_id>', GetReportOfIncidentNearmissViewSet.as_view({'get': 'list'}), name='get_report_of_incident_nearmiss'),
 
     path('create_safety_violation_report', SafetyViolationReportViewSet.as_view({'post': 'create'}), name='create_safety_violation_report'),
     path('get_safety_violation_report/<int:location_id>', GetSafetyViolationReportViewSet.as_view({'get': 'list'}), name='get_safety_violation_report'),
