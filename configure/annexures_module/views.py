@@ -1898,6 +1898,8 @@ class ExcavationPermitViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
+            def to_bool(value):
+                return str(value).lower() in ['true', '1', 'yes']
             user = request.user
             site_name = request.data.get('site_name')
             location_id = request.data.get('location')
@@ -1925,10 +1927,10 @@ class ExcavationPermitViewSet(viewsets.ModelViewSet):
             telephone_name = request.data.get('telephone_name')
             telephone_date = request.data.get('telephone_date')
             telephone_sign_upload = request.FILES.get('telephone_sign_upload', [])
-            road_barricading = request.data.get('road_barricading')
-            warning_sign = request.data.get('warning_sign')
-            barricading_excavated_area = request.data.get('barricading_excavated_area')
-            shoring_carried = request.data.get('shoring_carried')
+            road_barricading = to_bool(request.data.get('road_barricading'))
+            warning_sign = to_bool(request.data.get('warning_sign'))
+            barricading_excavated_area = to_bool(request.data.get('barricading_excavated_area'))
+            shoring_carried = to_bool(request.data.get('shoring_carried'))
             any_other_precaution = request.data.get('any_other_precaution')
             name_acceptor = request.data.get('name_acceptor')
             acceptor_sign_upload = request.FILES.get('acceptor_sign_upload', [])
