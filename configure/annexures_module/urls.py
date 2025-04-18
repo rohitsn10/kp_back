@@ -47,6 +47,15 @@ urlpatterns = [
     path('create_internal_audit_report', InternalAuditReportViewSet.as_view({'post': 'create'}), name='create_internal_audit_report'),
     path('get_internal_audit_report/<int:location_id>', GetInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_internal_audit_report'),
 
+    path('create_correction_internal_audit_report', CorrectionInternalAuditReportViewSet.as_view({'post': 'create'}), name='create_correction_internal_audit_report'),
+    path('get_correction_internal_audit_report/<int:audit_report>', GetCorrectionInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_correction_internal_audit_report'),
+
+    path('create_verification_internal_audit_report', VerificationInternalAuditReportViewSet.as_view({'post': 'create'}), name='create_verification_internal_audit_report'),
+    path('get_verification_internal_audit_report/<int:audit_report>', GetVerificationInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_verification_internal_audit_report'),
+
+    path('create_closure_internal_audit_report', ClosureInternalAuditReportViewSet.as_view({'post': 'create'}), name='create_closure_internal_audit_report'),
+    path('get_closure_internal_audit_report/<int:audit_report>', GetClosureInternalAuditReportViewSet.as_view({'get': 'list'}), name='get_closure_internal_audit_report'),
+
 
     path('create_induction_training', CreateInductionTrainingViewSet.as_view({'post': 'create'}), name='create_induction_training'),
     path('get_induction_training/<int:location_id>', GetInductionTrainingViewSet.as_view({'get': 'list'}), name='get_induction_training'),

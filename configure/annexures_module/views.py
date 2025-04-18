@@ -1486,31 +1486,12 @@ class InternalAuditReportViewSet(viewsets.ModelViewSet):
                 site_name=data.get('site_name'),
                 location=location_instance,
                 date=data.get('date'),
-
+                observer_details=data.get('observer_details'),
                 observer_name=data.get('observer_name'),
                 observer_sign=data.get('observer_sign'),
-
                 auditee_name=data.get('auditee_name'),
                 auditee_sign=data.get('auditee_sign'),
-
                 agreed_completion_date=data.get('agreed_completion_date'),
-                correction_details=data.get('correction_details'),
-                root_cause=data.get('root_cause'),
-                corrective_action=data.get('corrective_action'),
-
-                correction_auditee_name=data.get('correction_auditee_name'),
-                correction_auditee_sign=data.get('correction_auditee_sign'),
-                correction_auditee_date=data.get('correction_auditee_date'),
-
-                verification_auditor_name=data.get('verification_auditor_name'),
-                verification_auditor_sign=data.get('verification_auditor_sign'),
-                verification_auditor_date=data.get('verification_auditor_date'),
-
-                report_closure=data.get('report_closure'),
-
-                siteincharge_name=data.get('siteincharge_name'),
-                siteincharge_sign=data.get('siteincharge_sign'),
-                siteincharge_date=data.get('siteincharge_date'),
             )
 
             serializer = InternalAuditReportSerializer(report)
@@ -1541,12 +1522,208 @@ class GetInternalAuditReportViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(location=location_id)
             serializer = self.serializer_class(queryset, many=True)
             data = serializer.data
-            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+            return Response({"status": True, "message": "internal audit list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
+
+class CorrectionInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CorrectionInternalAuditReportSerializer
+    queryset = CorrectionInternalAuditReport.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            data = request.data
+
+            audit_report = data.get('audit_report')
+            audit_report_ins = None
+
+            if audit_report:
+                try:
+                    audit_report_ins = InternalAuditReport.objects.get(id=audit_report)
+                except InternalAuditReport.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "message": "Invalid InternalAuditReport ID",
+                        "data": []
+                    })
+            
+            report = CorrectionInternalAuditReport.objects.create(
+                root_cause=data.get('root_cause'),
+                audit_report=audit_report_ins,
+                corrective_action=data.get('corrective_action'),
+                correction_auditee_name=data.get('correction_auditee_name'),
+                correction_auditee_sign=data.get('correction_auditee_sign'),
+                correction_auditee_date=data.get('correction_auditee_date')
+            )
+            audit_report_ins.is_correction_done = True
+            audit_report_ins.save()
+
+            serializer = CorrectionInternalAuditReportSerializer(report)
+            return Response({
+                "status": True,
+                "message": "Correction internal audit report created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+        
+    
+class GetCorrectionInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CorrectionInternalAuditReportSerializer
+    queryset = CorrectionInternalAuditReport.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            audit_report = self.kwargs.get('audit_report')
+            queryset = self.filter_queryset(self.get_queryset())
+            if audit_report:
+                queryset = queryset.filter(audit_report=audit_report)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "correction list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
         
 
+class VerificationInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = VerificationInternalAuditReportSerializer
+    queryset = VerificationInternalAuditReport.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            data = request.data
+
+            audit_report = data.get('audit_report')
+            audit_report_ins = None
+
+            if audit_report:
+                try:
+                    audit_report_ins = InternalAuditReport.objects.get(id=audit_report)
+                except InternalAuditReport.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "message": "Invalid InternalAuditReport ID",
+                        "data": []
+                    })
+            
+            report = VerificationInternalAuditReport.objects.create(
+                audit_report=audit_report_ins,
+                verification_auditor_name=data.get('verification_auditor_name'),
+                verification_auditor_sign=data.get('verification_auditor_sign'),
+                verification_auditor_date=data.get('verification_auditor_date')
+            )
+            audit_report_ins.is_verification_done = True
+            audit_report_ins.save()
+
+            serializer = VerificationInternalAuditReportSerializer(report)
+            return Response({
+                "status": True,
+                "message": "verification internal audit report created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+
+class GetVerificationInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = VerificationInternalAuditReportSerializer
+    queryset = VerificationInternalAuditReport.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            audit_report = self.kwargs.get('audit_report')
+            queryset = self.filter_queryset(self.get_queryset())
+            if audit_report:
+                queryset = queryset.filter(audit_report=audit_report)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Verification list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ClosureInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClosureInternalAuditReportSerializer
+    queryset = ClosureInternalAuditReport.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            data = request.data
+
+            audit_report = data.get('audit_report')
+            audit_report_ins = None
+
+            if audit_report:
+                try:
+                    audit_report_ins = InternalAuditReport.objects.get(id=audit_report)
+                except InternalAuditReport.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "message": "Invalid InternalAuditReport ID",
+                        "data": []
+                    })
+            
+            report = ClosureInternalAuditReport.objects.create(
+                audit_report=audit_report_ins,
+                report_closure=data.get('report_closure'),
+                siteincharge_name=data.get('siteincharge_name'),
+                siteincharge_sign=data.get('siteincharge_sign'),
+                siteincharge_date=data.get('siteincharge_date')
+            )
+            audit_report_ins.is_closure_done = True
+            audit_report_ins.save()
+
+            serializer = ClosureInternalAuditReportSerializer(report)
+            return Response({
+                "status": True,
+                "message": "closure internal audit report created successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+
+
+class GetClosureInternalAuditReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClosureInternalAuditReportSerializer
+    queryset = ClosureInternalAuditReport.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            audit_report = self.kwargs.get('audit_report')
+            queryset = self.filter_queryset(self.get_queryset())
+            if audit_report:
+                queryset = queryset.filter(audit_report=audit_report)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Closure list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
 
 
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -1900,7 +2077,6 @@ class ExcavationPermitViewSet(viewsets.ModelViewSet):
         try:
             def to_bool(value):
                 return str(value).lower() in ['true', '1', 'yes']
-            user = request.user
             site_name = request.data.get('site_name')
             location_id = request.data.get('location')
             permit_number = request.data.get('permit_number')
@@ -1946,7 +2122,6 @@ class ExcavationPermitViewSet(viewsets.ModelViewSet):
                     return Response({"status": False, "message": "Invalid location ID", "data": []})
 
             excavation_permit = ExcavationPermit.objects.create(
-                user=user,
                 site_name=site_name,
                 location=location_instance,
                 permit_number=permit_number,

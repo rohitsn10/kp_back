@@ -283,6 +283,24 @@ class InternalAuditReportSerializer(serializers.ModelSerializer):
         model = InternalAuditReport
         fields = '__all__'
 
+class CorrectionInternalAuditReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CorrectionInternalAuditReport
+        fields = '__all__'
+
+class VerificationInternalAuditReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VerificationInternalAuditReport
+        fields = '__all__'
+
+class ClosureInternalAuditReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ClosureInternalAuditReport
+        fields = '__all__'
+
 
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
