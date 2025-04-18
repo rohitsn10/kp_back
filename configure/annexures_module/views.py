@@ -592,6 +592,7 @@ class SafetyViolationReportViewSet(viewsets.ModelViewSet):
         try:
             user = request.user
             site_name = request.data.get('site_name')
+            location = request.data.get('location')
             issued_to = request.data.get('issued_to')
             issued_to_violator_name = request.data.get('issued_to_violator_name')
             issued_to_designation = request.data.get('issued_to_designation')
@@ -615,6 +616,7 @@ class SafetyViolationReportViewSet(viewsets.ModelViewSet):
             safety_violation_report = SafetyViolationReportAgainstUnsafeACT.objects.create(
                 user=user,
                 site_name=site_name,
+                location=location,
                 issued_to=issued_to,
                 issued_to_violator_name=issued_to_violator_name,
                 issued_to_designation=issued_to_designation,
