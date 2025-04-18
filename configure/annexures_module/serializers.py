@@ -264,18 +264,11 @@ class ParticipantSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'designation', 'signature']
 
 class TrainingAttendanceSerializer(serializers.ModelSerializer):
-    participants = ParticipantSerializer(many=True)
 
     class Meta:
         model = SafetyTrainingAttendance
-        fields = ['id', 'site_name', 'location', 'date', 'training_topic', 'faculty_name', 'faculty_signature', 'participants']
+        fields = ['id', 'site_name', 'location', 'date', 'training_topic', 'remarks','faculty_name', 'faculty_signature', 'file_upload', 'created_at']
 
-    def create(self, validated_data):
-        participants_data = validated_data.pop('participants')
-        training = SafetyTrainingAttendance.objects.create(**validated_data)
-        for participant_data in participants_data:
-            Participant.objects.create(training=training, **participant_data)
-        return training
 
 
 class InternalAuditReportSerializer(serializers.ModelSerializer):

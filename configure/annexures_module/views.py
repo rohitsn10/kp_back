@@ -1328,12 +1328,13 @@ class SafetyTrainingAttendanceViewSet(viewsets.ModelViewSet):
                     })
 
             attendance = SafetyTrainingAttendance.objects.create(
-                topic=data.get('topic'),
+                site_name=data.get('site_name'),
+                training_topic=data.get('training_topic'),
+                remarks=data.get('remarks'),
                 location=location_instance,
                 date=data.get('date'),
-                trainer_name=data.get('trainer_name'),
-                attendees=data.get('attendees'),
-                remarks=data.get('remarks'),
+                faculty_name=data.get('trainer_name'),
+                faculty_signature=data.get('trainer_signature'),
                 file_upload=data.get('file_upload')
             )
 

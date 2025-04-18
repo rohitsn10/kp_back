@@ -467,12 +467,12 @@ class SafetyTrainingAttendance(models.Model):
     location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     training_topic = models.CharField(max_length=255, null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
     faculty_name = models.CharField(max_length=255, null=True, blank=True)
     faculty_signature = models.FileField(upload_to='signatures/faculty/', null=True, blank=True)
+    file_upload = models.FileField(upload_to='safety_training_attendance/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.site_name} - {self.training_topic} - {self.date}"
 
 class Participant(models.Model):
     training = models.ForeignKey(SafetyTrainingAttendance, on_delete=models.CASCADE, related_name='participants')
