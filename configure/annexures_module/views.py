@@ -613,10 +613,16 @@ class SafetyViolationReportViewSet(viewsets.ModelViewSet):
             manager_name = request.data.get('manager_name')
             manager_sign = request.FILES.get('manager_sign')
 
+            if location:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location)
+                except LandBankLocation.DoesNotExist:
+                    return Response({"status": False, "message": "Invalid location ID", "data": []})
+
             safety_violation_report = SafetyViolationReportAgainstUnsafeACT.objects.create(
                 user=user,
                 site_name=site_name,
-                location=location,
+                location=location_instance,
                 issued_to=issued_to,
                 issued_to_violator_name=issued_to_violator_name,
                 issued_to_designation=issued_to_designation,
