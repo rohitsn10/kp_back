@@ -272,9 +272,24 @@ class TrainingAttendanceSerializer(serializers.ModelSerializer):
 
 
 class InternalAuditReportSerializer(serializers.ModelSerializer):
+    corrections = serializers.SerializerMethodField()
+    verifications = serializers.SerializerMethodField()
+    closures = serializers.SerializerMethodField()
     class Meta:
         model = InternalAuditReport
         fields = '__all__'
+
+    def get_corrections(self, obj):
+        corrections = CorrectionInternalAuditReport.objects.filter(audit_report=obj.id)
+        return CorrectionInternalAuditReportSerializer(corrections, many=True).data
+    
+    def get_verifications(self, obj):
+        verification = VerificationInternalAuditReport.objects.filter(audit_report=obj.id)
+        return VerificationInternalAuditReportSerializer(verification, many=True).data
+    
+    def get_closures(self, obj):
+        closures = ClosureInternalAuditReport.objects.filter(audit_report=obj.id)
+        return ClosureInternalAuditReportSerializer(closures, many=True).data
 
 class CorrectionInternalAuditReportSerializer(serializers.ModelSerializer):
 
