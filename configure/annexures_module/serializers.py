@@ -63,9 +63,9 @@ class SafetyViolationReportAgainstUnsafeACTSerializer(serializers.ModelSerialize
     class Meta:
         model = SafetyViolationReportAgainstUnsafeACT
         fields = [
-            'id', 'user', 'site_name', 'issued_to', 'issued_to_violator_name', 'issued_to_designation', 'issued_to_department',
-            'issued_by', 'issued_by_name', 'issued_by_designation', 'issued_by_department', 'contractors_name', 'description_safety_violation',
-            'action_taken', 'created_at', 'updated_at'
+            'id', 'user', 'site_name', 'issued_to', 'issued_to_violator_name', 'issued_to_designation', 'issued_to_department', 'issued_to_sign',
+            'issued_by', 'issued_by_name', 'issued_by_designation', 'issued_by_department', 'issued_by_sign', 'contractors_name', 'description_safety_violation',
+            'action_taken', 'hseo_name', 'hseo_sign', ' site_incharge_name', 'site_incharge_sign', 'manager_name', 'manager_sign', 'created_at', 'updated_at'
         ]
 
 class BoomLiftInspectionSerializer(serializers.ModelSerializer):
@@ -84,7 +84,7 @@ class BoomLiftInspectionSerializer(serializers.ModelSerializer):
             'platform_condition_action_by', 'platform_condition_remarks', 'door_lock_platform_observations', 'door_lock_platform_action_by', 'door_lock_platform_remarks',
             'swl_observations', 'swl_action_by', 'swl_remarks', 'over_load_indicator_cut_off_devices_observations', 'over_load_indicator_cut_off_devices_action_by',
             'over_load_indicator_cut_off_devices_remarks', 'battery_condition_observations', 'battery_condition_action_by', 'battery_condition_remarks',
-            'operator_list_observations', 'operator_list_action_by', 'operator_list_remarks', 'ppe_observations', 'ppe_action_by', 'ppe_remarks',
+            'operator_list_observations', 'operator_list_action_by', 'operator_list_remarks', 'ppe_observations', 'ppe_action_by', 'ppe_remarks', 'inspected_name', 'inspected_sign',
             'created_at', 'updated_at'
         ]
 
@@ -108,7 +108,7 @@ class CraneHydraInspectionsSerializer(serializers.ModelSerializer):
             "hand_brake_remarks", "swl_on_boom_lift_observations", "swl_on_boom_lift_action_by", "swl_on_boom_lift_remarks",
             "any_leakage_observations", "any_leakage_action_by", "any_leakage_remarks", "speedometere_observations",
             "speedometere_action_by", "speedometere_remarks", "guard_parts_observations", "guard_parts_action_by",
-            "guard_parts_remarks", "ppe_observations", "ppe_action_by", "ppe_remarks", "created_at", "updated_at"
+            "guard_parts_remarks", "ppe_observations", "ppe_action_by", "ppe_remarks", 'inspected_name', 'inspected_sign', "created_at", "updated_at"
         ]
 
 class TrailerInspectionChecklistSerializer(serializers.ModelSerializer):
@@ -173,7 +173,9 @@ class TrailerInspectionChecklistSerializer(serializers.ModelSerializer):
             "guard_parts_remarks",
             "ppe_observations",
             "ppe_action_by",
-            "ppe_remarks"
+            "ppe_remarks",
+            "inspected_name",
+            "inspected_sign"
         ]
 
 class MockDrillReportSerializer(serializers.ModelSerializer):
@@ -418,14 +420,14 @@ class SuggestionSchemeReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = SuggestionSchemeReport
         fields = [
-            'id','site','date','name','designation','suggestion_description','benefits_upon_implementation','evaluated_by','evaluator_name','evaluator_designation','evaluation_remarks','evaluator_signature'
+            'id','site', 'location','date','name','designation','suggestion_description','benefits_upon_implementation','evaluated_by','evaluator_name','evaluator_designation','evaluation_remarks','evaluator_signature'
         ]     
 
 class LotoAppliedInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = LotoAppliedInfo
         fields = [
-            'id','site_name','applied_datetime','applied_lock_tag_number','applied_permit_number','applied_by_name','applied_by_signature','applied_approved_by_name','applied_approved_by_signature',
+            'id','site_name','location','applied_datetime','applied_lock_tag_number','applied_permit_number','applied_by_name','applied_by_signature','applied_approved_by_name','applied_approved_by_signature',
         ]
 
 
@@ -435,7 +437,7 @@ class LotoRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = LotoRegister
         fields = [
-            'id','applied_info','removed_datetime','removed_lock_tag_number','removed_permit_number','removed_by_name','removed_by_signature','removed_site_incharge_name','removed_approved_by_signature',
+            'id','applied_info','location','removed_datetime','removed_lock_tag_number','removed_permit_number','removed_by_name','removed_by_signature','removed_site_incharge_name','removed_approved_by_signature',
         ]
 
     def create(self, validated_data):
