@@ -1350,7 +1350,7 @@ class SafetyTrainingAttendanceViewSet(viewsets.ModelViewSet):
                 "status": False,
                 "message": str(e),
                 "data": []
-            }),
+            })
 
 
 class GetTrainingAttendanceViewSet(viewsets.ModelViewSet):
