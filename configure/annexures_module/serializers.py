@@ -65,7 +65,7 @@ class SafetyViolationReportAgainstUnsafeACTSerializer(serializers.ModelSerialize
         fields = [
             'id', 'user', 'site_name', 'issued_to', 'issued_to_violator_name', 'issued_to_designation', 'issued_to_department', 'issued_to_sign',
             'issued_by', 'issued_by_name', 'issued_by_designation', 'issued_by_department', 'issued_by_sign', 'contractors_name', 'description_safety_violation',
-            'action_taken', 'hseo_name', 'hseo_sign', ' site_incharge_name', 'site_incharge_sign', 'manager_name', 'manager_sign', 'created_at', 'updated_at'
+            'action_taken', 'hseo_name', 'hseo_sign', 'site_incharge_name', 'site_incharge_sign', 'manager_name', 'manager_sign', 'created_at', 'updated_at'
         ]
 
 class BoomLiftInspectionSerializer(serializers.ModelSerializer):
