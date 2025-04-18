@@ -488,38 +488,43 @@ class InternalAuditReport(models.Model):
     site_name = models.CharField(max_length=255)
     location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
-
-    observer_name = models.CharField(max_length=255)
+    observer_details = models.CharField(max_length=255, null=True, blank=True)
+    observer_name = models.CharField(max_length=255, null=True, blank=True)
     observer_sign = models.FileField(upload_to='signatures/observer/', null=True, blank=True)
-
-    auditee_name = models.CharField(max_length=255)
+    auditee_name = models.CharField(max_length=255, null=True, blank=True)
     auditee_sign = models.FileField(upload_to='signatures/auditee/', null=True, blank=True)
-
-    agreed_completion_date = models.DateField()
-    correction_details = models.TextField()
-    root_cause = models.TextField()
-    corrective_action = models.TextField()
-
-    correction_auditee_name = models.CharField(max_length=255)
-    correction_auditee_sign = models.FileField(upload_to='signatures/correction_auditee/', null=True, blank=True)
-    correction_auditee_date = models.DateField()
-
-    verification_auditor_name = models.CharField(max_length=255)
-    verification_auditor_sign = models.FileField(upload_to='signatures/verification_auditor/', null=True, blank=True)
-    verification_auditor_date = models.DateField()
-
-    report_closure = models.TextField()
-
-    siteincharge_name = models.CharField(max_length=255)
-    siteincharge_sign = models.FileField(upload_to='signatures/siteincharge/', null=True, blank=True)
-    siteincharge_date = models.DateField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.site_name} - {self.date}"
-
+    agreed_completion_date = models.DateField(null=True, blank=True)
+    is_correction_done = models.BooleanField(default=False, null=True, blank=True)
+    is_verification_done = models.BooleanField(default=False, null=True, blank=True)
+    is_closure_done = models.BooleanField(default=False, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     
+class CorrectionInternalAuditReport(models.Model):
+    audit_report = models.ForeignKey(InternalAuditReport, on_delete=models.CASCADE, related_name='corrections')
+    # correction_details = models.TextField(null=True, blank=True)
+    root_cause = models.TextField(null=True, blank=True)
+    corrective_action = models.TextField(null=True, blank=True)
+    correction_auditee_name = models.CharField(max_length=255, null=True, blank=True)
+    correction_auditee_sign = models.FileField(upload_to='signatures/correction_auditee/', null=True, blank=True)
+    correction_auditee_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+
+class VerificationInternalAuditReport(models.Model):
+    audit_report = models.ForeignKey(InternalAuditReport, on_delete=models.CASCADE, related_name='verifications')
+    verification_auditor_name = models.CharField(max_length=255, null=True, blank=True)
+    verification_auditor_sign = models.FileField(upload_to='signatures/verification_auditor/', null=True, blank=True)
+    verification_auditor_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+class ClosureInternalAuditReport(models.Model):
+    audit_report = models.ForeignKey(InternalAuditReport, on_delete=models.CASCADE, related_name='closures')
+    report_closure = models.TextField(null=True, blank=True)
+    siteincharge_name = models.CharField(max_length=255, null=True, blank=True)
+    siteincharge_sign = models.FileField(upload_to='signatures/siteincharge/', null=True, blank=True)
+    siteincharge_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
 
 class TrainingTopic(models.Model):
     name = models.CharField(max_length=255)
