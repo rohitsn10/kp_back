@@ -98,7 +98,7 @@ class ClosureOfPermit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class IssueApprovePermit(models.Model):
-    permit = models.ForeignKey(PermitToWork,related_name='permit', on_delete=models.SET_NULL, null=True, blank=True)
+    permit = models.ForeignKey(PermitToWork,related_name='permitforissue', on_delete=models.SET_NULL, null=True, blank=True)
     issuer_name = models.CharField(max_length=255, blank=True, null=True)
     issuer_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
     # approver = models.ForeignKey(CustomUser,related_name='approver', on_delete=models.SET_NULL, null=True, blank=True)
@@ -108,7 +108,7 @@ class IssueApprovePermit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class ApproverApprovePermit(models.Model):
-    permit = models.ForeignKey(PermitToWork,related_name='permit', on_delete=models.SET_NULL, null=True, blank=True)
+    permit = models.ForeignKey(PermitToWork,related_name='permitforapprove', on_delete=models.SET_NULL, null=True, blank=True)
     approver_name = models.CharField(max_length=255, blank=True, null=True)
     approver_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
     start_time = models.DateTimeField(max_length=255, blank=True, null=True)
@@ -116,7 +116,7 @@ class ApproverApprovePermit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class ReceiverApprovePermit(models.Model):
-    permit = models.ForeignKey(PermitToWork,related_name='permit', on_delete=models.SET_NULL, null=True, blank=True)
+    permit = models.ForeignKey(PermitToWork,related_name='permitforrecive', on_delete=models.SET_NULL, null=True, blank=True)
     receiver_name = models.CharField(max_length=255, blank=True, null=True)
     receiver_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
     start_time = models.DateTimeField(max_length=255, blank=True, null=True)
