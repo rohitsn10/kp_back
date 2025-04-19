@@ -51,6 +51,24 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
                     location_instance = LandBankLocation.objects.get(id=location_id)
                 except LandBankLocation.DoesNotExist:
                     return Response({"status": False, "message": "Invalid location ID", "data": []})
+                
+            if isinstance(hazard_consideration, str):
+                try:
+                    hazard_consideration = json.loads(hazard_consideration)
+                except json.JSONDecodeError:
+                    hazard_consideration = []
+
+            if isinstance(job_preparation, str):
+                try:
+                    job_preparation = json.loads(job_preparation)
+                except json.JSONDecodeError:
+                    job_preparation = []
+
+            if isinstance(fire_protection, str):
+                try:
+                    fire_protection = json.loads(fire_protection)
+                except json.JSONDecodeError:
+                    fire_protection = []
     
             permit_issued_for_str = ",".join(permit_issued_for) if permit_issued_for else ""
             hazard_consideration_str = ",".join(hazard_consideration) if hazard_consideration else ""
