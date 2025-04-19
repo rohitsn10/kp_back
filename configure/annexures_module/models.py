@@ -47,13 +47,21 @@ class PermitToWork(models.Model):
         ('work permit procedure', 'Work permit Procedure'),
         ('other', 'Other'),
     )
+    RISK_CHOICES = (
+        ('critical', 'Critical'),
+        ('general', 'General'),
+    )
     location = models.ForeignKey(LandBankLocation, on_delete=models.SET_NULL, null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     site_name = models.CharField(max_length=255, blank=True, null=True)
     department = models.CharField(max_length=25, choices=DEPARTMENT_CHOICES, blank=True, null=True)
     permit_number = models.CharField(max_length=255, blank=True, null=True)
+    permit_date = models.DateTimeField(max_length=255, blank=True, null=True)
     name_of_external_agency = models.CharField(max_length=255, blank=True, null=True)
     type_of_permit = models.CharField(max_length=255, choices=PERMIT_CHOICES, blank=True, null=True)
+    permit_valid_from = models.DateTimeField(max_length=255, blank=True, null=True)
+    permit_valid_to = models.DateTimeField(max_length=255, blank=True, null=True)
+    permit_risk_type = models.CharField(max_length=255, choices=RISK_CHOICES, blank=True, null=True)
     other_permit_description = models.CharField(max_length=255, blank=True, null=True)
     job_activity_details = models.CharField(max_length=255, blank=True, null=True)
     location_area = models.CharField(max_length=255, blank=True, null=True)
@@ -70,6 +78,11 @@ class PermitToWork(models.Model):
     risk_assessment_number = models.CharField(max_length=255, blank=True, null=True)
     expiry_date = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
+    issuer_name = models.CharField(max_length=255, blank=True, null=True)
+    issuer_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
+    issuer_done = models.BooleanField(default=False, null=True, blank=True)
+    approver_done = models.BooleanField(default=False, null=True, blank=True)
+    receiver_done = models.BooleanField(default=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -84,11 +97,28 @@ class ClosureOfPermit(models.Model):
     permit = models.ForeignKey(PermitToWork, related_name='closure_of_permit', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-class ApprovePermit(models.Model):
+class IssueApprovePermit(models.Model):
     permit = models.ForeignKey(PermitToWork,related_name='permit', on_delete=models.SET_NULL, null=True, blank=True)
-    issuer = models.ForeignKey(CustomUser,related_name='issuer', on_delete=models.SET_NULL, null=True, blank=True)
-    approver = models.ForeignKey(CustomUser,related_name='approver', on_delete=models.SET_NULL, null=True, blank=True)
-    receiver = models.ForeignKey(CustomUser,related_name='receiver', on_delete=models.SET_NULL, null=True, blank=True)
+    issuer_name = models.CharField(max_length=255, blank=True, null=True)
+    issuer_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
+    # approver = models.ForeignKey(CustomUser,related_name='approver', on_delete=models.SET_NULL, null=True, blank=True)
+    # receiver = models.ForeignKey(CustomUser,related_name='receiver', on_delete=models.SET_NULL, null=True, blank=True)
+    start_time = models.DateTimeField(max_length=255, blank=True, null=True)
+    end_time = models.DateTimeField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ApproverApprovePermit(models.Model):
+    permit = models.ForeignKey(PermitToWork,related_name='permit', on_delete=models.SET_NULL, null=True, blank=True)
+    approver_name = models.CharField(max_length=255, blank=True, null=True)
+    approver_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
+    start_time = models.DateTimeField(max_length=255, blank=True, null=True)
+    end_time = models.DateTimeField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ReceiverApprovePermit(models.Model):
+    permit = models.ForeignKey(PermitToWork,related_name='permit', on_delete=models.SET_NULL, null=True, blank=True)
+    receiver_name = models.CharField(max_length=255, blank=True, null=True)
+    receiver_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
     start_time = models.DateTimeField(max_length=255, blank=True, null=True)
     end_time = models.DateTimeField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -22,9 +22,13 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
             site_name = request.data.get('site_name')
             department = request.data.get('department')
             permit_number = request.data.get('permit_number')
+            permit_date = request.data.get('permit_date')
             external_agency_name = request.data.get('external_agency_name')
             type_of_permit = request.data.get('type_of_permit')
             other_permit_description = request.data.get('other_permit_description')
+            permit_valid_from = request.data.get('permit_valid_from')
+            permit_valid_to = request.data.get('permit_valid_to')
+            permit_risk_type = request.data.get('permit_risk_type')
             permit_issued_for = request.data.get('permit_issued_for', [])
             day = request.data.get('day')
             night = request.data.get('night')
@@ -38,6 +42,8 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
             other_job_preparation = request.data.get('other_job_preparation')
             fire_protection = request.data.get('fire_protection', [])
             other_fire_protection = request.data.get('other_fire_protection')
+            issuer_name = request.data.get('issuer_name')
+            issuer_sign = request.data.get('issuer_sign')
             
             location_instance = None
             if location_id:
@@ -51,10 +57,10 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
             fire_protection_str = ",".join(fire_protection) if fire_protection else ""
             job_preparation_str = ",".join(job_preparation) if job_preparation else ""
 
-            if type_of_permit == "cold work":
-                expiry_date = timezone.now() + timezone.timedelta(days=25)
-            else:
-                expiry_date = timezone.now() + timezone.timedelta(hours=24)
+            # if type_of_permit == "cold work":
+            #     expiry_date = timezone.now() + timezone.timedelta(days=25)
+            # else:
+            #     expiry_date = timezone.now() + timezone.timedelta(hours=24)
                 # expiry_date = timezone.now() + timezone.timedelta(minutes=1) #temporary
 
             permit_to_work = PermitToWork.objects.create(
@@ -63,9 +69,13 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
                 site_name=site_name,
                 department=department,
                 permit_number=permit_number,
+                permit_date=permit_date,
                 name_of_external_agency=external_agency_name,
                 type_of_permit=type_of_permit,
                 other_permit_description = other_permit_description,
+                permit_valid_from=permit_valid_from,
+                permit_valid_to=permit_valid_to,
+                permit_risk_type=permit_risk_type,
                 day = day,
                 night=night,
                 job_activity_details=job_activity,
@@ -79,7 +89,9 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
                 risk_assessment_number = risk_assessment_number,
                 other_job_preparation = other_job_preparation,
                 other_fire_protection = other_fire_protection,
-                expiry_date=expiry_date
+                # expiry_date=expiry_date,
+                issuer_name=issuer_name,
+                issuer_sign=issuer_sign
             )
 
             serializer = PermitToWorkSerializer(permit_to_work)
@@ -209,10 +221,10 @@ class UpdatePermitToWorkViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})  
         
     
-class ApprovePermitToWorkViewSet(viewsets.ModelViewSet):
+class IssueApprovePermitToWorkViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = ApprovePermitSerializer
-    queryset = ApprovePermit.objects.all()
+    serializer_class = IssueApprovePermitSerializer
+    queryset = IssueApprovePermit.objects.all()
     lookup_field = 'permit_id'
 
     def update(self, request, *args, **kwargs):
@@ -220,26 +232,147 @@ class ApprovePermitToWorkViewSet(viewsets.ModelViewSet):
             permit_id = kwargs.get('permit_id')
             permit_to_work = PermitToWork.objects.get(id=permit_id)
 
-            issuer = request.data.get('issuer')
-            approver = request.data.get('approver')
-            receiver = request.data.get('receiver')
+            # issuer = request.data.get('issuer')
+            issuer_name = request.data.get('issuer_name')
+            issuer_sign = request.data.get('issuer_sign')
             start_time = request.data.get('start_time')
             end_time = request.data.get('end_time')
 
-            issuer_instance = CustomUser.objects.get(id=issuer)
-            approver_instance = CustomUser.objects.get(id=approver)
-            receiver_instance = CustomUser.objects.get(id=receiver)
+            # issuer_instance = CustomUser.objects.get(id=issuer)
+            # approver_instance = CustomUser.objects.get(id=approver)
+            # receiver_instance = CustomUser.objects.get(id=receiver)
 
-            approve_permit = ApprovePermit.objects.create(
+            approve_permit = IssueApprovePermit.objects.create(
                 permit=permit_to_work,
-                issuer=issuer_instance,
-                approver=approver_instance,
-                receiver=receiver_instance,
+                issuer_name=issuer_name,
+                issuer_sign=issuer_sign,
                 start_time=start_time,
                 end_time=end_time
             )
-            serializer = ApprovePermitSerializer(approve_permit)
+            permit_to_work.issuer_done = True
+            permit_to_work.approver_done = False
+            permit_to_work.save()
+            serializer = IssueApprovePermitSerializer(approve_permit)
             return Response({"status": True, "message": "Permit to work approved successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class IssueGetPermitToWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = IssueApprovePermitSerializer
+    queryset = IssueApprovePermit.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            permit_id = kwargs.get('permit_id')
+            # permit_to_work = PermitToWork.objects.get(id=permit_id)
+            queryset = self.filter_queryset(self.get_queryset())
+            if permit_id:
+                queryset = queryset.filter(permit=permit_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ApproverApprovePermitToWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ApproverApprovePermitSerializer
+    queryset = ApproverApprovePermit.objects.all()
+    lookup_field = 'permit_id'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            permit_id = kwargs.get('permit_id')
+            permit_to_work = PermitToWork.objects.get(id=permit_id)
+
+            approver_name = request.data.get('approver_name')
+            approver_sign = request.data.get('approver_sign')
+            start_time = request.data.get('start_time')
+            end_time = request.data.get('end_time')
+
+            approve_permit = ApproverApprovePermit.objects.create(
+                permit=permit_to_work,
+                approver_name=approver_name,
+                approver_sign=approver_sign,
+                start_time=start_time,
+                end_time=end_time
+            )
+            permit_to_work.approver_done = True
+            permit_to_work.receiver_done = False
+            permit_to_work.save()
+            serializer = ApproverApprovePermitSerializer(approve_permit)
+            return Response({"status": True, "message": "Permit to work approved successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ApproverGetPermitToWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ApproverApprovePermitSerializer
+    queryset = ApproverApprovePermit.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            permit_id = kwargs.get('permit_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if permit_id:
+                queryset = queryset.filter(permit=permit_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class RecevierApprovePermitToWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReceiverApprovePermitSerializer
+    queryset = ReceiverApprovePermit.objects.all()
+    lookup_field = 'permit_id'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            permit_id = kwargs.get('permit_id')
+            permit_to_work = PermitToWork.objects.get(id=permit_id)
+
+            receiver_name = request.data.get('receiver_name')
+            receiver_sign = request.data.get('receiver_sign')
+            start_time = request.data.get('start_time')
+            end_time = request.data.get('end_time')
+
+            approve_permit = ReceiverApprovePermit.objects.create(
+                permit=permit_to_work,
+                receiver_name=receiver_name,
+                receiver_sign=receiver_sign,
+                start_time=start_time,
+                end_time=end_time
+            )
+            permit_to_work.receiver_done = True
+            permit_to_work.issuer_done = False
+            permit_to_work.save()
+            serializer = ReceiverApprovePermitSerializer(approve_permit)
+            return Response({"status": True, "message": "Permit to work approved successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ReceiverGetPermitToWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReceiverApprovePermitSerializer
+    queryset = ReceiverApprovePermit.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            permit_id = kwargs.get('permit_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if permit_id:
+                queryset = queryset.filter(permit=permit_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         

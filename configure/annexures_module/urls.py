@@ -8,7 +8,12 @@ urlpatterns = [
     path('loaction_id_wise_permit_to_work/<int:location_id>', LocationIdWisePermitToWorkViewSet.as_view({'get': 'list'}), name='loaction_id_wise_permit_to_work'),
 
     path('update_permit_to_work/<int:permit_id>', UpdatePermitToWorkViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_permit_to_work'),
-    path('approve_permit/<int:permit_id>', ApprovePermitToWorkViewSet.as_view({'put':'update'}), name='approve_permit'),
+    path('issuer_approve_permit/<int:permit_id>', IssueApprovePermitToWorkViewSet.as_view({'put':'update'}), name='issuer_approve_permit'),
+    path('issuer_get_permit/<int:permit_id>', IssueGetPermitToWorkViewSet.as_view({'get':'list'}), name='issuer_get_permit'),
+    path('approver_approve_permit/<int:permit_id>', ApproverApprovePermitToWorkViewSet.as_view({'put':'update'}), name='approver_approve_permit'),
+    path('approver_get_permit/<int:permit_id>', ApproverGetPermitToWorkViewSet.as_view({'get':'list'}), name='approver_get_permit'),
+    path('receiver_approve_permit/<int:permit_id>', RecevierApprovePermitToWorkViewSet.as_view({'put':'update'}), name='receiver_approve_permit'),
+    path('receiver_get_permit/<int:permit_id>', ReceiverGetPermitToWorkViewSet.as_view({'get':'list'}), name='receiver_get_permit'),
     path('closure_of_permit/<int:permit_id>', ClosureOfPermitToWorkViewSet.as_view({'put':'update'}), name='closure_of_permit'),
 
     path('create_incident_nearmiss_investigation', IncidentNearmissInvestigationViewSet.as_view({'post': 'create'}), name='create_incident_nearmiss_investigation'),

@@ -8,16 +8,26 @@ class PermitToWorkSerializer(serializers.ModelSerializer):
         model = PermitToWork
         fields = [
             'id','user','location','location_name','site_name', 'department', 'permit_number', 'name_of_external_agency', 
-            'type_of_permit', 'job_activity_details', 'location_area', 'tools_equipment', 
-            'permit_issue_for', 'hazard_consideration', 'fire_protection', 'job_preparation',
-            'other_permit_description', 'other_hazard_consideration', 'other_fire_protection',
-            'risk_assessment_number', 'other_job_preparation', 'day', 'night', 'expiry_date', 'is_active', 'created_at', 'updated_at'
+            'type_of_permit', 'job_activity_details', 'location_area', 'tools_equipment', 'permit_date',
+            'permit_issue_for', 'hazard_consideration', 'fire_protection', 'job_preparation', 'issuer_done', 'approver_done', 'receiver_done',
+            'other_permit_description', 'other_hazard_consideration', 'other_fire_protection', 'permit_valid_to', 'permit_valid_from',
+            'risk_assessment_number', 'other_job_preparation', 'day', 'night', 'expiry_date', 'is_active', 'issuer_name','issuer_sign', 'permit_risk_type', 'created_at', 'updated_at'
         ]
 
-class ApprovePermitSerializer(serializers.ModelSerializer):
+class IssueApprovePermitSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ApprovePermit
-        fields = ['id', 'permit', 'issuer', 'approver', 'receiver', 'start_time', 'end_time', 'created_at']
+        model = IssueApprovePermit
+        fields = ['id', 'permit', 'issuer_name', 'issuer_sign', 'start_time', 'end_time', 'created_at']
+
+class ApproverApprovePermitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApproverApprovePermit
+        fields = ['id', 'permit', 'approver_name', 'approver_sign', 'start_time', 'end_time', 'created_at']
+
+class ReceiverApprovePermitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReceiverApprovePermit
+        fields = ['id', 'permit', 'receiver_name', 'receiver_sign', 'start_time', 'end_time', 'created_at']
 
 class ClosureOfPermitSerializer(serializers.ModelSerializer):
     class Meta:
