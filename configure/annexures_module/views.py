@@ -111,7 +111,8 @@ class PermitToWorkViewSet(viewsets.ModelViewSet):
                 issuer_name=issuer_name,
                 issuer_sign=issuer_sign
             )
-
+            permit_to_work.issuer_done = True
+            permit_to_work.save()
             serializer = PermitToWorkSerializer(permit_to_work)
             return Response({"status": True, "message": "Permit to work created successfully", "data": serializer.data})
         except Exception as e:
