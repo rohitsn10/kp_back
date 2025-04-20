@@ -22,7 +22,7 @@ class IssueApprovePermitSerializer(serializers.ModelSerializer):
 class ApproverApprovePermitSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApproverApprovePermit
-        fields = ['id', 'permit', 'approver_name', 'approver_sign', 'start_time', 'end_time', 'created_at']
+        fields = ['id', 'permit', 'approver_name', 'approver_sign', 'approver_status', 'start_time', 'end_time', 'created_at']
 
 class ReceiverApprovePermitSerializer(serializers.ModelSerializer):
     class Meta:

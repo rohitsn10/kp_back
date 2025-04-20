@@ -111,6 +111,7 @@ class ApproverApprovePermit(models.Model):
     permit = models.ForeignKey(PermitToWork,related_name='permitforapprove', on_delete=models.SET_NULL, null=True, blank=True)
     approver_name = models.CharField(max_length=255, blank=True, null=True)
     approver_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
+    approver_status = models.CharField(max_length=255, blank=True, null=True)
     start_time = models.DateTimeField(max_length=255, blank=True, null=True)
     end_time = models.DateTimeField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

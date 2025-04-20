@@ -309,6 +309,7 @@ class ApproverApprovePermitToWorkViewSet(viewsets.ModelViewSet):
 
             approver_name = request.data.get('approver_name')
             approver_sign = request.data.get('approver_sign')
+            approver_status = request.data.get('approver_status')
             start_time = request.data.get('start_time')
             end_time = request.data.get('end_time')
 
@@ -316,12 +317,16 @@ class ApproverApprovePermitToWorkViewSet(viewsets.ModelViewSet):
                 permit=permit_to_work,
                 approver_name=approver_name,
                 approver_sign=approver_sign,
+                approver_status=approver_status,
                 start_time=start_time,
                 end_time=end_time
             )
-            permit_to_work.approver_done = True
-            permit_to_work.receiver_done = False
-            permit_to_work.save()
+            if approver_status == "approved":
+                permit_to_work.approver_done = True
+                permit_to_work.receiver_done = False
+            # permit_to_work.approver_done = False
+            # permit_to_work.receiver_done = False
+                permit_to_work.save()
             serializer = ApproverApprovePermitSerializer(approve_permit)
             return Response({"status": True, "message": "Permit to work approved successfully", "data": serializer.data})
         except Exception as e:
