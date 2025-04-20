@@ -83,6 +83,7 @@ class PermitToWork(models.Model):
     issuer_done = models.BooleanField(default=False, null=True, blank=True)
     approver_done = models.BooleanField(default=False, null=True, blank=True)
     receiver_done = models.BooleanField(default=False, null=True, blank=True)
+    closure_done = models.BooleanField(default=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -424,6 +424,8 @@ class ClosureOfPermitToWorkViewSet(viewsets.ModelViewSet):
                 closure_remarks=remarks,
                 closure_time=closure_time
             )
+            permit_to_work.closure_done = True
+            permit_to_work.save()
             serializer = ClosureOfPermitSerializer(closer)
             return Response({"status": True, "message": "Closure of permit to work created successfully", "data": serializer.data})
         except Exception as e:
