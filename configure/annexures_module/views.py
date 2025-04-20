@@ -446,7 +446,26 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
             human_factor = request.data.get('human_factor')
             system_factor = request.data.get('system_factor')
             recommendation_for_preventive_action = request.data.get('recommendation_for_preventive_action', {})
-            committee_members = request.data.get('committee_members', {})
+            committee_members = []
+            index = 0
+            while True:
+                name = request.data.get(f'committee_member_name_{index}')
+                signature = request.FILES.get(f'committee_member_signature_{index}')
+
+                if not name and not signature:
+                    break
+
+                signature_path = None
+                if signature:
+                    file_name = default_storage.save(f"incident_nearmiss/committee_members/{signature.name}", signature)
+                    signature_path = default_storage.url(file_name)
+
+                member = {
+                    "name": name,
+                    "signature": signature_path
+                }
+                committee_members.append(member)
+                index += 1
             location_instance = None
             if location_id:
                 try:
