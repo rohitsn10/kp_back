@@ -93,7 +93,10 @@ class ClosureOfPermit(models.Model):
     )
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     closer_of_permit = models.CharField(max_length=255, choices=CLOSURE_APPLICABLE_CHOICES, null=True, blank=True)
-    remarks = models.TextField(blank=True,null=True)
+    inspector_name = models.CharField(max_length=255, blank=True, null=True)
+    closure_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
+    closure_remarks = models.TextField(blank=True,null=True)
+    closure_time = models.TimeField(max_length=255, blank=True, null=True)
     permit = models.ForeignKey(PermitToWork, related_name='closure_of_permit', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -91,5 +91,8 @@ urlpatterns = [
     path('create_loto_register', LotoRegisterViewSet.as_view({'post': 'create'}), name='create_loto_register'),
     path('get_loto_register/<int:location_id>', GetLotoRegisterViewSet.as_view({'get': 'list'}), name='get_loto_register'),
 
+    path('remove_loto_register', LotoClearedInfoViewSet.as_view({'post': 'create'}), name='remove_loto_register'),
+    path('get_remove_loto_register/<int:location_id>', GetLotoClearedInfoViewSet.as_view({'get': 'list'}), name='get_remove_loto_register'),
+
 
 ]

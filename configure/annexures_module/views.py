@@ -411,14 +411,18 @@ class ClosureOfPermitToWorkViewSet(viewsets.ModelViewSet):
             user = request.user
             permit_id = kwargs.get('permit_id')
             permit_to_work = PermitToWork.objects.get(id=permit_id)
-            closer_of_permit = request.data.get('closer_of_permit')
-            remarks = request.data.get('remarks')
+            remarks = request.data.get('closure_remarks')
+            inspector_name = request.data.get('inspector_name')
+            closure_sign = request.FILES.get('closure_sign')
+            closure_time = request.data.get('closure_time')
 
             closer = ClosureOfPermit.objects.create(
                 user=user,
                 permit=permit_to_work,
-                closer_of_permit=closer_of_permit,
-                remarks=remarks
+                inspector_name=inspector_name,
+                closure_sign=closure_sign,
+                closure_remarks=remarks,
+                closure_time=closure_time
             )
             serializer = ClosureOfPermitSerializer(closer)
             return Response({"status": True, "message": "Closure of permit to work created successfully", "data": serializer.data})
@@ -2481,19 +2485,52 @@ class GetSuggestionSchemeReportViewSet(viewsets.ModelViewSet):
 
 class LotoRegisterViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = LotoRegisterSerializer
-    queryset = LotoRegister.objects.all()
+    serializer_class = LotoAppliedInfoSerializer
+    queryset = LotoAppliedInfo.objects.all()
 
     def create(self, request, *args, **kwargs):
         try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
+            user = request.user
+            site_name = request.data.get('site_name')
+            location_id = request.data.get('location')
+            applied_datetime = request.data.get('applied_datetime')
+            applied_lock_tag_number = request.data.get('applied_lock_tag_number')
+            applied_permit_number = request.data.get('applied_permit_number')
+            applied_by_name = request.data.get('applied_by_name')
+            applied_by_signature = request.FILES.get('applied_by_signature')
+            applied_approved_by_name = request.data.get('applied_approved_by_name')
+            applied_approved_by_signature = request.FILES.get('applied_approved_by_signature')
+
+            location_instance = None
+            if location_id:
+                try:
+                    location_instance = LandBankLocation.objects.get(id=location_id)
+                except LandBankLocation.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "message": "Invalid location ID",
+                        "data": []
+                    })
+
+            loto_instance = LotoAppliedInfo.objects.create(
+                site_name=site_name,
+                location=location_instance,
+                applied_datetime=applied_datetime,
+                applied_lock_tag_number=applied_lock_tag_number,
+                applied_permit_number=applied_permit_number,
+                applied_by_name=applied_by_name,
+                applied_by_signature=applied_by_signature,
+                applied_approved_by_name=applied_approved_by_name,
+                applied_approved_by_signature=applied_approved_by_signature,
+            )
+
+            serializer = LotoAppliedInfoSerializer(loto_instance)
             return Response({
                 "status": True,
                 "message": "LOTO register created successfully",
                 "data": serializer.data
             })
+
         except Exception as e:
             return Response({
                 "status": False,
@@ -2518,3 +2555,72 @@ class GetLotoRegisterViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})   
+        
+    
+class LotoClearedInfoViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LotoRegisterSerializer
+    queryset = LotoRegister.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            loto_id = request.data.get('loto_id')
+            removed_datetime = request.data.get('removed_datetime')
+            removed_lock_tag_number = request.data.get('removed_lock_tag_number')
+            removed_permit_number = request.data.get('removed_permit_number')
+            removed_by_name = request.data.get('removed_by_name')
+            removed_by_signature = request.FILES.get('removed_by_signature')
+            removed_site_incharge_name = request.data.get('removed_site_incharge_name')
+            removed_approved_by_signature = request.FILES.get('removed_approved_by_signature')
+
+            if loto_id:
+                try:
+                    loto_instance = LotoAppliedInfo.objects.get(id=loto_id)
+                except LotoAppliedInfo.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "message": "Invalid LOTO ID",
+                        "data": []
+                    })
+
+            cleared_info = LotoRegister.objects.create(
+                applied_info=loto_instance,
+                removed_datetime=removed_datetime,
+                removed_lock_tag_number=removed_lock_tag_number,
+                removed_permit_number=removed_permit_number,
+                removed_by_name=removed_by_name,
+                removed_by_signature=removed_by_signature,
+                removed_site_incharge_name=removed_site_incharge_name,
+                removed_approved_by_signature=removed_approved_by_signature,
+            )
+
+            serializer = LotoRegisterSerializer(cleared_info)
+            return Response({
+                "status": True,
+                "message": "LOTO clearance recorded successfully",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": []
+            })
+        
+class GetLotoClearedInfoViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LotoRegisterSerializer
+    queryset = LotoRegister.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            location_id = self.kwargs.get('location_id')
+            queryset = self.filter_queryset(self.get_queryset())
+            if location_id:
+                queryset = queryset.filter(location=location_id)
+            serializer = self.serializer_class(queryset, many=True)
+            data = serializer.data
+            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
