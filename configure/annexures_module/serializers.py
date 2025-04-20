@@ -32,7 +32,7 @@ class ReceiverApprovePermitSerializer(serializers.ModelSerializer):
 class ClosureOfPermitSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClosureOfPermit
-        fields = ['id', 'user', 'closer_of_permit', 'remarks', 'permit', 'created_at']
+        fields = ['id', 'user', 'inspector_name', 'closure_remarks', 'permit', 'closure_sign', 'closure_time', 'created_at']
 
 class IncidentNearMissSerializer(serializers.ModelSerializer):
     user_status = serializers.SerializerMethodField()
