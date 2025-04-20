@@ -450,6 +450,7 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
             index = 0
             while True:
                 name = request.data.get(f'committee_member_name_{index}')
+                rank = request.data.get(f'committee_member_rank_{index}')
                 signature = request.FILES.get(f'committee_member_signature_{index}')
 
                 if not name and not signature:
@@ -462,6 +463,7 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
 
                 member = {
                     "name": name,
+                    "rank": rank,
                     "signature": signature_path
                 }
                 committee_members.append(member)
