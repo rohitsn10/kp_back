@@ -2615,10 +2615,10 @@ class GetLotoClearedInfoViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            location_id = self.kwargs.get('location_id')
+            location_id = self.kwargs.get('loto_id')
             queryset = self.filter_queryset(self.get_queryset())
             if location_id:
-                queryset = queryset.filter(location=location_id)
+                queryset = queryset.filter(applied_info=location_id)
             serializer = self.serializer_class(queryset, many=True)
             data = serializer.data
             return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
