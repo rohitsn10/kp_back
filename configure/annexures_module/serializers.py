@@ -8,7 +8,7 @@ class PermitToWorkSerializer(serializers.ModelSerializer):
         model = PermitToWork
         fields = [
             'id','user','location','location_name','site_name', 'department', 'permit_number', 'name_of_external_agency', 
-            'type_of_permit', 'job_activity_details', 'location_area', 'tools_equipment', 'permit_date',
+            'type_of_permit', 'job_activity_details', 'location_area', 'tools_equipment', 'permit_date', 'closure_done',
             'permit_issue_for', 'hazard_consideration', 'fire_protection', 'job_preparation', 'issuer_done', 'approver_done', 'receiver_done',
             'other_permit_description', 'other_hazard_consideration', 'other_fire_protection', 'permit_valid_to', 'permit_valid_from',
             'risk_assessment_number', 'other_job_preparation', 'day', 'night', 'expiry_date', 'is_active', 'issuer_name','issuer_sign', 'permit_risk_type', 'created_at', 'updated_at'
