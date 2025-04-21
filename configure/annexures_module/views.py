@@ -482,6 +482,7 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
                     return Response({"status": False, "message": "Invalid location ID", "data": []})
             incident_nearmiss = IncidentNearMiss.objects.create(
                 user=user,
+                location=location_instance,
                 site_name=site_name,
                 date_of_occurrence=date_of_occurrence,
                 date_of_report=date_of_report,
