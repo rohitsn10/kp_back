@@ -1330,6 +1330,7 @@ class TrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
 class GetTrailerInspectionChecklistViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = TrailerInspectionChecklistSerializer
+    queryset = TrailerInspectionChecklist.objects.all()
 
     def list(self, request, *args, **kwargs):
         try:
