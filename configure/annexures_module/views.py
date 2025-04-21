@@ -849,7 +849,7 @@ class GetSafetyViolationReportViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(location=location_id)
             serializer = self.serializer_class(queryset, many=True)
             data = serializer.data
-            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+            return Response({"status": True, "message": "Safety violation report fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
