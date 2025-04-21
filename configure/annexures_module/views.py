@@ -451,7 +451,9 @@ class IncidentNearmissInvestigationViewSet(viewsets.ModelViewSet):
             physical_factor = request.data.get('physical_factor')
             human_factor = request.data.get('human_factor')
             system_factor = request.data.get('system_factor')
+
             recommendation_for_preventive_action = request.data.get('recommendation_for_preventive_action', {})
+            recommendation_for_preventive_action = json.loads(recommendation_for_preventive_action)
             committee_members = []
             index = 0
             while True:
