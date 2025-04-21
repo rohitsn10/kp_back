@@ -1473,6 +1473,7 @@ class MockDrillReportViewSet(viewsets.ModelViewSet):
 class GetMockDrillReportViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = MockDrillReportSerializer
+    queryset = MockDrillReport.objects.all()
 
     def list(self, request, *args, **kwargs):
         try:
@@ -2543,8 +2544,8 @@ class LotoRegisterViewSet(viewsets.ModelViewSet):
 
 class GetLotoRegisterViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = LotoRegisterSerializer
-    queryset = LotoRegister.objects.all()
+    serializer_class = LotoAppliedInfoSerializer
+    queryset = LotoAppliedInfo.objects.all()
 
     def list(self, request, *args, **kwargs):
         try:
