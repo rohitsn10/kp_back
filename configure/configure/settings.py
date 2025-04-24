@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     "document_control",
     "material_management",
     "annexures_module",
-
+    "quality_inspection",
 ]
 
 MIDDLEWARE = [
