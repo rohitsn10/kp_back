@@ -36,7 +36,7 @@ CORS_ALLOW_CREDENTIALS = True
 #     'http://127.0.0.1:8000',
 #     'http://localhost:8000'
 # ]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True 
 
 # Application definition
 
@@ -109,10 +109,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "kpi_db",
-        "USER": "postgres",
-        # "USER": "kpi_user",
-        "PASSWORD": "root",
-        # "PASSWORD": "Vd2rp85ovSHlYpP",
+        "USER": "kpi_user",
+        "PASSWORD": "Vd2rp85ovSHlYpP",
         # "PASSWORD": "12345678",
         "HOST": "localhost",
         "PORT": "5432",
