@@ -9,10 +9,11 @@ class ItemsProduct(models.Model):
         ('category_2', 'Category 2'),
         ('category_3', 'Category 3')
     ]
-    project = models.ManyToManyField(Project, on_delete=models.CASCADE, null=True, blank=True)
+    project = models.ManyToManyField(Project, blank=True)
     item_number = models.CharField(max_length=255, null=True, blank=True)
     item_name = models.CharField(max_length=255, null=True, blank=True)
     item_category = models.CharField(max_length=255, choices=CATEGORY_CHOICES, null=True, blank=True)
+    cpp_ipp = models.CharField(max_length=255, null=True, blank=True)
     dicipline = models.CharField(max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -64,7 +65,6 @@ class QualityInspection(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     items = models.ForeignKey(ItemsProduct, on_delete=models.CASCADE, null=True, blank=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
-    cpp_ipp = models.CharField(max_length=255, null=True, blank=True)
     is_venodr_verified = models.BooleanField(default=False, null=True, blank=True)
     inspection_date = models.DateTimeField(null=True, blank=True)
     inspection_status = models.CharField(max_length=255, null=True, blank=True)

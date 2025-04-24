@@ -28,7 +28,8 @@ urlpatterns = [
     path('project_module/',include('project_module.urls')),
     path('document_control/',include('document_control.urls')),
     path('material_management/', include('material_management.urls')),
-    path('annexures_module/',include('annexures_module.urls'))
+    path('annexures_module/',include('annexures_module.urls')),
+    path('quality_inspection/',include('quality_inspection.urls')),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
