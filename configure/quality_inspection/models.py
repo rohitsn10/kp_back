@@ -28,31 +28,43 @@ class Vendor(models.Model):
 
 class MQAPUpload(models.Model):
     file = models.FileField(upload_to='mqap_files/', null=True, blank=True)
+    mqap_revision_number = models.CharField(max_length=255, null=True, blank=True)
+    mqap_revision_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class QualityDossierUpload(models.Model):
     file = models.FileField(upload_to='quality_dossier_files/', null=True, blank=True)
+    quality_dossier_revision_number = models.CharField(max_length=255, null=True, blank=True)
+    quality_dossier_revision_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class DrawingUpload(models.Model):
     file = models.FileField(upload_to='drawing_files/', null=True, blank=True)
+    drawing_revision_number = models.CharField(max_length=255, null=True, blank=True)
+    drawing_revision_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class DataSheetUpload(models.Model):
     file = models.FileField(upload_to='data_sheet_files/', null=True, blank=True)
+    data_sheet_revision_number = models.CharField(max_length=255, null=True, blank=True)
+    data_sheet_revision_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class SpecificationUpload(models.Model):
     file = models.FileField(upload_to='specification_files/', null=True, blank=True)
+    specification_revision_number = models.CharField(max_length=255, null=True, blank=True)
+    specification_revision_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class MDCCUpload(models.Model):
     file = models.FileField(upload_to='mdcc_files/', null=True, blank=True)
+    mdcc_revision_number = models.CharField(max_length=255, null=True, blank=True)
+    mdcc_revision_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -74,18 +86,6 @@ class QualityInspection(models.Model):
     data_sheet_upload = models.ManyToManyField(DataSheetUpload, null=True, blank=True)
     specification_upload = models.ManyToManyField(SpecificationUpload, null=True, blank=True)
     mdcc_upload = models.ManyToManyField(MDCCUpload, null=True, blank=True)
-    mqap_revision_number = models.CharField(max_length=255, null=True, blank=True)
-    mqap_revision_status = models.CharField(max_length=255, choices=INSPECTION_STATUS_CHOICES, null=True, blank=True)
-    quality_dossier_revision_number = models.CharField(max_length=255, null=True, blank=True)
-    quality_dossier_revision_status = models.CharField(max_length=255, choices=INSPECTION_STATUS_CHOICES, null=True, blank=True)
-    drawing_revision_number = models.CharField(max_length=255, null=True, blank=True)
-    drawing_revision_status = models.CharField(max_length=255, choices=INSPECTION_STATUS_CHOICES, null=True, blank=True)
-    data_sheet_revision_number = models.CharField(max_length=255, null=True, blank=True)
-    data_sheet_revision_status = models.CharField(max_length=255,choices=INSPECTION_STATUS_CHOICES, null=True, blank=True)
-    specification_revision_number = models.CharField(max_length=255, null=True, blank=True)
-    specification_revision_status = models.CharField(max_length=255,choices=INSPECTION_STATUS_CHOICES, null=True, blank=True)
-    mdcc_revision_number = models.CharField(max_length=255, null=True, blank=True)
-    mdcc_revision_status = models.CharField(max_length=255,choices=INSPECTION_STATUS_CHOICES, null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)

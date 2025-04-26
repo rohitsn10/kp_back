@@ -110,3 +110,68 @@ class UpdateItemsViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "items deleted successfully", "data": []})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+
+class QualityInspectionDocumentUploadViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = QualityInspectionSerializer
+    queryset = QualityInspection.objects.all()
+ 
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            project_id = data.get('project_id')
+            item_id = data.get('item_id')
+            vendor_id = data.get('vendor_id')
+            remarks = data.get('remarks')
+
+            quality_inspection = QualityInspection.objects.create(
+                project_id=project_id,
+                items_id=item_id,
+                vendor_id=vendor_id,
+                remarks=remarks,
+            )
+
+            upload_map = {
+                'mqap_upload': (MQAPUpload, 'mqap_revision_number', 'mqap_revision_status'),
+                'quality_dossier_upload': (QualityDossierUpload, 'quality_dossier_revision_number', 'quality_dossier_revision_status'),
+                'drawing_upload': (DrawingUpload, 'drawing_revision_number', 'drawing_revision_status'),
+                'data_sheet_upload': (DataSheetUpload, 'data_sheet_revision_number', 'data_sheet_revision_status'),
+                'specification_upload': (SpecificationUpload, 'specification_revision_number', 'specification_revision_status'),
+                'mdcc_upload': (MDCCUpload, 'mdcc_revision_number', 'mdcc_revision_status'),
+            }
+
+            for field, (model_class, rev_num_field, rev_status_field) in upload_map.items():
+                uploads = request.data.getlist(field)
+                for i in range(len(uploads)):
+                    file_obj = request.FILES.getlist(field)[i]
+                    rev_number = data.getlist(rev_num_field)[i]
+                    rev_status = data.getlist(rev_status_field)[i]
+
+                    doc_instance = model_class.objects.create(
+                        file=file_obj,
+                        **{rev_num_field: rev_number, rev_status_field: rev_status}
+                    )
+                    getattr(quality_inspection, field).add(doc_instance)
+
+            serializer = QualityInspectionSerializer(quality_inspection, context={'request': request})
+            return Response({"status": True, "message": "Documents uploaded successfully", "data": serializer.data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+
+class QualityInspectionDocumentListViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = QualityInspectionSerializer
+    queryset = QualityInspection.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            item_id = kwargs.get('item_id')
+            quality_inspection = QualityInspection.objects.filter(items_id=item_id)
+            serializer = QualityInspectionSerializer(quality_inspection, many=True)
+            return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})

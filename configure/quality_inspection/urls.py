@@ -9,4 +9,7 @@ urlpatterns = [
 
     # path('create_vendor', AddVendorViewSet.as_view({'post': 'create'}), name='create_vendor'),
     # path('list_vendor/<int:project_id>', ProjectIdWiseVendorViewSet.as_view({'get': 'list'}), name='list_vendor'),
+
+    path('quality_inspection_document_upload', QualityInspectionDocumentUploadViewSet.as_view({'post': 'create'}), name='quality_inspection_document_upload'),
+    path('quality_inspection_document_list/<int:item_id>', QualityInspectionDocumentListViewSet.as_view({'get': 'list'}), name='quality_inspection_document_list'),
 ]
