@@ -12,4 +12,18 @@ urlpatterns = [
 
     path('quality_inspection_document_upload', QualityInspectionDocumentUploadViewSet.as_view({'post': 'create'}), name='quality_inspection_document_upload'),
     path('quality_inspection_document_list/<int:item_id>', QualityInspectionDocumentListViewSet.as_view({'get': 'list'}), name='quality_inspection_document_list'),
+
+    path('create_rfi', CreateRFIViewSet.as_view({'post': 'create'}), name='create_rfi'),
+    path('get_rfi/<int:project_id>', GetRFIViewSet.as_view({'get': 'list'}), name='get_rfi'),
+    path('electrical_get_rfi/<int:project_id>', ElectricalGetRFIViewSet.as_view({'get': 'list'}), name='electrical_get_rfi'),
+    path('mechanical_get_rfi/<int:project_id>', MechanicalGetRFIViewSet.as_view({'get': 'list'}), name='mechanical_get_rfi'),
+    path('civil_get_rfi/<int:project_id>', CivilGetRFIViewSet.as_view({'get': 'list'}), name='civil_get_rfi'),
+    path('update_rfi/<int:rfi_id>', UpdateRFIViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_rfi'),
+
+    path('create_rfi_inspection_outcome', CreateRFIInspectionOutcomeViewSet.as_view({'post': 'create'}), name='create_rfi_inspection_outcome'),
+    path('get_rfi_inspection_outcome/<int:rfi_id>', GetRFIInspectionOutcomeViewSet.as_view({'get': 'list'}), name='get_rfi_inspection_outcome'),
+    path('update_rfi_inspection_outcome/<int:rfi_id>', UpdateRFIInspectionOutcomeViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_rfi_inspection_outcome'),
+    path('create_files_upload_inspection_outcome', CreateFilesUploadViewSet.as_view({'post': 'create'}), name='create_files_upload_inspection_outcome'),
+    path('get_files_upload_inspection_outcome/<int:rfi_id>', GetFilesUploadViewSet.as_view({'get': 'list'}), name='get_files_upload_inspection_outcome'),
+
 ]
