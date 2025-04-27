@@ -57,3 +57,29 @@ class QualityInspectionSerializer(serializers.ModelSerializer):
         fields = ['id', 'project', 'items', 'vendor','cpp_ipp', 'is_venodr_verified', 'mqap_upload', 'quality_dossier_upload', 'drawing_upload', 'data_sheet_upload', 
                 'specification_upload', 'mdcc_upload', 'inspection_status', 'inspection_date', 'remarks',
                 'created_at', 'updated_at']
+        
+class RFIFieldActivitySerializer(serializers.ModelSerializer):
+    inspection_outcomes = serializers.SerializerMethodField()
+        
+    class Meta:
+        model = RFIFieldActivity
+        fields = ['id', 'project', 'rfi_activity', 'rfi_number','rfi_classification', 'rfi_other', 'epc_name', 'offered_date', 'block_number', 
+                'table_number', 'activity_description', 'hold_details', 'location_name', 'construction_activity',
+                'inspection_outcomes','created_at', 'updated_at']
+        
+    def get_inspection_outcomes(self, obj):
+        outcomes = InspectionOutcome.objects.filter(rfi_field_activity=obj.id)
+        return InspectionOutcomeSerializer(outcomes, many=True).data
+        
+class InspectionOutcomeSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = InspectionOutcome
+        fields = ['id', 'project', 'rfi_field_activity','offered_time','reaching_time','inspection_start_time','inspection_end_time', 'observation', 
+                  'disposition_status','actions','responsibility','timelines','remarks','documents', 'created_at', 'updated_at']
+        
+class InspectionOutcomeDocumentSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = InspectionOutcomeDocument
+        fields = ['id', 'inspection_outcome','document', 'created_at', 'updated_at']

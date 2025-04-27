@@ -89,3 +89,76 @@ class QualityInspection(models.Model):
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+
+
+
+
+
+
+
+
+
+
+
+class RFIFieldActivity(models.Model):
+    FIELD_CHOICES = [
+        ('mechanical', 'Mechanical'),
+        ('electrical', 'Electrical'),
+        ('civil', 'Civil')
+    ]
+    CLASSIFICATION_CHOICES = [
+        ('table_work', 'Table Work'),
+        ('buildings', 'Buildings'),
+        ('other', 'Other')
+    ]
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    rfi_activity = models.CharField(max_length=255,choices=FIELD_CHOICES, null=True, blank=True)
+    rfi_number = models.CharField(max_length=255, null=True, blank=True)
+    rfi_classification = models.CharField(max_length=255,choices=CLASSIFICATION_CHOICES, null=True, blank=True)
+    rfi_other = models.TextField(null=True, blank=True)
+    epc_name = models.CharField(max_length=255, null=True, blank=True)
+    offered_date = models.DateTimeField(null=True, blank=True)
+    # detail_of_work = models.TextField(null=True, blank=True)
+    block_number = models.CharField(max_length=255, null=True, blank=True)
+    table_number = models.CharField(max_length=255, null=True, blank=True)
+    activity_description = models.TextField(null=True, blank=True)
+    hold_details = models.TextField(null=True, blank=True)
+    location_name = models.CharField(max_length=255, null=True, blank=True)
+    construction_activity = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+
+class Observation(models.Model):
+    observation = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+class InspectionOutcome(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    rfi_field_activity = models.ForeignKey(RFIFieldActivity, on_delete=models.CASCADE, null=True, blank=True)
+    offered_time = models.TimeField(null=True, blank=True)
+    reaching_time = models.TimeField(null=True, blank=True)
+    inspection_start_time = models.TimeField(null=True, blank=True)
+    inspection_end_time = models.TimeField(null=True, blank=True)
+    observation = models.ManyToManyField(Observation, blank=True)
+    # epc_name = models.CharField(max_length=255, null=True, blank=True)
+    # epc_signature = models.FileField(upload_to='rfi_inspection_signature/', null=True, blank=True)
+    # supervisor_name = models.CharField(max_length=255, null=True, blank=True)
+    # supervisor_signature = models.FileField(upload_to='rfi_inspection_signature/', null=True, blank=True)
+    disposition_status = models.CharField(max_length=255, null=True, blank=True)
+    actions = models.TextField(null=True, blank=True)
+    responsibility = models.CharField(max_length=255, null=True, blank=True)
+    timelines = models.CharField(max_length=255, null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    documents = models.ManyToManyField('InspectionOutcomeDocument', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+
+class InspectionOutcomeDocument(models.Model):
+    inspection_outcome = models.ForeignKey(InspectionOutcome, on_delete=models.CASCADE, null=True, blank=True)
+    document = models.FileField(upload_to='inspection_outcome_documents/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
