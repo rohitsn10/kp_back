@@ -304,23 +304,24 @@ class UpdateRFIViewSet(viewsets.ModelViewSet):
             location_name = data.get('location_name')
             construction_activity = data.get('construction_activity')
 
-            quality_inspection = RFIFieldActivity.objects.filter(id=rfi_id).update(
-                project_id=project_id,
-                rfi_activity=rfi_activity,
-                rfi_number=rfi_number,
-                rfi_classification=rfi_classification,
-                rfi_other=rfi_other,
-                epc_name=epc_name,
-                offered_date=offered_date,
-                block_number=block_number,
-                table_number=table_number,
-                activity_description=activity_description,
-                hold_details=hold_details,
-                location_name=location_name,
-                construction_activity=construction_activity,
-            )
+            rfi = RFIFieldActivity.objects.get(id=rfi_id)
 
-            serializer = RFIFieldActivitySerializer(quality_inspection, context={'request': request})
+            rfi.project = project_id
+            rfi.rfi_activity = rfi_activity
+            rfi.rfi_number = rfi_number
+            rfi.rfi_classification = rfi_classification
+            rfi.rfi_other = rfi_other
+            rfi.epc_name = epc_name
+            rfi.offered_date = offered_date
+            rfi.block_number = block_number
+            rfi.table_number = table_number
+            rfi.activity_description = activity_description
+            rfi.hold_details = hold_details
+            rfi.location_name = location_name
+            rfi.construction_activity = construction_activity
+            rfi.save()
+
+            serializer = RFIFieldActivitySerializer(rfi, context={'request': request})
             return Response({"status": True, "message": "RFI updated successfully", "data": serializer.data})
 
         except Exception as e:
@@ -415,19 +416,23 @@ class UpdateRFIInspectionOutcomeViewSet(viewsets.ModelViewSet):
             timelines = data.get('timelines')
             remarks = data.get('remarks')
 
-            quality_inspection = InspectionOutcome.objects.filter(id=rfi_id).update(
-                project_id=project_id,
-                offered_time=offered_time,
-                reaching_time=reaching_time,
-                inspection_start_time=inspection_start_time,
-                inspection_end_time=inspection_end_time,
-                disposition_status=disposition_status,
-                actions=actions,
-                responsibility=responsibility,
-                timelines=timelines,
-                remarks=remarks
-            )
+            quality_inspection = InspectionOutcome.objects.get(id=rfi_id)
 
+            quality_inspection.project = project_id
+            quality_inspection.offered_time = offered_time
+            quality_inspection.reaching_time = reaching_time
+            quality_inspection.inspection_start_time = inspection_start_time
+            quality_inspection.inspection_end_time = inspection_end_time
+            quality_inspection.disposition_status = disposition_status
+            quality_inspection.actions = actions
+            quality_inspection.responsibility = responsibility
+            quality_inspection.timelines = timelines
+            quality_inspection.remarks = remarks
+            quality_inspection.save()
+
+            quality_inspection.observation.clear()
+
+            # 🔥 Add new observations
             for observation_text in observation:
                 observation_instance = Observation.objects.create(observation=observation_text)
                 quality_inspection.observation.add(observation_instance)
