@@ -64,7 +64,7 @@ class RFIFieldActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = RFIFieldActivity
         fields = ['id', 'project', 'rfi_activity', 'rfi_number','rfi_classification', 'rfi_other', 'epc_name', 'offered_date', 'block_number', 
-                'table_number', 'activity_description', 'hold_details', 'location_name', 'construction_activity',
+                'table_number', 'activity_description', 'hold_details', 'location_name', 'construction_activity','documents',
                 'inspection_outcomes','created_at', 'updated_at']
         
     def get_inspection_outcomes(self, obj):
@@ -76,7 +76,7 @@ class InspectionOutcomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = InspectionOutcome
         fields = ['id', 'project', 'rfi_field_activity','offered_time','reaching_time','inspection_start_time','inspection_end_time', 'observation', 
-                  'disposition_status','actions','responsibility','timelines','remarks','documents', 'created_at', 'updated_at']
+                  'disposition_status','actions','responsibility','timelines','remarks', 'created_at', 'updated_at']
         
 class InspectionOutcomeDocumentSerializer(serializers.ModelSerializer):
         
