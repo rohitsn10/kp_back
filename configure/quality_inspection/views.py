@@ -7,7 +7,6 @@ from quality_inspection.serializers import *
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.template.loader import get_template
-from xhtml2pdf import pisa
 from weasyprint import HTML
 from django.conf import settings
 import os
