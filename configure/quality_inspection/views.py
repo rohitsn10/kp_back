@@ -488,7 +488,7 @@ class GetFilesUploadViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             rfi_id = kwargs.get('rfi_id')
-            files = InspectionOutcomeDocument.objects.filter(inspection_outcome=rfi_id)
+            files = InspectionOutcomeDocument.objects.filter(rfi=rfi_id)
             serializer = InspectionOutcomeDocumentSerializer(files, many=True)
             return Response({"status": True, "message": "Files fetched successfully", "data": serializer.data})
         except Exception as e:
