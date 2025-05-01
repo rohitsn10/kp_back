@@ -126,6 +126,7 @@ class RFIFieldActivity(models.Model):
     hold_details = models.TextField(null=True, blank=True)
     location_name = models.CharField(max_length=255, null=True, blank=True)
     construction_activity = models.CharField(max_length=255, null=True, blank=True)
+    documents = models.ManyToManyField('InspectionOutcomeDocument', blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -152,7 +153,7 @@ class InspectionOutcome(models.Model):
     responsibility = models.CharField(max_length=255, null=True, blank=True)
     timelines = models.CharField(max_length=255, null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
-    documents = models.ManyToManyField('InspectionOutcomeDocument', blank=True)
+    # documents = models.ManyToManyField('InspectionOutcomeDocument', blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
