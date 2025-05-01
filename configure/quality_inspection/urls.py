@@ -26,4 +26,6 @@ urlpatterns = [
     path('create_files_upload_inspection_outcome', CreateFilesUploadViewSet.as_view({'post': 'create'}), name='create_files_upload_inspection_outcome'),
     path('get_files_upload_inspection_outcome/<int:rfi_id>', GetFilesUploadViewSet.as_view({'get': 'list'}), name='get_files_upload_inspection_outcome'),
 
+    path('rfi_report_pdf/<int:rfi_id>', RFIReportPDFViewSet.as_view({'get': 'list'}), name='rfi_report_pdf'),
+
 ]

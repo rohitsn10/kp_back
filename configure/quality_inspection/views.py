@@ -6,6 +6,12 @@ from rest_framework.response import Response
 from quality_inspection.serializers import *
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from weasyprint import HTML
+from django.conf import settings
+import os
+import time
 
 
 class AddItemsViewSet(viewsets.ModelViewSet):
@@ -491,98 +497,55 @@ class GetFilesUploadViewSet(viewsets.ModelViewSet):
         
 
 
+class RFIReportPDFViewSet(viewsets.ViewSet):
+    # permission_classes = [IsAuthenticated]
 
-# class RFIExcelGenerateViewSet(viewsets.ModelViewSet):
-#     permission_classes = [IsAuthenticated]
-#     queryset = RFIFieldActivity.objects.all()
-#     serializer_class = RFIFieldActivitySerializer
+    def list(self, request, *args, **kwargs):
+        try:
+            rfi_id = kwargs.get('rfi_id')
+            rfi = RFIFieldActivity.objects.get(id=rfi_id)
+            project = rfi.project.project_name if rfi.project else None
+            rfi_activity = rfi.rfi_activity if rfi.rfi_activity else None
+            rfi_number = rfi.rfi_number if rfi.rfi_number else None
+            rfi_classification = rfi.rfi_classification if rfi.rfi_classification else None
+            epc_name = rfi.epc_name if rfi.epc_name else None
+            offered_date = rfi.offered_date if rfi.offered_date else None
+            block_number = rfi.block_number if rfi.block_number else None
+            table_number = rfi.table_number if rfi.table_number else None
+            activity_description = rfi.activity_description if rfi.activity_description else None
+            hold_details = rfi.hold_details if rfi.hold_details else None
+            location_name = rfi.location_name if rfi.location_name else None
+            construction_activity = rfi.construction_activity if rfi.construction_activity else None
 
-#     def list(self, request, *args, **kwargs):
-#         try:
-#             status_id = request.query_params.get('status_id', None)
-#             if not status_id:
-#                 return Response({"status": False, "message": "status_id parameter is required", "data": []})
-#             user = self.request.user
+            context = {
+                'project': project,
+                'rfi_activity': rfi_activity,
+                'rfi_number': rfi_number,
+                'rfi_classification': rfi_classification,
+                'epc_name': epc_name,
+                'offered_date': offered_date,
+                'block_number': block_number,
+                'table_number': table_number,
+                'activity_description': activity_description,
+                'hold_details': hold_details,
+                'location_name': location_name,
+                'construction_activity': construction_activity,
+            }
 
-#             if user.groups.filter(name='QA').exists() or user.groups.filter(name='Doc Admin').exists():
-#                 queryset = PrintRequest.objects.all().order_by('-created_at')
+            template = get_template('rfi.html')
+            html = template.render(context)
+            print(html)
 
-#             elif status_id == 'all':
-#                 # If status_id is "all", fetch all data for the current user
-#                 queryset = PrintRequest.objects.filter(user=user).order_by('-created_at')
+            timestamp = int(time.time())
+            filename = f"rfi_report_{timestamp}.pdf"
+            file_path = os.path.join(settings.MEDIA_ROOT, 'rfi_reports', filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-#             else:
-#                 try:
-#                     dynamic_status = DynamicStatus.objects.get(id=status_id)
-#                 except DynamicStatus.DoesNotExist:
-#                     return Response({"status": False, "message": "DynamicStatus with the given ID does not exist.", "data": []})
+            HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(file_path)
 
-#                 queryset = PrintRequest.objects.filter(user=user, print_request_status=dynamic_status).order_by('-created_at')
+            file_url = f"{settings.MEDIA_URL}rfi_reports/{filename}"
+            full_url = f"{request.scheme}://{request.get_host()}{file_url}"
+            return Response({"status": True, "message": "PDF generated successfully", "data": full_url})
 
-#             if not queryset:
-#                 return Response({"status": False, "message": "No data available for the selected status.", "data": []})
-
-#             wb = openpyxl.Workbook()
-#             ws = wb.active
-#             ws.title = "Print Requests"
-
-#             headers = [
-#                 'Data Number', 'User','SOP Document Number','SOP Document Title', 'No of Prints', 'Retrieval Numbers', 'Issue Type', 'Reason for Print',
-#                 'Print Request Status', 'Created At', 'Printer', 'Master Copy Users', 'Other Users', 'Reminder Sent'
-#             ]
-
-#             for col_num, header in enumerate(headers, 1):
-#                 col_letter = get_column_letter(col_num)
-#                 ws[f'{col_letter}1'] = header
-
-#             for row_num, (index, print_request) in enumerate(enumerate(queryset, start=1), 2):
-#                 ws[f'A{row_num}'] = index
-#                 ws[f'B{row_num}'] = print_request.user.username  # User's username
-#                 ws[f'C{row_num}'] = print_request.sop_document_id.document_number if print_request.sop_document_id else ""
-#                 ws[f'D{row_num}'] = print_request.sop_document_id.document_title if print_request.sop_document_id else ""
-#                 ws[f'E{row_num}'] = print_request.no_of_print
-#                 ws[f'F{row_num}'] = ", ".join([str(num) for num in print_request.approvals.all().values_list('retrival_numbers__retrival_number', flat=True) if num])
-#                 ws[f'G{row_num}'] = print_request.issue_type
-#                 ws[f'H{row_num}'] = print_request.reason_for_print
-#                 status = print_request.print_request_status.status if print_request.print_request_status else ""
-#                 ws[f'I{row_num}'] = status.capitalize() if status else ""
-#                 ws[f'J{row_num}'] = print_request.created_at.strftime('%d-%m-%Y')
-#                 ws[f'K{row_num}'] = print_request.printer.printer_name if print_request.printer else ""
-#                 ws[f'L{row_num}'] = ", ".join([user.username for user in print_request.master_copy_user.all()])
-#                 ws[f'M{row_num}'] = ", ".join([user.username for user in print_request.other_user.all()])
-#                 ws[f'N{row_num}'] = "Yes" if print_request.reminder_sent else "No"
-
-#             for col_num in range(1, len(headers) + 1):
-#                 col_letter = get_column_letter(col_num)
-#                 max_length = 0
-#                 for row in ws.iter_rows(min_col=col_num, max_col=col_num):
-#                     for cell in row:
-#                         try:
-#                             if len(str(cell.value)) > max_length:
-#                                 max_length = len(cell.value)
-#                         except:
-#                             pass
-#                 adjusted_width = (max_length + 2)
-#                 ws.column_dimensions[col_letter].width = adjusted_width
-#             timestamp = time.strftime("%d_%m_%Y_%H_%M_%S")
-#             filename = f"print_request_report_{timestamp}.xlsx"
-
-#             file_path = os.path.join(settings.MEDIA_ROOT, 'print_request_excel_sheet', filename)
-
-#             folder_path = os.path.dirname(file_path)
-#             if not os.path.exists(folder_path):
-#                 os.makedirs(folder_path)
-
-#             file_stream = BytesIO()
-#             wb.save(file_stream)
-#             file_stream.seek(0)
-
-#             with open(file_path, 'wb') as f:
-#                 f.write(file_stream.read())
-#             base_url = request.build_absolute_uri('/')
-#             file_url = base_url + 'media/print_request_excel_sheet/' + filename
-
-#             return Response({"status": True,"message": "Excel report generated successfully.","data": file_url})
-
-#         except Exception as e:
-#             return Response({"status": False, "message": str(e), "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": ""})
