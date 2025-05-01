@@ -158,6 +158,7 @@ class InspectionOutcome(models.Model):
 
 
 class InspectionOutcomeDocument(models.Model):
+    rfi = models.ForeignKey(RFIFieldActivity, on_delete=models.CASCADE, null=True, blank=True)
     inspection_outcome = models.ForeignKey(InspectionOutcome, on_delete=models.CASCADE, null=True, blank=True)
     document = models.FileField(upload_to='inspection_outcome_documents/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)

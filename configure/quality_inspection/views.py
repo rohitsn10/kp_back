@@ -461,13 +461,13 @@ class CreateFilesUploadViewSet(viewsets.ModelViewSet):
             rfi_id = data.get('rfi_id')
             files = request.FILES.getlist('files')
 
-            inspection_outcome = InspectionOutcome.objects.get(id=rfi_id)
+            inspection_outcome = RFIFieldActivity.objects.get(id=rfi_id)
 
             uploaded_documents = []
 
             for file_obj in files:
                 doc = InspectionOutcomeDocument.objects.create(
-                    inspection_outcome=inspection_outcome,
+                    rfi=inspection_outcome,
                     document=file_obj
                 )
                 uploaded_documents.append(doc)

@@ -82,4 +82,4 @@ class InspectionOutcomeDocumentSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = InspectionOutcomeDocument
-        fields = ['id', 'inspection_outcome','document', 'created_at', 'updated_at']
+        fields = ['id','rfi', 'inspection_outcome','document', 'created_at', 'updated_at']
