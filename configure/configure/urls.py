@@ -31,6 +31,5 @@ urlpatterns = [
     path('annexures_module/',include('annexures_module.urls')),
     path('quality_inspection/',include('quality_inspection.urls')),
 
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
+  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
