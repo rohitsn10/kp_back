@@ -85,7 +85,7 @@ class ProjectIdWiseItemsViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             project_id = kwargs.get('project_id')
-            items = Project.objects.filter(id=project_id)
+            items = ItemsProduct.objects.filter(project__id=project_id)
             serializer = ItemsProductSerializer(items, many=True)
             return Response({"status": True, "message": "items fetched successfully", "data": serializer.data})
         except Exception as e:
