@@ -46,23 +46,25 @@ class ActiveItemsViewSet(viewsets.ModelViewSet):
         try:
             item_id = request.data.get('item_id')
             item = ItemsProduct.objects.get(id=item_id)
-            project_id = request.data.get('project_id')
-            project = Project.objects.get(id=project_id)
+            project_ids = request.data.get('project_id', [])
+            if not isinstance(project_ids, list):
+                project_ids = [project_ids]
+            projects = Project.objects.filter(id__in=project_ids)
             is_active = request.data.get('is_active', True)
 
             if is_active:
-                if project not in item.project.all():
-                    item.project.add(project)
-
-                item.is_active = is_active
-                item.save()
+                for project in projects:
+                    if project not in item.project.all():
+                        item.project.add(project)
+                item.is_active = True
             else:
-                if project in item.project.all():
-                    item.project.remove(project)
+                for project in projects:
+                    if project in item.project.all():
+                        item.project.remove(project)
+                if item.project.count() == 0:
+                    item.is_active = False
 
-                item.is_active = False
-                item.save()
-
+            item.save()
             serializer = ItemsProductSerializer(item)
             return Response({"status": True, "message": "items updated successfully", "data": serializer.data})
         except Exception as e:
@@ -78,6 +80,20 @@ class ProjectIdWiseItemsViewSet(viewsets.ModelViewSet):
         try:
             project_id = kwargs.get('project_id')
             items = Project.objects.filter(id=project_id)
+            serializer = ItemsProductSerializer(items, many=True)
+            return Response({"status": True, "message": "items fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ListAllItemsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ItemsProductSerializer
+    queryset = ItemsProduct.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            items = ItemsProduct.objects.all()
             serializer = ItemsProductSerializer(items, many=True)
             return Response({"status": True, "message": "items fetched successfully", "data": serializer.data})
         except Exception as e:
