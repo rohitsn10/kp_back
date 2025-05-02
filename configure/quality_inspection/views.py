@@ -149,13 +149,13 @@ class QualityInspectionDocumentUploadViewSet(viewsets.ModelViewSet):
             data = request.data
             project_id = data.get('project_id')
             item_id = data.get('item_id')
-            vendor_id = data.get('vendor_id')
+            # vendor_id = data.get('vendor_id')
             remarks = data.get('remarks')
 
             quality_inspection = QualityInspection.objects.create(
                 project_id=project_id,
                 items_id=item_id,
-                vendor_id=vendor_id,
+                # vendor_id=vendor_id,
                 remarks=remarks,
             )
 
