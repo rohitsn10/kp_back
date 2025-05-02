@@ -300,9 +300,9 @@ class SupplyMDCCGeneratePDFViewSet(viewsets.ViewSet):
 
 
 class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         try:
             item_id = kwargs.get('item_id')
             item = QualityInspection.objects.get(items=item_id)
