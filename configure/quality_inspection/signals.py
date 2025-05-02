@@ -17,4 +17,4 @@ def update_item_cpp_ipp(sender, instance, action, **kwargs):
         else:
             instance.cpp_ipp = None
 
-        instance.save(update_fields=["cpp_or_ipp"])
+        instance.save(update_fields=["cpp_ipp"])
