@@ -6,7 +6,7 @@ class ItemsProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemsProduct
-        fields = ['id', 'project', 'item_number', 'item_name', 'item_category', 'dicipline', 'is_active', 'created_at', 'updated_at']
+        fields = ['id', 'project', 'item_number', 'item_name', 'item_category','cpp_ipp', 'dicipline', 'is_active', 'created_at', 'updated_at']
 
 class VendorSerializer(serializers.ModelSerializer):
         
