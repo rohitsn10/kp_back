@@ -9,12 +9,12 @@ def update_item_cpp_ipp(sender, instance, action, **kwargs):
         active_projects = instance.project.filter(is_active=True)
 
         if active_projects.exists():
-            cpp_or_ipp_values = list(active_projects.values_list('cpp_or_ipp', flat=True))
+            cpp_or_ipp_values = list(active_projects.values_list('cpp_ipp', flat=True))
             if 'cpp' in cpp_or_ipp_values:
-                instance.cpp_or_ipp = 'cpp'
+                instance.cpp_ipp = 'cpp'
             elif 'ipp' in cpp_or_ipp_values:
-                instance.cpp_or_ipp = 'ipp'
+                instance.cpp_ipp = 'ipp'
         else:
-            instance.cpp_or_ipp = None
+            instance.cpp_ipp = None
 
         instance.save(update_fields=["cpp_or_ipp"])
