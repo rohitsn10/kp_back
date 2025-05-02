@@ -44,31 +44,37 @@ class ActiveItemsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
-            item_id = request.data.get('item_id')
-            item = ItemsProduct.objects.get(id=item_id)
-            project_ids = request.data.get('project_id', [])
-            if not isinstance(project_ids, list):
-                project_ids = [project_ids]
-            projects = Project.objects.filter(id__in=project_ids)
+            item_ids = request.data.get('item_id', [])
+            if not isinstance(item_ids, list):
+                item_ids = [item_ids]
+
+            project_id = request.data.get('project_id')
             is_active = request.data.get('is_active', True)
 
-            if is_active:
-                for project in projects:
+            project = Project.objects.get(id=project_id)
+            updated_items = []
+
+            for item_id in item_ids:
+                item = ItemsProduct.objects.get(id=item_id)
+
+                if is_active:
                     if project not in item.project.all():
                         item.project.add(project)
-                item.is_active = True
-            else:
-                for project in projects:
+                    item.is_active = True
+                else:
                     if project in item.project.all():
                         item.project.remove(project)
-                if item.project.count() == 0:
-                    item.is_active = False
+                    if item.project.count() == 0:
+                        item.is_active = False
 
-            item.save()
-            serializer = ItemsProductSerializer(item)
-            return Response({"status": True, "message": "items updated successfully", "data": serializer.data})
+                item.save()
+                updated_items.append(ItemsProductSerializer(item).data)
+
+            return Response({"status": True, "message": "Items updated successfully", "data": updated_items})
+        
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
         
 
 class ProjectIdWiseItemsViewSet(viewsets.ModelViewSet):
