@@ -13,6 +13,12 @@ urlpatterns = [
     path('quality_inspection_document_upload', QualityInspectionDocumentUploadViewSet.as_view({'post': 'create'}), name='quality_inspection_document_upload'),
     path('quality_inspection_document_list/<int:item_id>', QualityInspectionDocumentListViewSet.as_view({'get': 'list'}), name='quality_inspection_document_list'),
 
+    path('create_quality_inspection_observation_report', CreateQualityInspectionObservationViewSet.as_view({'post': 'create'}), name='create_quality_inspection_observation_report'),
+    path('get_quality_inspection_observation_report/<int:quality_inspection_id>', GetQualityInspectionObservationViewSet.as_view({'get': 'list'}), name='get_quality_inspection_observation_report'),
+
+    path('mdcc_report_pdf/<int:item_id>', SupplyMDCCGeneratePDFViewSet.as_view({'get': 'list'}), name='mdcc_report_pdf'),
+    path('inspection_call_report_pdf/<int:item_id>', SupplyInspectionCallPDFViewSet.as_view({'get': 'list'}), name='inspection_call_report_pdf'),
+
     path('create_rfi', CreateRFIViewSet.as_view({'post': 'create'}), name='create_rfi'),
     path('get_rfi/<int:project_id>', GetRFIViewSet.as_view({'get': 'list'}), name='get_rfi'),
     path('electrical_get_rfi/<int:project_id>', ElectricalGetRFIViewSet.as_view({'get': 'list'}), name='electrical_get_rfi'),

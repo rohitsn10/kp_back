@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Format for Inspection Call</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid #000;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            border-bottom: 1px solid #000;
+        }
+        .header-cell {
+            display: table-cell;
+            padding: 10px;
+            vertical-align: middle;
+        }
+        .logo {
+            width: 120px;
+            border-right: 1px solid #000;
+        }
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            width: 50%;
+            border-right: 1px solid #000;
+        }
+        .format-info {
+            width: 30%;
+        }
+        .format-row {
+            display: table-row;
+            border-bottom: 1px solid #000;
+        }
+        .format-cell {
+            display: table-cell;
+            border-bottom: 1px solid #000;
+            padding: 5px 10px;
+        }
+        .date-container {
+            margin: 15px 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: normal;
+        }
+        .raised-by {
+            margin-top: 200px;
+        }
+        .red-box {
+            background-color: #ff0000;
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .logo-text {
+            display: inline-block;
+            vertical-align: middle;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="border: 1px solid #000; padding: 3px; width: 50px; height: 30px; text-align: center;">
+                <img style="width: 50px; height: 40px;" src="{% static 'images/logo.png' %}" alt="Logo" />
+            </div>
+            <div class="header-cell title">Format for Inspection Call</div>
+            <!-- <div class="header-cell format-info">
+                <div class="format-row">
+                    <div class="format-cell">Format No.</div>
+                </div>
+                <div class="format-row">
+                    <div class="format-cell">Effective Date</div>
+                </div>
+            </div> -->
+            <div class="header-cell format-info">
+                <table class="format-table" style="width:100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 5px;width: 50%;">Format No.</td>
+                        <td style="border: 1px solid #000; padding: 5px;"></td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 5px;">Effective Date</td>
+                        <td style="border: 1px solid #000; padding: 5px;"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="date-container">
+            <div style="display: flex; justify-content: space-between;padding-right: 200px;">
+                <div>Date: {{ date }}</div>
+                <div>I/C No.: -</div>
+            </div>
+        </div>
+
+        <table>
+            <tr>
+                <th width="5%">SN</th>
+                <th width="45%">Required Information</th>
+                <th width="50%">Information</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Project Name</td>
+                <td>{{ project }}</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Item description</td>
+                <td>{{ item_description }}</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Name and complete address of supplier</td>
+                <td>{{ name_address_supplier }}</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Place of inspection</td>
+                <td>{{ place_inspection }} </td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>Contact person (Name and contact details) at supplier place</td>
+                <td>{{ contact_person }}</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>Date and time of proposed inspection</td>
+                <td>{{ date_time_inspection }}</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>Purchase order number and date</td>
+                <td>{{ purchase_order_number_date }}</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>Quantity Ordered</td>
+                <td>{{ quantity_ordered }}</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>Quantity released till date</td>
+                <td>{{ quantity_released_till_date }}</td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td>Quantity balance for MDCC</td>
+                <td>{{ quantity_balance }}</td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td>Quantity Offered for Inspection</td>
+                <td>{{ quantity_offered_for_inspection }}</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td>Item Category if any (A/B/C)</td>
+                <td>{{ item_category }}</td>
+            </tr>
+            <tr>
+                <td>14</td>
+                <td>Details / Number of approved, QAP/ drawing and other relevant documents attached</td>
+                <td>{{ details_num_of_approved_drawings }}</td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td>Any other details</td>
+                <td>{{ any_others }}</td>
+            </tr>
+        </table>
+
+        <table class="raised-by">
+            <tr>
+                <td>Raised by Name: -</td>
+            </tr>
+            <tr>
+                <td>Supplier Name: -</td>
+            </tr>
+            <tr>
+                <td>EPCC Name: -</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

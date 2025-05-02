@@ -58,6 +58,21 @@ class QualityInspectionSerializer(serializers.ModelSerializer):
                 'specification_upload', 'mdcc_upload', 'inspection_status', 'inspection_date', 'remarks',
                 'created_at', 'updated_at']
         
+
+class ObservationReportDocumentSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = ObservationReportDocument
+        fields = ['id','file', 'created_at', 'updated_at']
+
+class ObservationReportSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = ObservationReport
+        fields = ['id', 'project','quality_inspection', 'items', 'vendor','observation_title', 'observation_status', 'observation_text_report', 'observation_report_document',
+                'created_by','created_at', 'updated_at']
+        
+
 class RFIFieldActivitySerializer(serializers.ModelSerializer):
     inspection_outcomes = serializers.SerializerMethodField()
         

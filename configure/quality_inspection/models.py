@@ -90,13 +90,23 @@ class QualityInspection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-
-
-
-
-
-
-
+class ObservationReportDocument(models.Model):
+    file = models.FileField(upload_to='observation_report_files/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    
+class ObservationReport(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    quality_inspection = models.ForeignKey(QualityInspection, on_delete=models.CASCADE, null=True, blank=True)
+    items = models.ForeignKey(ItemsProduct, on_delete=models.CASCADE, null=True, blank=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
+    observation_title = models.DateTimeField(null=True, blank=True)
+    observation_status = models.CharField(max_length=255, null=True, blank=True)
+    observation_text_report = models.TextField(null=True, blank=True)
+    observation_report_document = models.ManyToManyField(ObservationReportDocument, blank=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 
 

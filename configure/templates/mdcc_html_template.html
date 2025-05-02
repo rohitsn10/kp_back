@@ -1,0 +1,253 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDCC Format for KPI Green Energy Limited</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            vertical-align: top;
+        }
+        .header-row {
+            font-weight: bold;
+        }
+        .approval-section {
+            margin-top: 20px;
+        }
+        .report-review {
+            margin-top: 20px;
+        }
+        .header-table {
+            margin-bottom: 20px;
+        }
+        .header-table td {
+            vertical-align: middle;
+        }
+        .logo-cell {
+            width: 15%;
+        }
+        .title-cell {
+            width: 55%;
+            text-align: center;
+        }
+        .format-cell {
+            width: 30%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <table class="header-table">
+        <tr>
+            <td class="logo-cell">
+                <!-- KPI Logo placeholder -->
+                <div style="border: 1px solid #000; padding: 3px; width: 50px; height: 30px; text-align: center;">
+                    <img style="width: 40px; height: 40px;" src="{% static 'images/logo.png' %}" alt="Logo" />
+                </div>
+            </td>
+            <td class="title-cell">
+                <div style="font-weight: bold; font-size: 16px;">Material dispatch clearance<br>certificate (MDCC)</div>
+            </td>
+            <td class="format-cell">
+                <div>Format No.</div>
+                <div>Effective Date</div>
+                <div>Revision Date</div>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Main MDCC Form -->
+    <table>
+        <tr>
+            <td style="width: 25%;">Ref No: -</td>
+            <td style="width: 50%;">Date: {{ date }} </td>
+        </tr>
+        <tr>
+            <td>Project Name-</td>
+            <td colspan="2"> {{ project }} </td>
+        </tr>
+        <tr>
+            <td>To,</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Name and address of Supplier:<br><br>Place of Inspection: -</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Material Description: -</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Reference document for test/ witness for e.g., Approved drawing, Quality manual, Indian or international codes etc.</td>
+            <td colspan="2">
+                1) QAP/MQP: -<br><br>
+                2) Drawing/Model No-<br><br>
+                3) IS/IEC/ISO: As per applicable standards
+            </td>
+        </tr>
+        <tr>
+            <td>Third party test required</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Third party test conducted</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Third party test report attached</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Details of Third party</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Recommendation of third party</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Internal test /witness required</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Internal test /witness Conducted</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Internal test/ witness report attached</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Name and details of internal inspector/ representative</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Recommendation of internal inspector</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Quantity Offered: -</td>
+            <td></td>
+            <td>Unit-</td>
+        </tr>
+        <tr>
+            <td>Quantity cleared for dispatch: -</td>
+            <td></td>
+            <td>Unit-</td>
+        </tr>
+        <tr>
+            <td>Conditions if any: -</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Comments if any: -</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td>Annexures if any: -</td>
+            <td colspan="2"></td>
+        </tr>
+    </table>
+
+    <!-- Approval Section -->
+    <table class="approval-section">
+        <tr>
+            <td style="width: 50%;">(Email Approval, does not require signature)</td>
+            <td style="width: 50%;">(Email Approval, does not require signature)</td>
+        </tr>
+        <tr>
+            <td>Reviewed by</td>
+            <td>Approved by</td>
+        </tr>
+    </table>
+
+    <!-- Report Review Section -->
+    <table class="report-review">
+        <tr class="header-row">
+            <td colspan="4">Report Review</td>
+        </tr>
+        <tr class="header-row">
+            <td style="width: 10%;">Sr No.</td>
+            <td style="width: 30%;">Description</td>
+            <td style="width: 40%;">Identification/Certificate No.</td>
+            <td style="width: 20%;">Remark if any</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>TPI report</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Inspection date</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Compliance report</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>NABL Report/MTC</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>QAP</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Drawing/Model</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Calibration Report</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    
+    <!-- Acceptance Statement -->
+    <table style="margin-top: 20px;">
+        <tr>
+            <td>Accepted by: - This MDCC is deemed to be accepted by&nbsp;M/s supplier unless rejected.</td>
+        </tr>
+    </table>
+    
+    <!-- Note about Material Dispatch -->
+    <table style="margin-top: 20px;">
+        <tr>
+            <td style="font-style: italic; color: #555;">Note:- This material dispatch clearance certificate is only acceptance of material on its quality parameter and shall not be linked to project scheduling and progress.</td>
+        </tr>
+    </table>
+</body>
+</html>

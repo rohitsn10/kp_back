@@ -182,6 +182,162 @@ class QualityInspectionDocumentListViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
         
 
+    
+class CreateQualityInspectionObservationViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ObservationReportSerializer
+    queryset = ObservationReport.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            user = request.user
+            project_id = data.get('project_id')
+            quality_inspection_id = data.get('quality_inspection_id')
+            items_id = data.get('items_id')
+            observation_title = data.get('observation_title')
+            observation_status = data.get('observation_status')
+            observation_text_report = data.get('observation_text_report')
+            observation_report_document = request.FILES.getlist('observation_report_document')
+
+            project = Project.objects.get(id=project_id)
+            items = ItemsProduct.objects.get(id=items_id)
+            quality_inspection = QualityInspection.objects.get(id=quality_inspection_id)
+
+            observation_report = ObservationReport.objects.create(
+                project_id=project,
+                quality_inspection=quality_inspection,
+                items_id=items,
+                observation_title=observation_title,
+                observation_status=observation_status,
+                observation_text_report=observation_text_report,
+                created_by=user,
+            )
+
+            for file_obj in observation_report_document:
+                doc_instance = ObservationReportDocument.objects.create(file=file_obj)
+                observation_report.observation_report_document.add(doc_instance)
+
+            serializer = ObservationReportSerializer(observation_report, context={'request': request})
+            return Response({"status": True, "message": "Observation report created successfully", "data": serializer.data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class GetQualityInspectionObservationViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ObservationReportSerializer
+    queryset = ObservationReport.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            quality_inspection_id = kwargs.get('quality_inspection_id')
+            observation_report = ObservationReport.objects.filter(quality_inspection=quality_inspection_id)
+            serializer = ObservationReportSerializer(observation_report, many=True)
+            return Response({"status": True, "message": "Observation report fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
+
+class SupplyMDCCGeneratePDFViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        try:
+            item_id = kwargs.get('item_id')
+            item = QualityInspection.objects.get(items=item_id)
+            project_id = request.data.get('project_id')
+            date = request.data.get('date')
+            project_ins = Project.objects.get(id=project_id)
+            project = project_ins.project_name if project_ins else None
+
+            context = {
+                'project': project,
+                'date': date
+            }
+
+            template = get_template('mdcc_html_template.html')
+            html = template.render(context)
+            # print(html)
+
+            timestamp = int(time.time())
+            filename = f"mdcc_html_template_report_{timestamp}.pdf"
+            file_path = os.path.join(settings.MEDIA_ROOT, 'mdcc_html_template_reports', filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(file_path)
+
+            file_url = f"{settings.MEDIA_URL}mdcc_html_template_reports/{filename}"
+            full_url = f"{request.scheme}://{request.get_host()}{file_url}"
+            return Response({"status": True, "message": "PDF generated successfully", "data": full_url})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": ""})
+
+
+
+class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
+    # permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        try:
+            item_id = kwargs.get('item_id')
+            item = QualityInspection.objects.get(items=item_id)
+            project_id = request.data.get('project_id')
+            date = request.data.get('date')
+            item_description = request.data.get('item_description')
+            name_address_supplier = request.data.get('name_address_supplier')
+            place_inspection = request.data.get('place_inspection')
+            contact_person = request.data.get('contact_person')
+            date_time_inspection = request.data.get('date_time_inspection')
+            purchase_order_number_date = request.data.get('purchase_order_number_date')
+            quantity_ordered = request.data.get('quantity_ordered')
+            quantity_released_till_date = request.data.get('quantity_released_till_date')
+            quantity_balance = request.data.get('quantity_balance')
+            quantity_offered_for_inspection = request.data.get('quantity_offered_for_inspection')
+            item_category = request.data.get('item_category')
+            details_num_of_approved_drawings = request.data.get('details_num_of_approved_drawings')
+            any_others = request.data.get('any_others')
+            project_ins = Project.objects.get(id=project_id)
+            project = project_ins.project_name if project_ins else None
+
+            context = {
+                'project': project,
+                'date': date,
+                'item_description': item_description,
+                'name_address_supplier': name_address_supplier,
+                'place_inspection': place_inspection,
+                'contact_person': contact_person,
+                'date_time_inspection': date_time_inspection,
+                'purchase_order_number_date': purchase_order_number_date,
+                'quantity_ordered': quantity_ordered,
+                'quantity_released_till_date': quantity_released_till_date,
+                'quantity_balance': quantity_balance,
+                'quantity_offered_for_inspection': quantity_offered_for_inspection,
+                'item_category': item_category,
+                'details_num_of_approved_drawings': details_num_of_approved_drawings,
+                'any_others': any_others,
+            }
+
+            template = get_template('inspection.html')
+            html = template.render(context)
+            # print(html)
+
+            timestamp = int(time.time())
+            filename = f"inspection_call_report_{timestamp}.pdf"
+            file_path = os.path.join(settings.MEDIA_ROOT, 'inspection_call_reports', filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(file_path)
+
+            file_url = f"{settings.MEDIA_URL}inspection_call_reports/{filename}"
+            full_url = f"{request.scheme}://{request.get_host()}{file_url}"
+            return Response({"status": True, "message": "PDF generated successfully", "data": full_url})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": ""})
+
 
 class CreateRFIViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -497,7 +653,7 @@ class GetFilesUploadViewSet(viewsets.ModelViewSet):
 
 
 class RFIReportPDFViewSet(viewsets.ViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         try:
@@ -533,7 +689,7 @@ class RFIReportPDFViewSet(viewsets.ViewSet):
 
             template = get_template('rfi.html')
             html = template.render(context)
-            print(html)
+            # print(html)
 
             timestamp = int(time.time())
             filename = f"rfi_report_{timestamp}.pdf"
