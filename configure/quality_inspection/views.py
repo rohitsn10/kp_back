@@ -149,15 +149,17 @@ class QualityInspectionDocumentUploadViewSet(viewsets.ModelViewSet):
             data = request.data
             project_id = data.get('project_id')
             item_id = data.get('item_id')
-            # vendor_id = data.get('vendor_id')
             remarks = data.get('remarks')
 
-            quality_inspection = QualityInspection.objects.create(
+            quality_inspection, created = QualityInspection.objects.get_or_create(
                 project_id=project_id,
                 items_id=item_id,
-                # vendor_id=vendor_id,
-                remarks=remarks,
+                defaults={'remarks': remarks}
             )
+
+            if not created and remarks:
+                quality_inspection.remarks = remarks
+                quality_inspection.save()
 
             upload_map = {
                 'mqap_upload': (MQAPUpload, 'mqap_revision_number', 'mqap_revision_status'),
@@ -170,15 +172,25 @@ class QualityInspectionDocumentUploadViewSet(viewsets.ModelViewSet):
 
             for field, (model_class, rev_num_field, rev_status_field) in upload_map.items():
                 uploads = request.data.getlist(field)
+                files = request.FILES.getlist(field)
+
                 for i in range(len(uploads)):
-                    file_obj = request.FILES.getlist(field)[i]
+                    file_obj = files[i]
                     rev_number = data.getlist(rev_num_field)[i]
                     rev_status = data.getlist(rev_status_field)[i]
 
-                    doc_instance = model_class.objects.create(
+                    existing_docs = model_class.objects.filter(
                         file=file_obj,
                         **{rev_num_field: rev_number, rev_status_field: rev_status}
                     )
+                    if existing_docs.exists():
+                        doc_instance = existing_docs.first()
+                    else:
+                        doc_instance = model_class.objects.create(
+                            file=file_obj,
+                            **{rev_num_field: rev_number, rev_status_field: rev_status}
+                        )
+
                     getattr(quality_inspection, field).add(doc_instance)
 
             serializer = QualityInspectionSerializer(quality_inspection, context={'request': request})
