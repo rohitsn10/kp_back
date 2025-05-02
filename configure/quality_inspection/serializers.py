@@ -51,7 +51,13 @@ class MDCCUploadSerializer(serializers.ModelSerializer):
         fields = ['id', 'file','mdcc_revision_number', 'mdcc_revision_status', 'created_at', 'updated_at']
 
 class QualityInspectionSerializer(serializers.ModelSerializer):
-        
+    mqap_upload = MQAPUploadSerializer(many=True, read_only=True)
+    quality_dossier_upload = QualityDossierUploadSerializer(many=True, read_only=True)
+    drawing_upload = DrawingUploadSerializer(many=True, read_only=True)
+    data_sheet_upload = DataSheetUploadSerializer(many=True, read_only=True)
+    specification_upload = SpecificationUploadSerializer(many=True, read_only=True)
+    mdcc_upload = MDCCUploadSerializer(many=True, read_only=True)
+    
     class Meta:
         model = QualityInspection
         fields = ['id', 'project', 'items', 'vendor','is_venodr_verified', 'mqap_upload', 'quality_dossier_upload', 'drawing_upload', 'data_sheet_upload', 
