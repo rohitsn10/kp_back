@@ -197,7 +197,7 @@ class QualityInspectionDocumentListViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             item_id = kwargs.get('item_id')
-            quality_inspection = QualityInspection.objects.filter(items_id=item_id)
+            quality_inspection = QualityInspection.objects.filter(items=item_id)
             serializer = QualityInspectionSerializer(quality_inspection, many=True)
             return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
         except Exception as e:
@@ -308,6 +308,7 @@ class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
             item = QualityInspection.objects.get(items=item_id)
             project_id = request.data.get('project_id')
             date = request.data.get('date')
+            ic_number = request.data.get('ic_number')
             item_description = request.data.get('item_description')
             name_address_supplier = request.data.get('name_address_supplier')
             place_inspection = request.data.get('place_inspection')
@@ -327,6 +328,7 @@ class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
             context = {
                 'project': project,
                 'date': date,
+                'ic_number': ic_number,
                 'item_description': item_description,
                 'name_address_supplier': name_address_supplier,
                 'place_inspection': place_inspection,
