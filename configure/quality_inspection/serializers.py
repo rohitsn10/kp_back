@@ -54,7 +54,7 @@ class QualityInspectionSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = QualityInspection
-        fields = ['id', 'project', 'items', 'vendor','cpp_ipp', 'is_venodr_verified', 'mqap_upload', 'quality_dossier_upload', 'drawing_upload', 'data_sheet_upload', 
+        fields = ['id', 'project', 'items', 'vendor','is_venodr_verified', 'mqap_upload', 'quality_dossier_upload', 'drawing_upload', 'data_sheet_upload', 
                 'specification_upload', 'mdcc_upload', 'inspection_status', 'inspection_date', 'remarks',
                 'created_at', 'updated_at']
         
