@@ -15,7 +15,7 @@ urlpatterns = [
     path('quality_inspection_document_list/<int:item_id>/<int:project_id>', QualityInspectionDocumentListViewSet.as_view({'get': 'list'}), name='quality_inspection_document_list'),
 
     path('create_quality_inspection_observation_report', CreateQualityInspectionObservationViewSet.as_view({'post': 'create'}), name='create_quality_inspection_observation_report'),
-    path('get_quality_inspection_observation_report/<int:quality_inspection_id>', GetQualityInspectionObservationViewSet.as_view({'get': 'list'}), name='get_quality_inspection_observation_report'),
+    path('get_quality_inspection_observation_report/<int:item_id>/<int:project_id>', GetQualityInspectionObservationViewSet.as_view({'get': 'list'}), name='get_quality_inspection_observation_report'),
 
     path('mdcc_report_pdf/<int:item_id>', SupplyMDCCGeneratePDFViewSet.as_view({'get': 'list'}), name='mdcc_report_pdf'),
     path('inspection_call_report_pdf/<int:item_id>', SupplyInspectionCallPDFViewSet.as_view({'post': 'create'}), name='inspection_call_report_pdf'),

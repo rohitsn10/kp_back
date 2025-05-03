@@ -228,7 +228,7 @@ class CreateQualityInspectionObservationViewSet(viewsets.ModelViewSet):
             data = request.data
             user = request.user
             project_id = data.get('project_id')
-            quality_inspection_id = data.get('quality_inspection_id')
+            # quality_inspection_id = data.get('quality_inspection_id')
             items_id = data.get('items_id')
             observation_title = data.get('observation_title')
             observation_status = data.get('observation_status')
@@ -237,11 +237,11 @@ class CreateQualityInspectionObservationViewSet(viewsets.ModelViewSet):
 
             project = Project.objects.get(id=project_id)
             items = ItemsProduct.objects.get(id=items_id)
-            quality_inspection = QualityInspection.objects.get(id=quality_inspection_id)
+            # quality_inspection = QualityInspection.objects.get(id=quality_inspection_id)
 
             observation_report = ObservationReport.objects.create(
                 project_id=project,
-                quality_inspection=quality_inspection,
+                # quality_inspection=quality_inspection,
                 items_id=items,
                 observation_title=observation_title,
                 observation_status=observation_status,
@@ -267,8 +267,9 @@ class GetQualityInspectionObservationViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            quality_inspection_id = kwargs.get('quality_inspection_id')
-            observation_report = ObservationReport.objects.filter(quality_inspection=quality_inspection_id)
+            item_id = kwargs.get('item_id')
+            project_id = kwargs.get('project_id')
+            observation_report = ObservationReport.objects.filter(items=item_id,project=project_id)
             serializer = ObservationReportSerializer(observation_report, many=True)
             return Response({"status": True, "message": "Observation report fetched successfully", "data": serializer.data})
         except Exception as e:
