@@ -209,7 +209,7 @@ class QualityInspectionDocumentListViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             item_id = kwargs.get('item_id')
-            project_id = request.data.get('project_id')
+            project_id = kwargs.get('project_id')
             quality_inspection = QualityInspection.objects.filter(items=item_id, project=project_id)
             serializer = QualityInspectionSerializer(quality_inspection, many=True)
             return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
