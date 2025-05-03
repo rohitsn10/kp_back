@@ -72,103 +72,103 @@
     <!-- Main MDCC Form -->
     <table>
         <tr>
-            <td style="width: 25%;">Ref No: -</td>
-            <td style="width: 50%;">Date: {{ date }} </td>
+            <td style="width: 25%;">Ref No: {{ refNo }}</td>
+            <td style="width: 50%;">Date: {{ date }}</td>
         </tr>
         <tr>
             <td>Project Name-</td>
-            <td colspan="2"> {{ project }} </td>
+            <td colspan="2">{{ project }}</td>
         </tr>
         <tr>
             <td>To,</td>
-            <td colspan="2"></td>
+            <td colspan="2">{{ to }}</td>
         </tr>
         <tr>
-            <td>Name and address of Supplier:<br><br>Place of Inspection: -</td>
-            <td colspan="2"></td>
+            <td>Name and address of Supplier:<br><br>Place of Inspection:</td>
+            <td colspan="2">{{ supplierAddress }}<br><br>{{ inspectionPlace }}</td>
         </tr>
         <tr>
-            <td>Material Description: -</td>
-            <td colspan="2"></td>
+            <td>Material Description:</td>
+            <td colspan="2">{{ materialDescription }}</td>
         </tr>
         <tr>
-            <td>Reference document for test/ witness for e.g., Approved drawing, Quality manual, Indian or international codes etc.</td>
+            <td>Reference document for test/ witness:</td>
             <td colspan="2">
-                1) QAP/MQP: -<br><br>
-                2) Drawing/Model No-<br><br>
-                3) IS/IEC/ISO: As per applicable standards
+                1) QAP/MQP: {{ qap }}<br><br>
+                2) Drawing/Model No: {{ drawingNo }}<br><br>
+                3) IS/IEC/ISO: {{ standard }}
             </td>
         </tr>
         <tr>
             <td>Third party test required</td>
-            <td>Yes</td>
-            <td>No</td>
+            <td>{% if tpiRequired == "Yes" %}Yes{% else %}No{% endif %}</td>
+            <td>{% if tpiRequired == "No" %}Yes{% else %}No{% endif %}</td>
         </tr>
         <tr>
             <td>Third party test conducted</td>
-            <td>Yes</td>
-            <td>No</td>
+            <td>{% if tpiConducted == "Yes" %}Yes{% else %}No{% endif %}</td>
+            <td>{% if tpiConducted == "No" %}Yes{% else %}No{% endif %}</td>
         </tr>
         <tr>
             <td>Third party test report attached</td>
-            <td>Yes</td>
-            <td>No</td>
+            <td>{% if tpiReportAttached == "Yes" %}Yes{% else %}No{% endif %}</td>
+            <td>{% if tpiReportAttached == "No" %}Yes{% else %}No{% endif %}</td>
         </tr>
         <tr>
             <td>Details of Third party</td>
-            <td colspan="2"></td>
+            <td colspan="2">{{ tpiDetails }}</td>
         </tr>
         <tr>
             <td>Recommendation of third party</td>
-            <td colspan="2"></td>
+            <td colspan="2">{{ tpiRecommendation }}</td>
         </tr>
         <tr>
             <td>Internal test /witness required</td>
-            <td>Yes</td>
-            <td>No</td>
+            <td>{% if internalRequired == "Yes" %}Yes{% else %}No{% endif %}</td>
+            <td>{% if internalRequired == "No" %}Yes{% else %}No{% endif %}</td>
         </tr>
         <tr>
             <td>Internal test /witness Conducted</td>
-            <td>Yes</td>
-            <td>No</td>
+            <td>{% if internalConducted == "Yes" %}Yes{% else %}No{% endif %}</td>
+            <td>{% if internalConducted == "No" %}Yes{% else %}No{% endif %}</td>
         </tr>
         <tr>
             <td>Internal test/ witness report attached</td>
-            <td>Yes</td>
-            <td>No</td>
+            <td>{% if internalReportAttached == "Yes" %}Yes{% else %}No{% endif %}</td>
+            <td>{% if internalReportAttached == "No" %}Yes{% else %}No{% endif %}</td>
         </tr>
         <tr>
             <td>Name and details of internal inspector/ representative</td>
-            <td colspan="2"></td>
+            <td colspan="2">{{ internalInspectorDetails }}</td>
         </tr>
         <tr>
             <td>Recommendation of internal inspector</td>
-            <td colspan="2"></td>
+            <td colspan="2">{{ internalRecommendation }}</td>
         </tr>
         <tr>
-            <td>Quantity Offered: -</td>
-            <td></td>
-            <td>Unit-</td>
+            <td>Quantity Offered:</td>
+            <td>{{ quantityOffered }}</td>
+            <td>Unit: {{ unitOffered }}</td>
         </tr>
         <tr>
-            <td>Quantity cleared for dispatch: -</td>
-            <td></td>
-            <td>Unit-</td>
+            <td>Quantity cleared for dispatch:</td>
+            <td>{{ quantityCleared }}</td>
+            <td>Unit: {{ unitCleared }}</td>
         </tr>
         <tr>
-            <td>Conditions if any: -</td>
-            <td colspan="2"></td>
+            <td>Conditions if any:</td>
+            <td colspan="2">{{ conditions }}</td>
         </tr>
         <tr>
-            <td>Comments if any: -</td>
-            <td colspan="2"></td>
+            <td>Comments if any:</td>
+            <td colspan="2">{{ comments }}</td>
         </tr>
         <tr>
-            <td>Annexures if any: -</td>
-            <td colspan="2"></td>
+            <td>Annexures if any:</td>
+            <td colspan="2">{{ annexures }}</td>
         </tr>
     </table>
-
+    
     <!-- Approval Section -->
     <table class="approval-section">
         <tr>
@@ -176,8 +176,8 @@
             <td style="width: 50%;">(Email Approval, does not require signature)</td>
         </tr>
         <tr>
-            <td>Reviewed by</td>
-            <td>Approved by</td>
+            <td>Reviewed by: {{ reviewedBy }}</td>
+            <td>Approved by: {{ approvedBy }}</td>
         </tr>
     </table>
 

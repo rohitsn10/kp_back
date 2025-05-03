@@ -209,7 +209,8 @@ class QualityInspectionDocumentListViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             item_id = kwargs.get('item_id')
-            quality_inspection = QualityInspection.objects.filter(items=item_id)
+            project_id = request.data.get('project_id')
+            quality_inspection = QualityInspection.objects.filter(items=item_id, project=project_id)
             serializer = QualityInspectionSerializer(quality_inspection, many=True)
             return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
         except Exception as e:
@@ -288,7 +289,34 @@ class SupplyMDCCGeneratePDFViewSet(viewsets.ViewSet):
 
             context = {
                 'project': project,
-                'date': date
+                'date': date,
+                'refNo': request.data.get('refNo', ''),
+                'to': request.data.get('to', ''),
+                'supplierAddress': request.data.get('supplierAddress', ''),
+                'inspectionPlace': request.data.get('inspectionPlace', ''),
+                'materialDescription': request.data.get('materialDescription', ''),
+                'qap': request.data.get('qap', ''),
+                'drawingNo': request.data.get('drawingNo', ''),
+                'standard': request.data.get('standard', ''),
+                'tpiRequired': request.data.get('tpiRequired', ''),
+                'tpiConducted': request.data.get('tpiConducted', ''),
+                'tpiReportAttached': request.data.get('tpiReportAttached', ''),
+                'tpiDetails': request.data.get('tpiDetails', ''),
+                'tpiRecommendation': request.data.get('tpiRecommendation', ''),
+                'internalRequired': request.data.get('internalRequired', ''),
+                'internalConducted': request.data.get('internalConducted', ''),
+                'internalReportAttached': request.data.get('internalReportAttached', ''),
+                'internalInspectorDetails': request.data.get('internalInspectorDetails', ''),
+                'internalRecommendation': request.data.get('internalRecommendation', ''),
+                'quantityOffered': request.data.get('quantityOffered', ''),
+                'unitOffered': request.data.get('unitOffered', ''),
+                'quantityCleared': request.data.get('quantityCleared', ''),
+                'unitCleared': request.data.get('unitCleared', ''),
+                'conditions': request.data.get('conditions', ''),
+                'comments': request.data.get('comments', ''),
+                'annexures': request.data.get('annexures', ''),
+                'reviewedBy': request.data.get('reviewedBy', ''),
+                'approvedBy': request.data.get('approvedBy', ''),
             }
 
             template = get_template('mdcc_html_template.html')
