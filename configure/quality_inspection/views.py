@@ -240,9 +240,9 @@ class CreateQualityInspectionObservationViewSet(viewsets.ModelViewSet):
             # quality_inspection = QualityInspection.objects.get(id=quality_inspection_id)
 
             observation_report = ObservationReport.objects.create(
-                project_id=project,
+                project=project,
                 # quality_inspection=quality_inspection,
-                items_id=items,
+                items=items,
                 observation_title=observation_title,
                 observation_status=observation_status,
                 observation_text_report=observation_text_report,
