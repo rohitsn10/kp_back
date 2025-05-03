@@ -72,11 +72,13 @@ class ObservationReportDocumentSerializer(serializers.ModelSerializer):
         fields = ['id','file', 'created_at', 'updated_at']
 
 class ObservationReportSerializer(serializers.ModelSerializer):
+    observation_report_document = ObservationReportDocumentSerializer(many=True, read_only=True)
+    created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
         
     class Meta:
         model = ObservationReport
         fields = ['id', 'project','quality_inspection', 'items', 'vendor','observation_title', 'observation_status', 'observation_text_report', 'observation_report_document',
-                'created_by','created_at', 'updated_at']
+                'created_by','created_by_name','created_at', 'updated_at']
         
 
 class RFIFieldActivitySerializer(serializers.ModelSerializer):
