@@ -118,14 +118,19 @@ class UpdateItemsViewSet(viewsets.ModelViewSet):
             item_number = request.data.get('item_number')
             dicipline = request.data.get('dicipline')
 
-            items = ItemsProduct.objects.filter(id=item_id).update(
-                item_name=item_name,
-                item_category=item_category,
-                item_number=item_number,
-                dicipline=dicipline
-            )
+            items_ins = ItemsProduct.objects.get(id=item_id)
+            if item_name:
+                items_ins.item_name = item_name
+            if item_category:
+                items_ins.item_category = item_category
+            if item_number:
+                items_ins.item_number = item_number
+            if dicipline:
+                items_ins.dicipline = dicipline
 
-            serializer = ItemsProductSerializer(items)
+            items_ins.save()
+
+            serializer = ItemsProductSerializer(items_ins)
             return Response({"status": True, "message": "items updated successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
