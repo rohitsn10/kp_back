@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "material_management",
     "annexures_module",
     "quality_inspection",
+    "hoto_module",
 ]
 
 MIDDLEWARE = [
