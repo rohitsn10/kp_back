@@ -1,5 +1,5 @@
 from django.db import models
-from user_profile.models import *
+from django.conf import settings
 
 class ProjectActivity(models.Model):
     SOLAR_OR_WIND_CHOICES = [
@@ -7,7 +7,7 @@ class ProjectActivity(models.Model):
         ('Wind', 'Wind')
     ]
     
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
     solar_or_wind = models.CharField(max_length=10, choices=SOLAR_OR_WIND_CHOICES, null=True, blank=True)
     activity_name = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)

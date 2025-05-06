@@ -1,11 +1,11 @@
 from django.db import models
 from land_module.models import *
-from user_profile.models import *
+from django.conf import settings
 from activity_module.models import *
 from land_module.models import *
 
 class Company(models.Model):
-    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
     company_name = models.CharField(max_length=255,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
@@ -26,7 +26,7 @@ class Project(models.Model):
         ('ipp', 'IPP'),
     ]
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='projects')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
     landbank = models.ForeignKey(LandBankMaster, on_delete=models.CASCADE, related_name='landbank_data',null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_projects',null=True, blank=True)
     electricity_line = models.ForeignKey(Electricity, on_delete=models.CASCADE, related_name='electricity_line_name',null=True, blank=True)
@@ -45,23 +45,23 @@ class Project(models.Model):
     project_activity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE, null=True, blank=True)
     project_sub_activity = models.ManyToManyField(SubActivityName)
     project_sub_sub_activity = models.ManyToManyField(SubSubActivityName)
-    spoc_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
+    spoc_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='spoc_projects',blank=True,null=True)
     # project_predication_date = models.DateTimeField(null=True, blank=True)
     available_land_area = models.CharField(null=True, blank=True)
     alloted_land_area = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
-    assigned_users = models.ManyToManyField(CustomUser)
+    assigned_users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
 
 class ExpenseProjectAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     expense_project_attachments = models.FileField(upload_to='expense_project_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 class ExpenseTracking(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     category = models.ForeignKey(LandCategory, on_delete=models.CASCADE,null=True, blank=True)
     expense_name = models.CharField(max_length=100,null=True, blank=True)
@@ -72,31 +72,31 @@ class ExpenseTracking(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class MsMeCertificateAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     msme_certificate_attachments = models.FileField(upload_to='msme_certificate_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class AdharCardAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     adhar_card_attachments = models.FileField(upload_to='adhar_card_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class PanCardAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     pan_card_attachments = models.FileField(upload_to='pan_card_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class ThirdAuthorityAdharCardAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     third_authority_adhar_card_attachments = models.FileField(upload_to='third_authority_adhar_card_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class ThirdAuthorityPanCardAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     third_authority_pan_card_attachments = models.FileField(upload_to='third_authority_pan_card_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -109,7 +109,7 @@ class ClientDetails(models.Model):
         ('RPO', 'RPO'),
     )
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     client_name = models.CharField(max_length=100,null=True, blank=True)
     contact_number = models.CharField(max_length=100,null=True, blank=True)
@@ -138,31 +138,31 @@ class ClientDetails(models.Model):
 
 
 class LOIAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     loi_attachments = models.FileField(upload_to='loi_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class Loa_PoAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     loa_po_attachments = models.FileField(upload_to='loa_po_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class Epc_ContractAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     epc_contract_attachments = models.FileField(upload_to='epc_contract_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class OMMContactAttachments(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     omm_contact_attachments = models.FileField(upload_to='omm_contact_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class WO_PO(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     loi_attachments = models.ManyToManyField(LOIAttachments)
     loa_po_attachments = models.ManyToManyField(Loa_PoAttachments)
@@ -178,7 +178,7 @@ class ProjectMilestone(models.Model):
         ('in_progress', 'InProgress'),
         ('completed', 'Completed')
     ]
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     project_main_activity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE,null=True, blank=True)
     project_sub_activity = models.ManyToManyField(SubActivityName, blank=True)
@@ -196,12 +196,12 @@ class ProjectMilestone(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
     is_depended = models.BooleanField(default=False, null=True, blank=True)
-    milestone_starting_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
+    milestone_starting_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
 
 class InFlowPaymentOnMilestone(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     milestone = models.ForeignKey(ProjectMilestone, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     party_name = models.CharField(max_length=500,null=True, blank=True)
     po_number = models.CharField(max_length=500,null=True, blank=True)
     invoice_number = models.CharField(max_length=500,null=True, blank=True)
@@ -216,14 +216,14 @@ class InFlowPaymentOnMilestone(models.Model):
     
 class DrawingAndDesignAttachments(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design_attachments = models.FileField(upload_to='drawing_and_design_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
 class OtherDrawingAndDesignAttachments(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     other_drawing_and_design_attachments = models.FileField(upload_to='other_drawing_and_design_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -251,8 +251,8 @@ class DrawingAndDesignManagement(models.Model):
     ]
     
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
-    assign_to_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assign_to',null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
+    assign_to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assign_to',null=True, blank=True)
     drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignAttachments)
     other_drawing_and_design_attachments = models.ManyToManyField(OtherDrawingAndDesignAttachments)
     discipline = models.CharField(max_length=100,null=True, blank=True)
@@ -277,7 +277,7 @@ class DrawingAndDesignManagement(models.Model):
 class DrawingAndDesignApprovedActions(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design = models.ForeignKey(DrawingAndDesignManagement, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -285,21 +285,21 @@ class DrawingAndDesignApprovedActions(models.Model):
 class DrawingAndDesignCommentedActions(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design = models.ForeignKey(DrawingAndDesignManagement, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class DrawingAndDesignResubmissionAttachments(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design_resubmission_attachments = models.FileField(upload_to='drawing_and_design_resubmission_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
 class OtherDrawingAndDesignResubmissionAttachments(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     other_drawing_and_design_resubmission_attachments = models.FileField(upload_to='other_drawing_and_design_resubmission_attachments',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -307,7 +307,7 @@ class OtherDrawingAndDesignResubmissionAttachments(models.Model):
 class DrawingAndDesignReSubmittedActions(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     drawing_and_design = models.ForeignKey(DrawingAndDesignManagement, on_delete=models.CASCADE,null=True, blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     submitted_count = models.CharField(max_length=100,null=True, blank=True,default="1")
     drawing_and_design_attachments = models.ManyToManyField(DrawingAndDesignResubmissionAttachments, blank=True)  # Track attachments
     other_drawing_and_design_attachments = models.ManyToManyField(OtherDrawingAndDesignResubmissionAttachments, blank=True)  # Track other attachments

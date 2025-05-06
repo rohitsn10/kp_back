@@ -1,5 +1,6 @@
 from django.db import models
 from project_module.models import *
+from django.conf import settings
 
 
 class DocumentManagementAttachments(models.Model):
@@ -27,7 +28,7 @@ class DocumentManagement(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True, blank=True)
     comments = models.TextField(null=True, blank=True)
     document_management_attachments = models.ManyToManyField(DocumentManagementAttachments)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    assign_users = models.ManyToManyField(CustomUser, related_name="assigned_documents", blank=True)
+    assign_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="assigned_documents", blank=True)
     updated_at = models.DateTimeField(auto_now=True)
