@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
-
+from project_module.models import *
 
 
 class Department(models.Model):
@@ -54,3 +54,12 @@ class PrivacyPolicy(models.Model):
     privacypolicy_data = models.JSONField()
     privacypolicy_key = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class UserAssign(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

@@ -100,6 +100,37 @@ class UploadDocumentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
+
+
+class DeleteParticularDocumentViewSet(viewsets.ModelViewSet):
+    queryset = HotoDocument.objects.all()
+    serializer_class = HotoDocumentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            doc_ids = request.data.get('doc_id', [])
+            if not doc_ids:
+                return Response({"status": False, "message": "No document IDs provided"})
+
+            deleted_docs = []
+            for doc_id in doc_ids:
+                doc = DocumentsForHoto.objects.filter(id=doc_id).first()
+                if doc:
+                    file_path = os.path.join(settings.MEDIA_ROOT, str(doc.file))
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    doc.delete()
+                    deleted_docs.append(doc_id)
+
+            if deleted_docs:
+                return Response({"status": True, "message": f"Deleted documents: {deleted_docs}"})
+            else:
+                return Response({"status": False, "message": "No matching documents found"})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+
     
 class VerifyDocumentViewSet(viewsets.ModelViewSet):
     queryset = HotoDocument.objects.all()
