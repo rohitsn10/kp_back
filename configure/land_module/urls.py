@@ -23,4 +23,6 @@ urlpatterns = [
     path('land_location_idwise_survey_number/<int:location_name_id>', LandLocationIdWiseLandSurveyNumberViewset.as_view({'get':'list'}), name='land_location_idwise_survey_number'),
 
     path('update_land_survey_number/<int:land_survey_number_id>', UpdateLandSurvetNumberViewset.as_view({'put':'update'}), name='update_land_survey_number'),
+
+    path('landbank_excel', LandbankExcelViewSet.as_view({'get':'list'}), name='export_landbank_excel'),
 ]

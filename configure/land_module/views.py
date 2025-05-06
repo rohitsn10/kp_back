@@ -1854,3 +1854,49 @@ class UpdateLandSurvetNumberViewset(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Land survey number updated successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from django.http import HttpResponse
+class LandbankExcelViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = 'Land Bank Data'
+
+        headers = [
+            "Sn", "Land Bank Name", "Area- Acre", "Survey No", "Village", "Taluka",
+            "District", "Land Lease Date",
+            "Leaser", "Leasee", "Lease Rate/Acre", "ROW if any",
+            "Connectivity Voltage"
+        ]
+        sheet.append(headers)
+
+        for cell in sheet[1]:
+            cell.font = Font(bold=True)
+
+        landbanks = LandBankMaster.objects.all()
+        for i, land in enumerate(landbanks, start=1):
+            row = [
+                i,
+                land.land_name,
+                land.area_acres,
+                land.survey_number,
+                land.village_name,
+                land.taluka_tahshil_name,
+                land.district_name,
+                land.sale_deed_date.strftime('%Y-%m-%d') if land.sale_deed_date else '',
+                land.seller_name,
+                land.buyer_name,
+                land.industrial_jantri,
+                land.right_of_way_requirement_up_to_the_delivery_point,
+                land.substation_load_side_voltage_level_kv,
+            ]
+            sheet.append(row)
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=LandBankData.xlsx'
+        workbook.save(response)
+        return response
