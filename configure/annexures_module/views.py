@@ -252,6 +252,8 @@ class IssueApprovePermitToWorkViewSet(viewsets.ModelViewSet):
             permit_to_work = PermitToWork.objects.get(id=permit_id)
 
             # issuer = request.data.get('issuer')
+            renewal_date = request.data.get('renewal_date')
+            day_number = request.data.get('day_number')
             issuer_name = request.data.get('issuer_name')
             issuer_sign = request.data.get('issuer_sign')
             start_time = request.data.get('start_time')
@@ -263,6 +265,8 @@ class IssueApprovePermitToWorkViewSet(viewsets.ModelViewSet):
 
             approve_permit = IssueApprovePermit.objects.create(
                 permit=permit_to_work,
+                renewal_date=renewal_date,
+                day_number=day_number,
                 issuer_name=issuer_name,
                 issuer_sign=issuer_sign,
                 start_time=start_time,

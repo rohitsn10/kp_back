@@ -103,6 +103,8 @@ class ClosureOfPermit(models.Model):
 
 class IssueApprovePermit(models.Model):
     permit = models.ForeignKey(PermitToWork,related_name='permitforissue', on_delete=models.SET_NULL, null=True, blank=True)
+    renewal_date = models.DateTimeField(max_length=255, blank=True, null=True)
+    day_number = models.CharField(max_length=255, blank=True, null=True)
     issuer_name = models.CharField(max_length=255, blank=True, null=True)
     issuer_sign = models.FileField(upload_to='permitwork/', null=True, blank=True)
     # approver = models.ForeignKey(CustomUser,related_name='approver', on_delete=models.SET_NULL, null=True, blank=True)
