@@ -17,7 +17,7 @@ class PermitToWorkSerializer(serializers.ModelSerializer):
 class IssueApprovePermitSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueApprovePermit
-        fields = ['id', 'permit', 'issuer_name', 'issuer_sign', 'start_time', 'end_time', 'created_at']
+        fields = ['id', 'permit','renewal_date','day_number', 'issuer_name', 'issuer_sign', 'start_time', 'end_time', 'created_at']
 
 class ApproverApprovePermitSerializer(serializers.ModelSerializer):
     class Meta:

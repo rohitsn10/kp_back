@@ -299,28 +299,34 @@ class IssueGetPermitToWorkViewSet(viewsets.ModelViewSet):
                 approver_qs = approver_qs.filter(permit=permit_id)
                 receiver_qs = receiver_qs.filter(permit=permit_id)
 
-            issue_data = IssueApprovePermitSerializer(issue_qs, many=True).data
-            approver_data = ApproverApprovePermitSerializer(approver_qs, many=True).data
-            receiver_data = ReceiverApprovePermitSerializer(receiver_qs, many=True).data
+            data = []
+
+            # Add issuer data
+            for item in IssueApprovePermitSerializer(issue_qs, many=True).data:
+                item['type'] = 'issuer'
+                data.append(item)
+
+            # Add approver data
+            for item in ApproverApprovePermitSerializer(approver_qs, many=True).data:
+                item['type'] = 'approver'
+                data.append(item)
+
+            # Add receiver data
+            for item in ReceiverApprovePermitSerializer(receiver_qs, many=True).data:
+                item['type'] = 'receiver'
+                data.append(item)
 
             return Response({
                 "status": True,
                 "message": "Permit to work data fetched successfully",
-                "data": {
-                    "issue": issue_data,
-                    "approver": approver_data,
-                    "receiver": receiver_data,
-                }
+                "data": data
             })
+
         except Exception as e:
             return Response({
                 "status": False,
                 "message": str(e),
-                "data": {
-                    "issue": [],
-                    "approver": [],
-                    "receiver": [],
-                }
+                "data": []
             })
         
 
