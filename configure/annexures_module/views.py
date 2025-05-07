@@ -289,15 +289,39 @@ class IssueGetPermitToWorkViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             permit_id = kwargs.get('permit_id')
-            # permit_to_work = PermitToWork.objects.get(id=permit_id)
-            queryset = self.filter_queryset(self.get_queryset())
+
+            issue_qs = IssueApprovePermit.objects.all()
+            approver_qs = ApproverApprovePermit.objects.all()
+            receiver_qs = ReceiverApprovePermit.objects.all()
+
             if permit_id:
-                queryset = queryset.filter(permit=permit_id)
-            serializer = self.serializer_class(queryset, many=True)
-            data = serializer.data
-            return Response({"status": True, "message": "Permit to work list fetched successfully", "data": data})
+                issue_qs = issue_qs.filter(permit=permit_id)
+                approver_qs = approver_qs.filter(permit=permit_id)
+                receiver_qs = receiver_qs.filter(permit=permit_id)
+
+            issue_data = IssueApprovePermitSerializer(issue_qs, many=True).data
+            approver_data = ApproverApprovePermitSerializer(approver_qs, many=True).data
+            receiver_data = ReceiverApprovePermitSerializer(receiver_qs, many=True).data
+
+            return Response({
+                "status": True,
+                "message": "Permit to work data fetched successfully",
+                "data": {
+                    "issue": issue_data,
+                    "approver": approver_data,
+                    "receiver": receiver_data,
+                }
+            })
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": {
+                    "issue": [],
+                    "approver": [],
+                    "receiver": [],
+                }
+            })
         
 
 class ApproverApprovePermitToWorkViewSet(viewsets.ModelViewSet):
