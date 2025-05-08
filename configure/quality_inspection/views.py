@@ -424,6 +424,10 @@ class CreateRFIViewSet(viewsets.ModelViewSet):
             rfi_other = data.get('rfi_other')
             epc_name = data.get('epc_name')
             offered_date = data.get('offered_date')
+            offered_time = data.get('offered_time')
+            reaching_time = data.get('reaching_time')
+            inspection_start_time = data.get('inspection_start_time')
+            inspection_end_time = data.get('inspection_end_time')
             block_number = data.get('block_number')
             table_number = data.get('table_number')
             activity_description = data.get('activity_description')
@@ -439,6 +443,10 @@ class CreateRFIViewSet(viewsets.ModelViewSet):
                 rfi_other=rfi_other,
                 epc_name=epc_name,
                 offered_date=offered_date,
+                offered_time=offered_time,
+                reaching_time=reaching_time,
+                inspection_start_time=inspection_start_time,
+                inspection_end_time=inspection_end_time,
                 block_number=block_number,
                 table_number=table_number,
                 activity_description=activity_description,

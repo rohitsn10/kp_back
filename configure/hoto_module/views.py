@@ -153,3 +153,41 @@ class VerifyDocumentViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Document verified successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+
+
+class PunchPointsViewSet(viewsets.ModelViewSet):
+    queryset = PunchPoints.objects.all()
+    serializer_class = PunchPointsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            hoto_id = request.data.get('hoto_id')
+            punch_title = request.data.get('punch_title')
+            punch_description = request.data.get('punch_description')
+            punch_point = request.data.get('punch_point_raised')
+            punch_point_completed = request.data.get('punch_point_completed')
+            status = request.data.get('status')
+            punch_file = request.FILES.getlist('punch_file')
+
+            hoto_doc = HotoDocument.objects.get(id=hoto_id)
+
+            punch_point_obj = PunchPoints.objects.create(
+                hoto=hoto_doc,
+                punch_title=punch_title,
+                punch_description=punch_description,
+                punch_point=punch_point,
+                status=status,
+                created_by=request.user,
+                updated_by=request.user
+            )
+
+            for file in punch_file:
+                punch_file_obj = PunchFile.objects.create(file=file)
+                punch_point_obj.punch_file.add(punch_file_obj)
+
+            serializer = PunchPointsSerializer(punch_point_obj)
+            return Response({"status": True, "message": "Punch point created successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
