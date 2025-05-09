@@ -156,9 +156,9 @@ class VerifyDocumentViewSet(viewsets.ModelViewSet):
         
 
 
-class PunchPointsViewSet(viewsets.ModelViewSet):
-    queryset = PunchPoints.objects.all()
-    serializer_class = PunchPointsSerializer
+class RaisePunchPointsViewSet(viewsets.ModelViewSet):
+    queryset = PunchPointsRaise.objects.all()
+    serializer_class = PunchPointsRaiseSerializer
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
@@ -166,18 +166,17 @@ class PunchPointsViewSet(viewsets.ModelViewSet):
             hoto_id = request.data.get('hoto_id')
             punch_title = request.data.get('punch_title')
             punch_description = request.data.get('punch_description')
-            punch_point = request.data.get('punch_point_raised')
-            punch_point_completed = request.data.get('punch_point_completed')
+            punch_point_raised = request.data.get('punch_point_raised')
             status = request.data.get('status')
             punch_file = request.FILES.getlist('punch_file')
 
             hoto_doc = HotoDocument.objects.get(id=hoto_id)
 
-            punch_point_obj = PunchPoints.objects.create(
+            punch_point_obj = PunchPointsRaise.objects.create(
                 hoto=hoto_doc,
                 punch_title=punch_title,
                 punch_description=punch_description,
-                punch_point=punch_point,
+                punch_point_raised=punch_point_raised,
                 status=status,
                 created_by=request.user,
                 updated_by=request.user
@@ -187,7 +186,99 @@ class PunchPointsViewSet(viewsets.ModelViewSet):
                 punch_file_obj = PunchFile.objects.create(file=file)
                 punch_point_obj.punch_file.add(punch_file_obj)
 
-            serializer = PunchPointsSerializer(punch_point_obj)
+            serializer = PunchPointsRaiseSerializer(punch_point_obj)
             return Response({"status": True, "message": "Punch point created successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+    
+class CompletedPunchPointsViewSet(viewsets.ModelViewSet):
+    queryset = CompletedPunchPoints.objects.all()
+    serializer_class = CompletedPunchPointsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            punch_id = request.data.get('punch_id')
+            punch_description = request.data.get('punch_description')
+            punch_point_completed = request.data.get('punch_point_completed')
+            status = request.data.get('status')
+            punch_file = request.FILES.getlist('punch_file')
+
+            punch_point_obj = PunchPointsRaise.objects.get(id=punch_id)
+
+            completed_punch_obj = CompletedPunchPoints.objects.create(
+                raise_punch=punch_point_obj,
+                punch_description=punch_description,
+                punch_point_completed=punch_point_completed,
+                status=status,
+                created_by=request.user,
+                updated_by=request.user
+            )
+
+            for file in punch_file:
+                completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
+                completed_punch_obj.punch_file.add(completed_punch_file_obj)
+
+            serializer = CompletedPunchPointsSerializer(completed_punch_obj)
+            return Response({"status": True, "message": "Completed punch point created successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+    
+class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
+    queryset = VerifyPunchPoints.objects.all()
+    serializer_class = VerifyPunchPointsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            completed_punch_id = kwargs.get('completed_punch_id')
+            verify_description = request.data.get('verify_description')
+            status = request.data.get('status')
+
+            completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
+
+            verify_punch_obj = VerifyPunchPoints.objects.create(
+                completed_punch=completed_punch_obj,
+                verify_description=verify_description,
+                status=status,
+                created_by=request.user,
+                updated_by=request.user
+            )
+
+            serializer = VerifyPunchPointsSerializer(verify_punch_obj)
+            return Response({"status": True, "message": "Completed punch point verified successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+        
+
+
+class GetAllObjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
+    queryset = PunchPointsRaise.objects.all()
+    serializer_class = PunchPointsRaiseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        try:
+            hoto_id = request.query_params.get('hoto_id')
+
+            punch_points = PunchPointsRaise.objects.filter(hoto=hoto_id)
+            completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__hoto=hoto_id)
+            verified_punch_points = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__hoto=hoto_id)
+
+            punch_points_serializer = PunchPointsRaiseSerializer(punch_points, many=True)
+            completed_punch_points_serializer = CompletedPunchPointsSerializer(completed_punch_points, many=True)
+            verified_punch_points_serializer = VerifyPunchPointsSerializer(verified_punch_points, many=True)
+
+            return Response({
+                "status": True,
+                "message": "All object-wise punch points retrieved successfully",
+                "data": {
+                    "punch_points": punch_points_serializer.data,
+                    "completed_punch_points": completed_punch_points_serializer.data,
+                    "verified_punch_points": verified_punch_points_serializer.data
+                }
+            })
         except Exception as e:
             return Response({"status": False, "message": str(e)})

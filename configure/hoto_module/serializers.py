@@ -22,13 +22,13 @@ class PunchFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PunchFile
         fields = ['id', 'file', 'created_at', 'updated_at']
-class PunchPointsSerializer(serializers.ModelSerializer):
+class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_point_balance = serializers.SerializerMethodField()
     punch_file = PunchFileSerializer(many=True, read_only=True)
     class Meta:
-        model = PunchPoints
+        model = PunchPointsRaise
         fields = ['id', 'hoto', 'punch_title', 'punch_description', 'punch_point_raised', 'punch_point_completed', 'punch_point_balance', 'status', 'punch_file',
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
         
@@ -37,3 +37,27 @@ class PunchPointsSerializer(serializers.ModelSerializer):
             return int(obj.punch_point_raised or 0) - int(obj.punch_point_completed or 0)
         except (ValueError, TypeError):
             return None
+
+class CompletedPunchFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompletedPunchFile
+        fields = ['id', 'file', 'created_at', 'updated_at']
+
+    
+class CompletedPunchPointsSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
+    updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
+    punch_file = CompletedPunchFileSerializer(many=True, read_only=True)
+    class Meta:
+        model = CompletedPunchPoints
+        fields = ['id', 'raise_punch', 'punch_description', 'punch_point_completed', 'status', 'punch_file',
+                  'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
+        
+    
+class VerifyPunchPointsSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
+    updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
+    class Meta:
+        model = VerifyPunchPoints
+        fields = ['id', 'completed_punch', 'verify_description', 'status', 'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
+

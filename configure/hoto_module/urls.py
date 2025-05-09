@@ -9,8 +9,13 @@ urlpatterns = [
     path('add_remarks_to_document/<int:doc_id>', AddRemarksToDocumentViewSet.as_view({'put': 'update'}), name='add_remarks_to_document'),
     path('upload_document/<int:doc_id>', UploadDocumentViewSet.as_view({'put': 'update'}), name='upload_document'),
     path('delete_document', DeleteParticularDocumentViewSet.as_view({'delete': 'destroy'}), name='delete_document'),
-
     path('verify_document/<int:doc_id>', VerifyDocumentViewSet.as_view({'put': 'update'}), name='verify_document'),
 
-    path('punch_points/<int:doc_id>', PunchPointsViewSet.as_view({'get': 'list', 'post': 'create'}), name='punch_points'),
+    path('raise_punch_points', RaisePunchPointsViewSet.as_view({'post': 'create'}), name='raise_punch_points'),
+
+    path('completed_punch_points', CompletedPunchPointsViewSet.as_view({'post': 'create'}), name='completed_punch_points'),
+
+    path('verify_completed_punch_points', VerifyCompletedPunchPointsViewSet.as_view({'put': 'update'}), name='verify_completed_punch_points'),
+
+    path('get_all_object_wise_punch_raise_completed_verify', GetAllObjectWisePunchRaiseCompletedVerifyViewSet.as_view({'get': 'list'}), name='get_all_object_wise_punch_raise_completed_verify'),
 ]
