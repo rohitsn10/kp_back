@@ -15,7 +15,7 @@ urlpatterns = [
 
     path('completed_punch_points', CompletedPunchPointsViewSet.as_view({'post': 'create'}), name='completed_punch_points'),
 
-    path('verify_completed_punch_points', VerifyCompletedPunchPointsViewSet.as_view({'put': 'update'}), name='verify_completed_punch_points'),
+    path('verify_completed_punch_points/<int:completed_punch_id>', VerifyCompletedPunchPointsViewSet.as_view({'put': 'update'}), name='verify_completed_punch_points'),
 
     path('get_all_object_wise_punch_raise_completed_verify', GetAllObjectWisePunchRaiseCompletedVerifyViewSet.as_view({'get': 'list'}), name='get_all_object_wise_punch_raise_completed_verify'),
 ]
