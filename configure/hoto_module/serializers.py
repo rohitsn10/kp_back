@@ -42,10 +42,18 @@ class CompletedPunchPointsSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_file = CompletedPunchFileSerializer(many=True, read_only=True)
+    verified = serializers.SerializerMethodField()
     class Meta:
         model = CompletedPunchPoints
         fields = ['id', 'raise_punch', 'punch_description', 'punch_point_completed', 'status', 'punch_file',
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
+        
+    def get_verified(self, obj):
+        try:
+            verify_punch = VerifyPunchPoints.objects.get(completed_punch=obj)
+            return VerifyPunchPointsSerializer(verify_punch).data
+        except VerifyPunchPoints.DoesNotExist:
+            return None
         
     
 class VerifyPunchPointsSerializer(serializers.ModelSerializer):
