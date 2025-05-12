@@ -45,7 +45,7 @@ class CompletedPunchPointsSerializer(serializers.ModelSerializer):
     verified = serializers.SerializerMethodField()
     class Meta:
         model = CompletedPunchPoints
-        fields = ['id', 'raise_punch', 'punch_description', 'punch_point_completed', 'status', 'punch_file',
+        fields = ['id', 'raise_punch', 'punch_description', 'punch_point_completed', 'status', 'punch_file', 'verified',
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
         
     def get_verified(self, obj):
