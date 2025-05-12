@@ -112,13 +112,14 @@ class UpdateItemsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
+            project_id = request.data.get('project_id')
             item_id = kwargs.get('item_id')
             item_name = request.data.get('item_name')
             item_category = request.data.get('item_category')
             item_number = request.data.get('item_number')
             dicipline = request.data.get('dicipline')
 
-            items_ins = ItemsProduct.objects.get(id=item_id)
+            items_ins = ItemsProduct.objects.get(id=item_id, project__id=project_id)
             if item_name:
                 items_ins.item_name = item_name
             if item_category:
