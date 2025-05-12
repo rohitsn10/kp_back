@@ -29,6 +29,7 @@ class PunchPointsRaise(models.Model):
     punch_title = models.CharField(max_length=255, null=True, blank=True)
     punch_description = models.TextField(null=True, blank=True)
     punch_point_raised = models.TextField(null=True, blank=True)
+    closure_date = models.DateField(null=True, blank=True)
     # punch_point_completed = models.TextField(null=True, blank=True)
     punch_point_balance = models.TextField(null=True, blank=True)
     status = models.CharField(max_length=255, null=True, blank=True)

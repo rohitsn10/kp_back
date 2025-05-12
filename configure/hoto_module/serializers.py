@@ -28,7 +28,7 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     punch_file = PunchFileSerializer(many=True, read_only=True)
     class Meta:
         model = PunchPointsRaise
-        fields = ['id', 'hoto', 'punch_title', 'punch_description', 'punch_point_raised', 'punch_point_balance', 'status', 'punch_file',
+        fields = ['id', 'hoto', 'punch_title', 'punch_description', 'punch_point_raised', 'punch_point_balance', 'status', 'punch_file', 'closure_date',
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
         
 

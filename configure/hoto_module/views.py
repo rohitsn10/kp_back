@@ -167,6 +167,7 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
             punch_title = request.data.get('punch_title')
             punch_description = request.data.get('punch_description')
             punch_point_raised = request.data.get('punch_point_raised')
+            closure_date = request.data.get('closure_date')
             status = request.data.get('status')
             punch_file = request.FILES.getlist('punch_file')
 
@@ -177,6 +178,7 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
                 punch_title=punch_title,
                 punch_description=punch_description,
                 punch_point_raised=punch_point_raised,
+                closure_date=closure_date,
                 status=status,
                 created_by=request.user,
                 updated_by=request.user
