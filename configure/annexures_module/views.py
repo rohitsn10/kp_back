@@ -280,7 +280,7 @@ class IssueApprovePermitToWorkViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
-
+from collections import defaultdict
 class IssueGetPermitToWorkViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = IssueApprovePermitSerializer
@@ -299,34 +299,67 @@ class IssueGetPermitToWorkViewSet(viewsets.ModelViewSet):
                 approver_qs = approver_qs.filter(permit=permit_id)
                 receiver_qs = receiver_qs.filter(permit=permit_id)
 
-            data = []
+            grouped_data = {}
+            issuers = IssueApprovePermitSerializer(issue_qs.order_by('created_at'), many=False).data
 
-            # Add issuer data
-            for item in IssueApprovePermitSerializer(issue_qs, many=True).data:
-                item['type'] = 'issuer'
-                data.append(item)
+            # Step 1: Group issuers by day_number
+            day_count_map = {}  # e.g. {'2': 0, '3': 1}
+            issuer_group_map = {}  # created_at -> day key
 
-            # Add approver data
-            for item in ApproverApprovePermitSerializer(approver_qs, many=True).data:
-                item['type'] = 'approver'
-                data.append(item)
+            for issuer in issue_qs.order_by('created_at'):
+                day_number = issuer.day_number
+                base_day = f"day{day_number}"
 
-            # Add receiver data
-            for item in ReceiverApprovePermitSerializer(receiver_qs, many=True).data:
-                item['type'] = 'receiver'
-                data.append(item)
+                if day_number not in day_count_map:
+                    day_count_map[day_number] = 0
+                    day_key = base_day
+                else:
+                    day_count_map[day_number] += 1
+                    day_key = f"{base_day}.{day_count_map[day_number]}"
+
+                serialized = IssueApprovePermitSerializer(issuer).data
+                serialized['type'] = 'issuer'
+                grouped_data.setdefault(day_key, []).append(serialized)
+
+                # Map this issuer's created_at to its day group
+                issuer_group_map[issuer.created_at] = day_key
+
+            # Step 2: Add approvers to correct group
+            for approver in approver_qs.order_by('created_at'):
+                serialized = ApproverApprovePermitSerializer(approver).data
+                serialized['type'] = 'approver'
+
+                # Match to most recent issuer
+                closest_issuer = issue_qs.filter(created_at__lte=approver.created_at).order_by('-created_at').first()
+                if closest_issuer:
+                    day_key = issuer_group_map.get(closest_issuer.created_at, 'day1')
+                else:
+                    day_key = 'day1'
+                grouped_data.setdefault(day_key, []).append(serialized)
+
+            # Step 3: Add receivers to correct group
+            for receiver in receiver_qs.order_by('created_at'):
+                serialized = ReceiverApprovePermitSerializer(receiver).data
+                serialized['type'] = 'receiver'
+
+                closest_issuer = issue_qs.filter(created_at__lte=receiver.created_at).order_by('-created_at').first()
+                if closest_issuer:
+                    day_key = issuer_group_map.get(closest_issuer.created_at, 'day1')
+                else:
+                    day_key = 'day1'
+                grouped_data.setdefault(day_key, []).append(serialized)
 
             return Response({
                 "status": True,
                 "message": "Permit to work data fetched successfully",
-                "data": data
+                "data": grouped_data
             })
 
         except Exception as e:
             return Response({
                 "status": False,
                 "message": str(e),
-                "data": []
+                "data": {}
             })
         
 
