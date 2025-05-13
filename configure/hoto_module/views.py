@@ -240,6 +240,11 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
             status = request.data.get('status')
 
             completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
+            if status == "Completed":
+                pass
+            else:
+                completed_punch_obj.punch_point_completed = 0
+                completed_punch_obj.save()
 
             verify_punch_obj = VerifyPunchPoints.objects.create(
                 completed_punch=completed_punch_obj,
