@@ -23,8 +23,8 @@ class HotoDocumentSerializer(serializers.ModelSerializer):
         try:
             raised_punch_points = PunchPointsRaise.objects.filter(hoto=obj)
             completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__hoto=obj)
-            total_punch_points = sum(punch_point.punch_point_raised for punch_point in raised_punch_points)
-            total_completed_points = sum(punch_point.punch_point_completed for punch_point in completed_punch_points)
+            total_punch_points = sum(int(p.punch_point_raised or 0) for p in raised_punch_points)
+            total_completed_points = sum(int(p.punch_point_completed or 0) for p in completed_punch_points)
             return total_punch_points - total_completed_points
         except Exception as e:
             return 0
@@ -33,8 +33,8 @@ class HotoDocumentSerializer(serializers.ModelSerializer):
         try:
             raised_punch_points = PunchPointsRaise.objects.filter(hoto=obj)
             completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__hoto=obj)
-            total_punch_points = sum(punch_point.punch_point_raised for punch_point in raised_punch_points)
-            total_completed_points = sum(punch_point.punch_point_completed for punch_point in completed_punch_points)
+            total_punch_points = sum(int(p.punch_point_raised or 0) for p in raised_punch_points)
+            total_completed_points = sum(int(p.punch_point_completed or 0) for p in completed_punch_points)
             if total_completed_points == 0 or None:
                 return "Pending"
             elif total_completed_points < total_punch_points:
