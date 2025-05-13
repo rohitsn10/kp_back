@@ -56,10 +56,22 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_file = PunchFileSerializer(many=True, read_only=True)
+    punch_point_balance = serializers.SerializerMethodField()
     class Meta:
         model = PunchPointsRaise
-        fields = ['id', 'hoto', 'punch_title', 'punch_description', 'punch_point_raised', 'punch_point_balance', 'status', 'punch_file', 'closure_date',
+        fields = ['id', 'hoto', 'punch_point_balance', 'punch_title', 'punch_description', 'punch_point_raised', 'punch_point_balance', 'status', 'punch_file', 'closure_date',
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
+        
+    def get_punch_point_balance(self, obj):
+        try:
+            raised_punch_points = PunchPointsRaise.objects.filter(id=obj)
+            verified_completed_ids = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__id=obj,status='Completed').values_list('completed_punch_id', flat=True).distinct()
+            completed_punch_points = CompletedPunchPoints.objects.filter(id__in=verified_completed_ids)
+            total_punch_points = sum(int(p.punch_point_raised or 0) for p in raised_punch_points)
+            total_completed_points = sum(int(p.punch_point_completed or 0) for p in completed_punch_points)
+            return total_punch_points - total_completed_points
+        except Exception as e:
+            return 0
         
 
 class CompletedPunchFileSerializer(serializers.ModelSerializer):
