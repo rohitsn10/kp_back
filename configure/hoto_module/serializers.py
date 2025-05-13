@@ -12,10 +12,39 @@ class HotoDocumentSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     document = DocumentsForHotoSerializer(many=True, read_only=True)
+    punch_point_balance = serializers.SerializerMethodField()
+    punch_status = serializers.SerializerMethodField()
     class Meta:
         model = HotoDocument
-        fields = ['id', 'project', 'document', 'document_name', 'category', 'remarks', 'status', 'verify_comment',
+        fields = ['id', 'project', 'document', 'document_name', 'punch_point_balance', 'punch_status', 'category', 'remarks', 'status', 'verify_comment',
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
+        
+    def get_punch_point_balance(self, obj):
+        try:
+            raised_punch_points = PunchPointsRaise.objects.filter(hoto=obj)
+            completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__hoto=obj)
+            total_punch_points = sum(punch_point.punch_point_raised for punch_point in raised_punch_points)
+            total_completed_points = sum(punch_point.punch_point_completed for punch_point in completed_punch_points)
+            return total_punch_points - total_completed_points
+        except Exception as e:
+            return 0
+        
+    def get_punch_status(self, obj):
+        try:
+            raised_punch_points = PunchPointsRaise.objects.filter(hoto=obj)
+            completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__hoto=obj)
+            total_punch_points = sum(punch_point.punch_point_raised for punch_point in raised_punch_points)
+            total_completed_points = sum(punch_point.punch_point_completed for punch_point in completed_punch_points)
+            if total_completed_points == 0 or None:
+                return "Pending"
+            elif total_completed_points < total_punch_points:
+                return "In Progress"
+            elif total_completed_points == total_punch_points:
+                return "Completed"
+            else:
+                return "Unknown"
+        except Exception as e:
+            return "Unknown"
         
     
 class PunchFileSerializer(serializers.ModelSerializer):
