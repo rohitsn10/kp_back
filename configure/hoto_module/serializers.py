@@ -63,14 +63,31 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
                   'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
         
     def get_punch_point_balance(self, obj):
+        def safe_int(val):
+            try:
+                return int(val)
+            except (ValueError, TypeError):
+                return 0
+
         try:
-            raised_punch_points = PunchPointsRaise.objects.filter(id=obj)
-            verified_completed_ids = VerifyPunchPoints.objects.filter(completed_punch__raise_punch=obj,status='Completed').values_list('completed_punch_id', flat=True).distinct()
-            completed_punch_points = CompletedPunchPoints.objects.filter(id__in=verified_completed_ids)
-            total_punch_points = sum(int(p.punch_point_raised or 0) for p in raised_punch_points)
-            total_completed_points = sum(int(p.punch_point_completed or 0) for p in completed_punch_points)
+            # Use the direct value from the object
+            total_punch_points = safe_int(obj.punch_point_raised)
+
+            # Get Verified Completed Punches for this PunchPointsRaise
+            verified_completed_ids = VerifyPunchPoints.objects.filter(
+                completed_punch__raise_punch=obj,
+                status='Completed'
+            ).values_list('completed_punch_id', flat=True).distinct()
+
+            completed_punch_points = CompletedPunchPoints.objects.filter(
+                id__in=verified_completed_ids,
+                raise_punch=obj
+            )
+
+            total_completed_points = sum(safe_int(p.punch_point_completed) for p in completed_punch_points)
+
             return total_punch_points - total_completed_points
-        except Exception as e:
+        except Exception:
             return 0
         
 
