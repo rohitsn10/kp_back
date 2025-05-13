@@ -65,7 +65,7 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     def get_punch_point_balance(self, obj):
         try:
             raised_punch_points = PunchPointsRaise.objects.filter(id=obj)
-            verified_completed_ids = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__id=obj,status='Completed').values_list('completed_punch_id', flat=True).distinct()
+            verified_completed_ids = VerifyPunchPoints.objects.filter(completed_punch__raise_punch=obj,status='Completed').values_list('completed_punch_id', flat=True).distinct()
             completed_punch_points = CompletedPunchPoints.objects.filter(id__in=verified_completed_ids)
             total_punch_points = sum(int(p.punch_point_raised or 0) for p in raised_punch_points)
             total_completed_points = sum(int(p.punch_point_completed or 0) for p in completed_punch_points)
