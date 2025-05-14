@@ -804,6 +804,7 @@ class CategoryWisePDFViewSet(viewsets.ModelViewSet):
             epc_name = request.data.get('epc_name')
             date = request.data.get('date')
             submitted_by = request.data.get('submitted_by')
+            govern = request.data.get('govern')
 
             category1_items = ItemsProduct.objects.filter(item_category='category_1')
             category2_items = ItemsProduct.objects.filter(item_category='category_2')
@@ -817,6 +818,7 @@ class CategoryWisePDFViewSet(viewsets.ModelViewSet):
                 'epc_name': epc_name,
                 'date': date,
                 'submitted_by': submitted_by,
+                'govern': govern,
                 'category1_items': category1_items,
                 'category2_items': category2_items,
                 'category3_items': category3_items,
