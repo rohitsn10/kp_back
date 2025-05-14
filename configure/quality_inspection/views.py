@@ -351,8 +351,8 @@ class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            item_id = kwargs.get('item_id')
-            item = QualityInspection.objects.get(items=item_id)
+            # item_id = kwargs.get('item_id')
+            # item = QualityInspection.objects.get(items=item_id)
             project_id = request.data.get('project_id')
             date = request.data.get('date')
             ic_number = request.data.get('ic_number')
