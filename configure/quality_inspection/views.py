@@ -369,6 +369,9 @@ class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
             item_category = request.data.get('item_category')
             details_num_of_approved_drawings = request.data.get('details_num_of_approved_drawings')
             any_others = request.data.get('any_others')
+            raised_by_name = request.data.get('raised_by_name')
+            supplier_name = request.data.get('supplier_name')
+            epcc_name = request.data.get('epcc_name')
             project_ins = Project.objects.get(id=project_id)
             project = project_ins.project_name if project_ins else None
 
@@ -389,6 +392,9 @@ class SupplyInspectionCallPDFViewSet(viewsets.ViewSet):
                 'item_category': item_category,
                 'details_num_of_approved_drawings': details_num_of_approved_drawings,
                 'any_others': any_others,
+                'raised_by_name': raised_by_name,
+                'supplier_name': supplier_name,
+                'epcc_name': epcc_name,
             }
 
             template = get_template('inspection.html')
