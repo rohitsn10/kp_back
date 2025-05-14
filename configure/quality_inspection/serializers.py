@@ -9,7 +9,7 @@ class ItemsProductSerializer(serializers.ModelSerializer):
         model = ItemsProduct
         fields = ['id', 'project', 'item_number', 'item_name', 'item_category','cpp_ipp', 'dicipline', 'is_active', 'is_vendor_done', 'created_at', 'updated_at']
 
-    def is_vendor_done(self, obj):
+    def get_is_vendor_done(self, obj):
         # Check if the vendor is done for the item
         return Vendor.objects.filter(items=obj.id, is_verified=True).exists()
 
