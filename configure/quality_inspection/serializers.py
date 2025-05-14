@@ -18,7 +18,7 @@ class VendorSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = Vendor
-        fields = ['id', 'project', 'items', 'vendor_name', 'vendor_file', 'created_at', 'updated_at']
+        fields = ['id', 'project', 'items', 'vendor_name', 'vendor_file', 'is_verified', 'created_at', 'updated_at']
 
 class MQAPUploadSerializer(serializers.ModelSerializer):
         
