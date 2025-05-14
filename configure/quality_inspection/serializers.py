@@ -3,10 +3,15 @@ from .models import *
 from project_module.models import Project
 
 class ItemsProductSerializer(serializers.ModelSerializer):
+    is_vendor_done = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemsProduct
-        fields = ['id', 'project', 'item_number', 'item_name', 'item_category','cpp_ipp', 'dicipline', 'is_active', 'created_at', 'updated_at']
+        fields = ['id', 'project', 'item_number', 'item_name', 'item_category','cpp_ipp', 'dicipline', 'is_active', 'is_vendor_done', 'created_at', 'updated_at']
+
+    def is_vendor_done(self, obj):
+        # Check if the vendor is done for the item
+        return Vendor.objects.filter(items=obj.id, is_verified=True).exists()
 
 
 class VendorFileUploadSerializer(serializers.ModelSerializer):
