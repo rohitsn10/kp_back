@@ -20,10 +20,17 @@ class ItemsProduct(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
+
+class VendorFileUpload(models.Model):
+    file = models.FileField(upload_to='vendor_files/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 class Vendor(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     items = models.ForeignKey(ItemsProduct, on_delete=models.CASCADE, null=True, blank=True)
     vendor_name = models.CharField(max_length=255, null=True, blank=True)
+    vendor_file = models.ManyToManyField(VendorFileUpload, blank=True)
+    is_verified = models.BooleanField(default=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

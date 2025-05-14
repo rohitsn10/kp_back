@@ -145,6 +145,74 @@ class UpdateItemsViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
         
 
+
+class AddVendorViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = VendorSerializer
+    queryset = Vendor.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            item_id = request.data.get('item_id')
+            project_id = request.data.get('project_id')
+            vendor_name = request.data.get('vendor_name')
+            file = request.data.get('file')
+
+            item = ItemsProduct.objects.get(id=item_id)
+            project = Project.objects.get(id=project_id)
+            vendor = Vendor.objects.create(
+                items=item,
+                project=project,
+                vendor_name=vendor_name,
+            )
+
+            if file:
+                vendor_document = VendorFileUpload.objects.create(file=file)
+                vendor.vendor_file.add(vendor_document)
+
+            serializer = VendorSerializer(vendor)
+            return Response({"status": True, "message": "Vendor created successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class ItemsProjectIdWiseVendorViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = VendorSerializer
+    queryset = Vendor.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            item_id = kwargs.get('item_id')
+            project_id = kwargs.get('project_id')
+            vendor = Vendor.objects.filter(items=item_id, project=project_id)
+            serializer = VendorSerializer(vendor, many=True)
+            return Response({"status": True, "message": "Vendor fetched successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+class VerifyVendorViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = VendorSerializer
+    queryset = Vendor.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        try:
+            vendor_id = kwargs.get('vendor_id')
+            is_verified = request.data.get('is_verified', True)
+
+            vendor = Vendor.objects.get(id=vendor_id)
+            vendor.is_verified = is_verified
+            vendor.save()
+
+            serializer = VendorSerializer(vendor)
+            return Response({"status": True, "message": "Vendor updated successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+
+
 class QualityInspectionDocumentUploadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = QualityInspectionSerializer

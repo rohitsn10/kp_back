@@ -8,8 +8,9 @@ urlpatterns = [
     path('list_all_items', ListAllItemsViewSet.as_view({'get': 'list'}), name='list_all_items'),
     path('update_items/<int:item_id>', UpdateItemsViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_items'),
 
-    # path('create_vendor', AddVendorViewSet.as_view({'post': 'create'}), name='create_vendor'),
-    # path('list_vendor/<int:project_id>', ProjectIdWiseVendorViewSet.as_view({'get': 'list'}), name='list_vendor'),
+    path('create_vendor', AddVendorViewSet.as_view({'post': 'create'}), name='create_vendor'),
+    path('list_vendor/<int:item_id>/<int:project_id>', ItemsProjectIdWiseVendorViewSet.as_view({'get': 'list'}), name='list_vendor'),
+    path('verify_vendor/<int:vendor_id>', VerifyVendorViewSet.as_view({'put': 'update'}), name='verify_vendor'),
 
     path('quality_inspection_document_upload', QualityInspectionDocumentUploadViewSet.as_view({'post': 'create'}), name='quality_inspection_document_upload'),
     path('quality_inspection_document_list/<int:item_id>/<int:project_id>', QualityInspectionDocumentListViewSet.as_view({'get': 'list'}), name='quality_inspection_document_list'),

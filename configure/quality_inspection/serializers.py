@@ -8,11 +8,17 @@ class ItemsProductSerializer(serializers.ModelSerializer):
         model = ItemsProduct
         fields = ['id', 'project', 'item_number', 'item_name', 'item_category','cpp_ipp', 'dicipline', 'is_active', 'created_at', 'updated_at']
 
+
+class VendorFileUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorFileUpload
+        fields = ['id', 'file', 'created_at', 'updated_at']
 class VendorSerializer(serializers.ModelSerializer):
+    vendor_file = VendorFileUploadSerializer(many=True, read_only=True)
         
     class Meta:
         model = Vendor
-        fields = ['id', 'project', 'items', 'vendor_name', 'created_at', 'updated_at']
+        fields = ['id', 'project', 'items', 'vendor_name', 'vendor_file', 'created_at', 'updated_at']
 
 class MQAPUploadSerializer(serializers.ModelSerializer):
         
