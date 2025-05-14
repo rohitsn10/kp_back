@@ -35,4 +35,6 @@ urlpatterns = [
 
     path('rfi_report_pdf/<int:rfi_id>', RFIReportPDFViewSet.as_view({'get': 'list'}), name='rfi_report_pdf'),
 
+    path('categorywise_pdf', CategoryWisePDFViewSet.as_view({'put': 'update'}), name='categorywise_pdf'),
+
 ]

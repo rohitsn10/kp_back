@@ -789,3 +789,53 @@ class RFIReportPDFViewSet(viewsets.ViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": ""})
+        
+
+
+class CategoryWisePDFViewSet(viewsets.ModelViewSet):
+    # permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            project_name = request.data.get('project_name')
+            doc_no = request.data.get('doc_no')
+            customer = request.data.get('customer')
+            loa_no = request.data.get('loa_no')
+            epc_name = request.data.get('epc_name')
+            date = request.data.get('date')
+            submitted_by = request.data.get('submitted_by')
+
+            category1_items = ItemsProduct.objects.filter(item_category='category_1')
+            category2_items = ItemsProduct.objects.filter(item_category='category_2')
+            category3_items = ItemsProduct.objects.filter(item_category='category_3')
+
+            context = {
+                'project_name': project_name,
+                'doc_no': doc_no,
+                'customer': customer,
+                'loa_no': loa_no,
+                'epc_name': epc_name,
+                'date': date,
+                'submitted_by': submitted_by,
+                'category1_items': category1_items,
+                'category2_items': category2_items,
+                'category3_items': category3_items,
+            }
+
+            template = get_template('categorywise_pdf.html')
+            html = template.render(context)
+            # print(html)
+
+            timestamp = int(time.time())
+            filename = f"categorywise_pdf_{timestamp}.pdf"
+            file_path = os.path.join(settings.MEDIA_ROOT, 'categorywise_pdfs', filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(file_path)
+
+            file_url = f"{settings.MEDIA_URL}categorywise_pdfs/{filename}"
+            full_url = f"{request.scheme}://{request.get_host()}{file_url}"
+            return Response({"status": True, "message": "PDF generated successfully", "data": full_url})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": ""})

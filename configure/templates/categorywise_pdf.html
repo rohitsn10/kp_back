@@ -1,0 +1,370 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorization Plan for Material Inspection & Dispatch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            font-size: 11px;
+        }
+        .document {
+            border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #000;
+        }
+        .logo {
+            width: 70px;
+            height: 70px;
+            margin-right: 10px;
+        }
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 10px;
+            width: 100px;
+        }
+        .logo-text {
+            color: red;
+            font-weight: bold;
+            font-size: 9px;
+            text-align: center;
+        }
+        .title {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .info-row td {
+            padding: 5px;
+        }
+        .info-row td:first-child {
+            width: 70%;
+        }
+        .info-row td:last-child {
+            width: 30%;
+        }
+        .cat-header {
+            background-color: yellow;
+            font-weight: bold;
+        }
+        .category-row td:first-child {
+            text-align: center;
+            width: 50px;
+        }
+        .category-row td:last-child {
+            text-align: center;
+            width: 150px;
+        }
+        .category-name {
+            font-weight: bold;
+            text-align: center;
+        }
+        table td:nth-child(2) {
+            width: 70%;
+        }
+        table td:last-child {
+            width: 20%;
+        }
+        .note-section {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .note-title {
+            font-weight: bold;
+        }
+        .cat-item-row td:first-child {
+            width: 30px;
+            text-align: center;
+        }
+        /* Ensure consistent column widths across all equipment tables */
+        tr.cat-item-row td:nth-child(2) {
+            width: 70%;
+        }
+        tr.cat-item-row td:nth-child(3) {
+            width: 20%;
+            text-align: center;
+        }
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 10px;
+        }
+        .signature {
+            text-align: center;
+            width: 30%;
+        }
+        .note-box {
+            margin-top: 10px;
+        }
+        .right-aligned-note {
+            text-align: right;
+            padding-right: 10px;
+        }
+        .interconnection-title {
+            background-color: #f2f2f2;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <!-- <div style="width: 60px; height: 60px; background-color: red; position: relative;">
+                        <div style="position: absolute; top: 5px; right: 5px; width: 15px; height: 15px; background-color: black; border-radius: 50%;"></div>
+                    </div> -->
+                                        <div style="border: 1px solid #000; padding: 5px; width: 80px; height: 50px; text-align: center;">
+                        <!-- <span style="color: red; font-weight: bold; font-size: 24px;">KPI</span> -->
+                         <img style="width: 50px; height: 50px;" src="../static/images/logo.png"/>
+                    </div>
+                </div>
+                <div class="logo-text">KPI GREEN ENERGY LIMITED</div>
+            </div>
+            <div class="title">Categorization Plan for Material Inspection & Dispatch</div>
+        </div>
+        
+        <!-- Project Information -->
+        <table>
+            <tr class="info-row">
+                <td>Project Name : {{ project_name }}</td>
+                <td>Date : {{ date }}</td>
+            </tr>
+            <tr class="info-row">
+                <td>Doc. No : {{ doc_no }}</td>
+                <td>Rev :- R0</td>
+            </tr>
+            <tr class="info-row">
+                <td>Customer : {{ customer }}</td>
+                <td rowspan="2"></td>
+            </tr>
+            <tr class="info-row">
+                <td>LOA Ref : {{ loa_no }}</td>
+            </tr>
+            <tr class="info-row">
+                <td>EPC Contractor:{{ epc_name }}</td>
+                <td></td>
+            </tr>
+        </table>
+        
+        <!-- Category I Equipment Table -->
+        <table>
+        <tr>
+            <td colspan="3" class="category-header">CATEGORY – I</td>
+        </tr>
+        <tr class="category-header">
+            <td>Sr. No.</td>
+            <td>Material Name</td>
+            <td>Categorization of inspection</td>
+        </tr>
+        {% for item in category1_items %}
+        <tr>
+            <td style="text-align:center;">{{ forloop.counter }}</td>
+            <td>{{ item.item_name }}</td>
+            <td style="text-align:center;">I</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+        <!-- Category II Equipment Table -->
+        <table>
+        <tr>
+            <td colspan="3" class="category-header">CATEGORY – II</td>
+        </tr>
+        <tr class="category-header">
+            <td>Sr. No.</td>
+            <td>Material Name</td>
+            <td>Categorization of inspection</td>
+        </tr>
+        {% for item in category2_items %}
+        <tr>
+            <td style="text-align:center;">{{ forloop.counter }}</td>
+            <td>{{ item.item_name }}</td>
+            <td style="text-align:center;">II</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+        <table>
+        <tr>
+            <td colspan="3" class="category-header">CATEGORY – III</td>
+        </tr>
+        <tr class="category-header">
+            <td>Sr. No.</td>
+            <td>Material Name</td>
+            <td>Categorization of inspection</td>
+        </tr>
+        {% for item in category3_items %}
+        <tr>
+            <td style="text-align:center;">{{ forloop.counter }}</td>
+            <td>{{ item.item_name }}</td>
+            <td style="text-align:center;">III</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+        <!-- Start of page 2 -->
+        <!-- Interconnecting Transmission Line Table -->
+        <table>
+            <tr>
+                <td colspan="3" class="interconnection-title">Interconnecting 33kV Transmission Line</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>D.</td>
+                <td colspan="2"></td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>1</td>
+                <td>Control Relay Panel</td>
+                <td rowspan="14" style="width: 40%;">
+                    {{ epc_name }} shall carry out 33 kV transmission line/Bay - design, drawing, material, vendor, GTP, QAP, Quality Inspection, testing & installation from concern authorities.<br><br>
+                    {{ customer }} shall issue only MRC (Material receipt certificates) for BBU items to facilitate process of payments.<br><br>
+                    - Wherein, Design, drawing, material inspection, quality, statutory approvals etc. shall be the responsibility of {{ epc_name }} from respective concern authorities.
+                </td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>2</td>
+                <td>SF6/Vacuum circuit breaker</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>3</td>
+                <td>Current Transformer HV</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>4</td>
+                <td>Potential Transformer HV</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>5</td>
+                <td>Transmission Line Conductor / Cable</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>6</td>
+                <td>Earth Switch (out door type) & Earthing Material</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>7</td>
+                <td>Isolator (out door type)</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>8</td>
+                <td>Gantry Structure/ Equipement Structure</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>9</td>
+                <td>Transmission Line Poles/ Towers & Supports</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>10</td>
+                <td>Nut Bolt & Washer</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>11</td>
+                <td>Insulators</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>12</td>
+                <td>Connectors/Hardware for Conductor</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>13</td>
+                <td>Lightning Arrestor</td>
+            </tr>
+            <tr class="cat-item-row">
+                <td>14</td>
+                <td>Misc. Material for 33 kv line</td>
+            </tr>
+        </table>
+
+        <!-- Notes Section -->
+        <div class="note-section">
+            <div class="note-title">Note -</div>
+            <table>
+                <tr>
+                    <td style="width: 5%;">1</td>
+                    <td style="width: 75%;">
+                        <strong>Cat-I Items:</strong><br>
+                        <strong>Inspection Authority:</strong> Final acceptance based on inspection by {{ customer }} and EPC Contractor {{ epc_name }}<br>
+                        <strong>MQAP Approval:</strong> To be approved by {{ customer }}<br>
+                        <strong>Documentation & MDCC:</strong><br>
+                        {{ epc_name }} will submit quality documents to {{ customer }}<br>
+                        Material Dispatch Clearance Certificate (MDCC) will be issued by {{ customer }} based on the submitted documents.
+                    </td>
+                    <!-- <td style="width: 20%;"></td> -->
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>
+                        <strong>Cat-II Items:</strong><br>
+                        <strong>Inspection Authority:</strong>{{ epc_name }} will carry out inspection.<br>
+                        <strong>MQAP Approval:</strong> To be approved by {{ customer }}<br>
+                        <strong>Documentation & MDCC:</strong><br>
+                        {{ epc_name }} will submit quality documents to {{ customer }} for verification.<br>
+                        {{ customer }} will issue MDCC based on document verification.
+                    </td>
+                    <!-- <td></td> -->
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>
+                        <strong>Cat-III Items:</strong><br>
+                        <strong>Inspection Authority:</strong> {{ epc_name }} will conduct inspection and/or review test reports.<br>
+                        <strong>Documentation & MDCC:</strong><br>
+                        Material will be dispatched based on MDCC issued by {{ epc_name }}<br>
+                        <strong>Exception (BBU Line Items):</strong><br>
+                        For Category-III items falling under BBU line items, MDCC shall be issued by {{ customer }} after verification of quality documents submitted by {{ epc_name }}
+                    </td>
+                    <!-- <td style="text-align: right;"></td> -->
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td colspan="2">* As per Specifications, testing, requirement of GETCO/GUVNL.</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td colspan="2">This plan is specifically made for material inspection and dispatch. However, please note that other terms & conditions viz MDL, RIP, Contract Agreement & conditions are unchanged and shall prevails.</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature">
+                <p>{{ submitted_by }}</p>
+                <p>Submitted by, {{ epc_name }}</p>
+            </div>
+            <div class="signature">
+                <p>Checked by {{ customer }}</p>
+            </div>
+            <div class="signature">
+                <p>Approved by {{ customer }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
