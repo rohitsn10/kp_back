@@ -10,13 +10,9 @@ class ItemsProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'project', 'item_number', 'item_name', 'item_category','cpp_ipp', 'dicipline', 'is_active', 'is_vendor_done', 'created_at', 'updated_at']
 
     def get_is_vendor_done(self, obj):
-        for project in obj.project.all():
-            if Vendor.objects.filter(
-                items=obj,
-                project=project,
-                is_verified=True
-            ).exists():
-                return True
+        project_id = self.context.get('project_id')  # get project_id from serializer context
+        if project_id:
+            return Vendor.objects.filter(items=obj, project_id=project_id, is_verified=True).exists()
         return False
 
 class VendorFileUploadSerializer(serializers.ModelSerializer):
