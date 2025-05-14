@@ -6,45 +6,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MDCC Format for KPI Green Energy Limited</title>
     <style>
+        @page {
+            size: A4;
+            margin: 10mm; /* Reduced margins for more content space */
+        }
+        
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            font-size: 11px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 5px; /* Reduced margin between tables */
+            table-layout: fixed; /* Ensures uniform column widths */
         }
+        
         th, td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 6px 8px; /* Increased padding for better readability */
             vertical-align: top;
+            word-wrap: break-word;
         }
+        
         .header-row {
             font-weight: bold;
+            background-color: #f2f2f2;
+            text-align: center;
         }
+        
+        .label-cell {
+            font-weight: bold;
+            width: 25%;
+            background-color: #f9f9f9;
+        }
+        
         .approval-section {
-            margin-top: 20px;
+            margin-top: 10px;
         }
+        
         .report-review {
-            margin-top: 20px;
+            margin-top: 10px;
         }
+        
         .header-table {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            border: 1px solid #000;
         }
+        
         .header-table td {
             vertical-align: middle;
+            padding: 8px;
         }
+        
         .logo-cell {
             width: 15%;
+            text-align: center;
         }
+        
         .title-cell {
             width: 55%;
             text-align: center;
+            padding: 10px;
         }
+        
         .format-cell {
             width: 30%;
+            padding: 8px;
+        }
+        
+        .input-field {
+            min-height: 22px; /* Taller input fields */
+        }
+        
+        .multi-line {
+            min-height: 40px; /* Extra space for multi-line fields */
+        }
+        
+        .checkbox-cell {
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .data-cell {
+            background-color: white;
+        }
+        
+        .title-text {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            color: #000;
+        }
+        
+        .note-text {
+            font-style: italic;
+            color: #555;
+            padding: 8px;
+        }
+        
+        .signature-space {
+            height: 50px;
+            border-bottom: 1px dotted #999;
+        }
+        
+        /* For print media */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            table {
+                page-break-inside: avoid;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+        /* Ensure form fills entire page width consistently */
+        html, body {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Fix for uniform table widths */
+        table {
+            width: 100% !important;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+            border-spacing: 0;
+        }
+        
+        /* Override any browser default spacing */
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Logo styling */
+        .logo-container {
+            border: 1px solid #000;
+            padding: 3px;
+            width: 60px;
+            height: 45px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        
+        .logo-image {
+            width: 50px;
+            height: 40px;
+        }
+        
+        /* Company name below logo */
+        .company-name {
+            font-size: 9px;
+            font-weight: bold;
+            color: red;
+            text-align: center;
+            margin-top: 3px;
         }
     </style>
 </head>
@@ -53,18 +183,18 @@
     <table class="header-table">
         <tr>
             <td class="logo-cell">
-                <!-- KPI Logo placeholder -->
-                <div style="border: 1px solid #000; padding: 3px; width: 50px; height: 30px; text-align: center;">
-                    <img style="width: 40px; height: 40px;" src="{% static 'images/logo.png' %}" alt="Logo" />
+                <div class="logo-container">
+                    <img class="logo-image" src="{% static 'images/logo.png' %}" alt="Logo" />
                 </div>
+                <div class="company-name">KPI GREEN ENERGY LIMITED</div>
             </td>
             <td class="title-cell">
-                <div style="font-weight: bold; font-size: 16px;">Material dispatch clearance<br>certificate (MDCC)</div>
+                <div class="title-text">MATERIAL DISPATCH CLEARANCE<br>CERTIFICATE (MDCC)</div>
             </td>
             <td class="format-cell">
-                <div>Format No.</div>
-                <div>Effective Date</div>
-                <div>Revision Date</div>
+                <div><strong>Format No.:</strong> {{ format_no }}</div>
+                <div><strong>Effective Date:</strong> {{ effective_date }}</div>
+                <div><strong>Revision Date:</strong> {{ revision_date }}</div>
             </td>
         </tr>
     </table>
@@ -72,119 +202,195 @@
     <!-- Main MDCC Form -->
     <table>
         <tr>
-            <td style="width: 25%;">Ref No: {{ refNo }}</td>
-            <td style="width: 50%;">Date: {{ date }}</td>
+            <td class="label-cell" style="width: 25%;">Ref No:</td>
+            <td class="data-cell" style="width: 25%;">{{ refNo }}</td>
+            <td class="label-cell" style="width: 15%;">Date:</td>
+            <td class="data-cell" style="width: 35%;">{{ date }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%;">Project Name:</td>
+            <td class="data-cell" colspan="3">{{ project }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%;">To:</td>
+            <td class="data-cell" colspan="3">{{ to }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%; vertical-align: top;">Name and address of Supplier:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 60px;">{{ supplierAddress }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%;">Place of Inspection:</td>
+            <td class="data-cell multi-line" colspan="3">{{ inspectionPlace }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%;">Material Description:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ materialDescription }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%; vertical-align: top;" rowspan="3">Reference document for test/ witness:</td>
+            <td class="data-cell" colspan="3">1) QAP/MQP: {{ qap }}</td>
         </tr>
         <tr>
-            <td>Project Name-</td>
-            <td colspan="2">{{ project }}</td>
+            <td class="data-cell" colspan="3">2) Drawing/Model No: {{ drawingNo }}</td>
         </tr>
         <tr>
-            <td>To,</td>
-            <td colspan="2">{{ to }}</td>
+            <td class="data-cell" colspan="3">3) IS/IEC/ISO: {{ standard }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 50%;">Third party test required</td>
+            <td class="checkbox-cell" style="width: 25%;">{% if tpiRequired == "Yes" %}✓ Yes{% else %}□ Yes{% endif %}</td>
+            <td class="checkbox-cell" style="width: 25%;">{% if tpiRequired == "No" %}✓ No{% else %}□ No{% endif %}</td>
         </tr>
         <tr>
-            <td>Name and address of Supplier:<br><br>Place of Inspection:</td>
-            <td colspan="2">{{ supplierAddress }}<br><br>{{ inspectionPlace }}</td>
+            <td class="label-cell">Third party test conducted</td>
+            <td class="checkbox-cell">{% if tpiConducted == "Yes" %}✓ Yes{% else %}□ Yes{% endif %}</td>
+            <td class="checkbox-cell">{% if tpiConducted == "No" %}✓ No{% else %}□ No{% endif %}</td>
         </tr>
         <tr>
-            <td>Material Description:</td>
-            <td colspan="2">{{ materialDescription }}</td>
+            <td class="label-cell">Third party test report attached</td>
+            <td class="checkbox-cell">{% if tpiReportAttached == "Yes" %}✓ Yes{% else %}□ Yes{% endif %}</td>
+            <td class="checkbox-cell">{% if tpiReportAttached == "No" %}✓ No{% else %}□ No{% endif %}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%;">Details of Third party:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ tpiDetails }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 25%;">Recommendation of third party:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ tpiRecommendation }}</td>
+        </tr>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="label-cell" style="width: 50%;">Internal test /witness required</td>
+            <td class="checkbox-cell" style="width: 25%;">{% if internalRequired == "Yes" %}✓ Yes{% else %}□ Yes{% endif %}</td>
+            <td class="checkbox-cell" style="width: 25%;">{% if internalRequired == "No" %}✓ No{% else %}□ No{% endif %}</td>
         </tr>
         <tr>
-            <td>Reference document for test/ witness:</td>
-            <td colspan="2">
-                1) QAP/MQP: {{ qap }}<br><br>
-                2) Drawing/Model No: {{ drawingNo }}<br><br>
-                3) IS/IEC/ISO: {{ standard }}
-            </td>
+            <td class="label-cell">Internal test /witness Conducted</td>
+            <td class="checkbox-cell">{% if internalConducted == "Yes" %}✓ Yes{% else %}□ Yes{% endif %}</td>
+            <td class="checkbox-cell">{% if internalConducted == "No" %}✓ No{% else %}□ No{% endif %}</td>
         </tr>
         <tr>
-            <td>Third party test required</td>
-            <td>{% if tpiRequired == "Yes" %}Yes{% else %}No{% endif %}</td>
-            <td>{% if tpiRequired == "No" %}Yes{% else %}No{% endif %}</td>
+            <td class="label-cell">Internal test/ witness report attached</td>
+            <td class="checkbox-cell">{% if internalReportAttached == "Yes" %}✓ Yes{% else %}□ Yes{% endif %}</td>
+            <td class="checkbox-cell">{% if internalReportAttached == "No" %}✓ No{% else %}□ No{% endif %}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Third party test conducted</td>
-            <td>{% if tpiConducted == "Yes" %}Yes{% else %}No{% endif %}</td>
-            <td>{% if tpiConducted == "No" %}Yes{% else %}No{% endif %}</td>
+            <td class="label-cell" style="width: 25%;">Name and details of internal inspector/ representative:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ internalInspectorDetails }}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Third party test report attached</td>
-            <td>{% if tpiReportAttached == "Yes" %}Yes{% else %}No{% endif %}</td>
-            <td>{% if tpiReportAttached == "No" %}Yes{% else %}No{% endif %}</td>
+            <td class="label-cell" style="width: 25%;">Recommendation of internal inspector:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ internalRecommendation }}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Details of Third party</td>
-            <td colspan="2">{{ tpiDetails }}</td>
+            <td class="label-cell" style="width: 25%;">Quantity Offered:</td>
+            <td class="data-cell" style="width: 50%;">{{ quantityOffered }}</td>
+            <td class="label-cell" style="width: 10%;">Unit:</td>
+            <td class="data-cell" style="width: 15%;">{{ unitOffered }}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Recommendation of third party</td>
-            <td colspan="2">{{ tpiRecommendation }}</td>
+            <td class="label-cell" style="width: 25%;">Quantity cleared for dispatch:</td>
+            <td class="data-cell" style="width: 50%;">{{ quantityCleared }}</td>
+            <td class="label-cell" style="width: 10%;">Unit:</td>
+            <td class="data-cell" style="width: 15%;">{{ unitCleared }}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Internal test /witness required</td>
-            <td>{% if internalRequired == "Yes" %}Yes{% else %}No{% endif %}</td>
-            <td>{% if internalRequired == "No" %}Yes{% else %}No{% endif %}</td>
+            <td class="label-cell" style="width: 25%;">Conditions if any:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ conditions }}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Internal test /witness Conducted</td>
-            <td>{% if internalConducted == "Yes" %}Yes{% else %}No{% endif %}</td>
-            <td>{% if internalConducted == "No" %}Yes{% else %}No{% endif %}</td>
+            <td class="label-cell" style="width: 25%;">Comments if any:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ comments }}</td>
         </tr>
+    </table>
+    
+    <table>
         <tr>
-            <td>Internal test/ witness report attached</td>
-            <td>{% if internalReportAttached == "Yes" %}Yes{% else %}No{% endif %}</td>
-            <td>{% if internalReportAttached == "No" %}Yes{% else %}No{% endif %}</td>
-        </tr>
-        <tr>
-            <td>Name and details of internal inspector/ representative</td>
-            <td colspan="2">{{ internalInspectorDetails }}</td>
-        </tr>
-        <tr>
-            <td>Recommendation of internal inspector</td>
-            <td colspan="2">{{ internalRecommendation }}</td>
-        </tr>
-        <tr>
-            <td>Quantity Offered:</td>
-            <td>{{ quantityOffered }}</td>
-            <td>Unit: {{ unitOffered }}</td>
-        </tr>
-        <tr>
-            <td>Quantity cleared for dispatch:</td>
-            <td>{{ quantityCleared }}</td>
-            <td>Unit: {{ unitCleared }}</td>
-        </tr>
-        <tr>
-            <td>Conditions if any:</td>
-            <td colspan="2">{{ conditions }}</td>
-        </tr>
-        <tr>
-            <td>Comments if any:</td>
-            <td colspan="2">{{ comments }}</td>
-        </tr>
-        <tr>
-            <td>Annexures if any:</td>
-            <td colspan="2">{{ annexures }}</td>
+            <td class="label-cell" style="width: 25%;">Annexures if any:</td>
+            <td class="data-cell multi-line" colspan="3" style="height: 40px;">{{ annexures }}</td>
         </tr>
     </table>
     
     <!-- Approval Section -->
     <table class="approval-section">
         <tr>
-            <td style="width: 50%;">(Email Approval, does not require signature)</td>
-            <td style="width: 50%;">(Email Approval, does not require signature)</td>
-        </tr>
-        <tr>
-            <td>Reviewed by: {{ reviewedBy }}</td>
-            <td>Approved by: {{ approvedBy }}</td>
+            <td style="width: 50%; vertical-align: top; border: none;">
+                <div class="signature-space"></div>
+                <div style="text-align: center; padding-top: 5px;">
+                    <strong>Reviewed by:</strong> {{ reviewedBy }}
+                </div>
+                <div style="text-align: center; font-size: 9px; font-style: italic;">
+                    (Email Approval, does not require signature)
+                </div>
+            </td>
+            <td style="width: 50%; vertical-align: top; border: none;">
+                <div class="signature-space"></div>
+                <div style="text-align: center; padding-top: 5px;">
+                    <strong>Approved by:</strong> {{ approvedBy }}
+                </div>
+                <div style="text-align: center; font-size: 9px; font-style: italic;">
+                    (Email Approval, does not require signature)
+                </div>
+            </td>
         </tr>
     </table>
 
     <!-- Report Review Section -->
+    <div class="page-break"></div>
     <table class="report-review">
         <tr class="header-row">
-            <td colspan="4">Report Review</td>
+            <td colspan="4" style="background-color: #e6e6e6; text-align: center; font-weight: bold; font-size: 12px;">
+                REPORT REVIEW
+            </td>
         </tr>
         <tr class="header-row">
             <td style="width: 10%;">Sr No.</td>
@@ -193,60 +399,82 @@
             <td style="width: 20%;">Remark if any</td>
         </tr>
         <tr>
-            <td>1</td>
+            <td style="text-align: center;">1</td>
             <td>TPI report</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
-            <td>2</td>
+            <td style="text-align: center;">2</td>
             <td>Inspection date</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
-            <td>3</td>
+            <td style="text-align: center;">3</td>
             <td>Compliance report</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
-            <td>4</td>
+            <td style="text-align: center;">4</td>
             <td>NABL Report/MTC</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
-            <td>5</td>
+            <td style="text-align: center;">5</td>
             <td>QAP</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
-            <td>6</td>
+            <td style="text-align: center;">6</td>
             <td>Drawing/Model</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
-            <td>7</td>
+            <td style="text-align: center;">7</td>
             <td>Calibration Report</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="text-align: center;">8</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="text-align: center;">9</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="text-align: center;">10</td>
+            <td></td>
             <td></td>
             <td></td>
         </tr>
     </table>
     
     <!-- Acceptance Statement -->
-    <table style="margin-top: 20px;">
+    <table style="margin-top: 15px;">
         <tr>
-            <td>Accepted by: - This MDCC is deemed to be accepted by&nbsp;M/s supplier unless rejected.</td>
+            <td style="padding: 8px; border: 1px solid #000;">
+                <strong>Accepted by:</strong> This MDCC is deemed to be accepted by M/s {{ supplierAddress|truncatewords:3 }} unless rejected.
+            </td>
         </tr>
     </table>
     
     <!-- Note about Material Dispatch -->
-    <table style="margin-top: 20px;">
+    <table style="margin-top: 15px;">
         <tr>
-            <td style="font-style: italic; color: #555;">Note:- This material dispatch clearance certificate is only acceptance of material on its quality parameter and shall not be linked to project scheduling and progress.</td>
+            <td class="note-text">
+                <strong>Note:</strong> This material dispatch clearance certificate is only acceptance of material on its quality parameter and shall not be linked to project scheduling and progress.
+            </td>
         </tr>
     </table>
 </body>

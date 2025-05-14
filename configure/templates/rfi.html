@@ -7,24 +7,28 @@
     <title>Request for Inspection (RFI) and Release Note</title>
     <style>
         @page {
-            size: A4;
-            margin: 10mm 10mm 10mm 10mm;
+            size: A4 portrait;
+            margin: 12mm; /* Slightly increased margins for better breathing space */
         }
         
         body {
             font-family: Arial, sans-serif;
             font-size: 10px;
-            line-height: 1.2;
+            line-height: 1.3;
             margin: 0;
             padding: 0;
-            width: 210mm; /* A4 width */
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 186mm; /* A4 width minus margins to ensure consistent sizing */
         }
         
         .form-container {
             width: 100%;
-            max-width: 190mm; /* A bit less than A4 width to ensure fit */
             margin: 0 auto;
             border: 1px solid #000;
+            background-color: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
         
         table {
@@ -32,14 +36,18 @@
             border-collapse: collapse;
             table-layout: fixed;
             page-break-inside: avoid;
+            margin: 0; /* Remove default margin */
+            font-size: 10px;
+            /* Set specific width to ensure uniformity */
+            max-width: 100%;
+            min-width: 100%;
         }
         
         th, td {
             border: 1px solid #000;
-            padding: 3px;
+            padding: 4px 5px; /* Increased padding for better readability */
             vertical-align: top;
             word-wrap: break-word;
-            font-size: 10px;
         }
         
         .header {
@@ -59,6 +67,7 @@
             font-size: 14px;
             font-weight: bold;
             text-align: center;
+            padding: 5px 0;
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -68,7 +77,7 @@
             font-weight: bold;
             text-align: center;
             background-color: #f0f0f0;
-            padding: 3px;
+            padding: 4px;
         }
         
         .checkbox-container {
@@ -93,7 +102,7 @@
         /* Use text directly for checkmarks to improve PDF compatibility */
         .checkbox-text {
             display: inline-block;
-            width: 10px;
+            width: 12px;
             text-align: center;
             vertical-align: middle;
             margin-right: 2px;
@@ -106,6 +115,8 @@
         
         .signatures {
             height: 30px;
+            border-bottom: 1px dotted #999;
+            margin-bottom: 5px;
         }
         
         .red-text {
@@ -116,6 +127,7 @@
             text-align: left;
             font-size: 9px;
             font-weight: bold;
+            padding: 3px;
         }
         
         .empty-row {
@@ -143,6 +155,10 @@
             width: 40%;
         }
         
+        .table-cell-45 {
+            width: 45%;
+        }
+        
         .table-cell-50 {
             width: 50%;
         }
@@ -166,13 +182,13 @@
         /* Smaller text for descriptions */
         .small-text {
             font-size: 8px;
-            line-height: 1.1;
+            line-height: 1.2;
         }
         
         /* Flex container for options */
         .options-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             flex-wrap: wrap;
             align-items: center;
         }
@@ -180,24 +196,82 @@
         .option-item {
             display: flex;
             align-items: center;
-            margin-right: 5px;
+            margin-right: 10px; /* Increased spacing between options */
             white-space: nowrap;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            body {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .form-container {
+                border: none;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+            
+            table {
+                width: 100%;
+                page-break-inside: avoid;
+            }
+            
+            /* Force specific heights for textareas on print */
+            .description-field {
+                min-height: 40px;
+            }
+            
+            .observation-field {
+                min-height: 60px;
+            }
+            
+            .action-field {
+                min-height: 40px;
+            }
+        }
+        
+        /* Ensure form fills entire page width consistently */
+        html, body {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Fix for uniform table widths */
+        .form-container table {
+            width: 100% !important;
+            box-sizing: border-box;
+            margin-bottom: 0;
+            border-spacing: 0;
+        }
+        
+        /* Override any browser default spacing */
+        * {
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <table>
+        <!-- Header Section -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
-                <td style="width: 10%; padding: 3px;">
-                    <div style="border: 1px solid #000; padding: 3px; width: 50px; height: 30px; text-align: center;">
+                <td style="width: 15%; padding: 5px; vertical-align: middle;">
+                    <div style="border: 1px solid #000; padding: 3px; width: 50px; height: 40px; text-align: center; margin: 0 auto;">
                         <img style="width: 40px; height: 40px;" src="{% static 'images/logo.png' %}" alt="Logo" />
                     </div>
                 </td>
-                <td style="width: 70%; padding-top: 10px;">
+                <td style="width: 65%; vertical-align: middle; text-align: center;">
                     <div class="title">REQUEST FOR INSPECTION (RFI) AND RELEASE NOTE</div>
                 </td>
-                <td style="width: 20%; padding-top: 5px;">
+                <td style="width: 20%; vertical-align: middle;">
                     <div class="doc-number">
                         Doc. No.:-KPG/PR-GM/ F65<br>
                         Rev. No./ Date: 00/07.09.2024
@@ -206,17 +280,19 @@
             </tr>
         </table>
 
-        <table>
+        <!-- Project Information -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
-                <td class="table-cell-15">Date:</td>
-                <td class="table-cell-55">Project Name: {{ project }}</td>
-                <td class="table-cell-30">Project Location: {{ location_name }}</td>
+                <td class="table-cell-15"><strong>Date:</strong></td>
+                <td class="table-cell-55"><strong>Project Name:</strong> {{ project }}</td>
+                <td class="table-cell-30"><strong>Project Location:</strong> {{ location_name }}</td>
             </tr>
         </table>
 
-        <table>
+        <!-- RFI Classification -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
-                <td class="table-cell-15">RFI No.: {{ rfi_number }}</td>
+                <td class="table-cell-15"><strong>RFI No.:</strong> {{ rfi_number }}</td>
                 <td class="table-cell-40">
                     <div class="options-container">
                         <div class="option-item">
@@ -252,166 +328,174 @@
             </tr>
         </table>
 
-        <table>
+        <!-- EPC Information -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
-                <td class="table-cell-15">EPC Name:</td>
+                <td class="table-cell-15"><strong>EPC Name:</strong></td>
                 <td class="table-cell-55">{{ epc_name }}</td>
-                <td class="table-cell-30">Offered Date: {{ offered_date }}</td>
+                <td class="table-cell-30"><strong>Offered Date:</strong> {{ offered_date }}</td>
             </tr>
         </table>
 
-        <table>
+        <!-- Work Activity Details -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td colspan="4" class="subtitle">Details of Work Activity</td>
             </tr>
             <tr>
-                <td class="table-cell-15">Block No.</td>
-                <td class="table-cell-20">Table Nos.</td>
-                <td class="table-cell-40">Activity Description</td>
-                <td class="table-cell-25">Hold Details (If Any)</td>
+                <td class="table-cell-15"><strong>Block No.</strong></td>
+                <td class="table-cell-20"><strong>Table Nos.</strong></td>
+                <td class="table-cell-40"><strong>Activity Description</strong></td>
+                <td class="table-cell-25"><strong>Hold Details (If Any)</strong></td>
             </tr>
             <tr>
-                <td style="height: 40px;">{{ block_number }}</td>
-                <td>{{ table_number }}</td>
-                <td>{{ activity_description }}</td>
-                <td>{{ hold_details }}</td>
+                <td style="height: 40px;" class="description-field">{{ block_number }}</td>
+                <td class="description-field">{{ table_number }}</td>
+                <td class="description-field">{{ activity_description }}</td>
+                <td class="description-field">{{ hold_details }}</td>
             </tr>
         </table>
 
-        <table>
+        <!-- Location and Construction Info -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
-                <td class="table-cell-50">Buildings/Location Name:</td>
-                <td class="table-cell-50">Construction Activity:</td>
+                <td class="table-cell-50"><strong>Buildings/Location Name:</strong></td>
+                <td class="table-cell-50"><strong>Construction Activity:</strong></td>
             </tr>
             <tr>
-                <td style="height: 40px;">{{ location_name }}</td>
-                <td>{{ construction_activity }}</td>
+                <td style="height: 40px;" class="description-field">{{ location_name }}</td>
+                <td class="description-field">{{ construction_activity }}</td>
             </tr>
         </table>
 
-        <table>
+        <!-- Signatures - First Section -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td class="table-cell-50 center-text">
-                    The offered work output is as per engineering<br>
-                    drawings and quality standards
+                    <strong>The offered work output is as per engineering<br>
+                    drawings and quality standards</strong>
                     <div class="signatures"></div>
-                    <div class="center-text">EPC Sign, Name & Date</div>
+                    <div class="center-text"><em>EPC Sign, Name & Date</em></div>
                 </td>
                 <td class="table-cell-50 center-text">
-                    Supervised by
+                    <strong>Supervised by</strong>
                     <div class="signatures"></div>
-                    <div class="center-text">KPI Construction Engineer, Sign & Date</div>
+                    <div class="center-text"><em>KPI Construction Engineer, Sign & Date</em></div>
                 </td>
             </tr>
         </table>
 
-        <!-- Second part of the form -->
-        <table>
+        <!-- Disposition Section -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td colspan="5" class="subtitle">Disposition</td>
             </tr>
             <tr>
                 <td style="width: 20%; text-align: center;">
                     <span class="checkbox-text">{% if disposition == 'Released' %}✓{% else %}□{% endif %}</span>
-                    <div>Released</div>
+                    <div><strong>Released</strong></div>
                     <div class="small-text">Released RFI as <span class="red-text">100% samples are compliant</span></div>
                 </td>
                 <td style="width: 20%; text-align: center;">
                     <span class="checkbox-text">{% if disposition == 'Sort' %}✓{% else %}□{% endif %}</span>
-                    <div>Sort</div>
+                    <div><strong>Sort</strong></div>
                     <div class="small-text">Sort rejected work activity for Compliant & Non-Compliants outputs and offer Compliant for Re-inspection</div>
                 </td>
                 <td style="width: 20%; text-align: center;">
                     <span class="checkbox-text">{% if disposition == 'Rework' %}✓{% else %}□{% endif %}</span>
-                    <div>Rework</div>
+                    <div><strong>Rework</strong></div>
                     <div class="small-text">Rework to correct the defects and offer for Re-inspection</div>
                 </td>
                 <td style="width: 20%; text-align: center;">
                     <span class="checkbox-text">{% if disposition == 'Use As-Is' %}✓{% else %}□{% endif %}</span>
-                    <div>Use As-Is/ Deviate</div>
+                    <div><strong>Use As-Is/ Deviate</strong></div>
                     <div class="small-text">Authorize deviation to "Use as is". The deviation to be authorized by Engineering function including life of allowed deviation</div>
                 </td>
                 <td style="width: 20%; text-align: center;">
                     <span class="checkbox-text">{% if disposition == 'Reject' %}✓{% else %}□{% endif %}</span>
-                    <div>Reject & Hold</div>
+                    <div><strong>Reject & Hold</strong></div>
                     <div class="small-text">Rejected and hold back if previous four disposition are not agreed NCR No.</div>
                 </td>
             </tr>
         </table>
             
-        <table>
+        <!-- Time Information -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td style="width: 25%;">
-                    <div>Offered Time: {{ offered_time }}</div>
+                    <div><strong>Offered Time:</strong> {{ offered_time }}</div>
                 </td>
                 <td style="width: 25%;">
-                    <div>Site Reaching Time: {{ site_reaching_time }}</div>
+                    <div><strong>Site Reaching Time:</strong> {{ site_reaching_time }}</div>
                 </td>
                 <td style="width: 25%;">
-                    <div>Inspection Start Time: {{ inspection_start_time }}</div>
+                    <div><strong>Inspection Start Time:</strong> {{ inspection_start_time }}</div>
                 </td>
                 <td style="width: 25%;">
-                    <div>Inspection End Time: {{ inspection_end_time }}</div>
+                    <div><strong>Inspection End Time:</strong> {{ inspection_end_time }}</div>
                 </td>
             </tr>
         </table>
             
-        <table>
+        <!-- Non-Conformance Section -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td class="subtitle">Observed Non-Conformance Statement: (with reference to documents, if any)</td>
             </tr>
             <tr>
-                <td style="height: 60px;">{{ nonconformance_statement }}</td>
+                <td style="height: 60px;" class="observation-field">{{ nonconformance_statement }}</td>
             </tr>
         </table>
 
-        <table>
+        <!-- Next Steps Section -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td colspan="4" class="subtitle">Next Steps</td>
             </tr>
             <tr>
-                <td style="width: 25%;">Actions</td>
-                <td style="width: 25%;">Responsibility</td>
-                <td style="width: 25%;">Timelines</td>
-                <td style="width: 25%;">Remarks</td>
+                <td style="width: 25%;"><strong>Actions</strong></td>
+                <td style="width: 25%;"><strong>Responsibility</strong></td>
+                <td style="width: 25%;"><strong>Timelines</strong></td>
+                <td style="width: 25%;"><strong>Remarks</strong></td>
             </tr>
             <tr style="height: 40px;">
-                <td>{{ actions }}</td>
-                <td>{{ responsibility }}</td>
-                <td>{{ timelines }}</td>
-                <td>{{ remarks }}</td>
+                <td class="action-field">{{ actions }}</td>
+                <td class="action-field">{{ responsibility }}</td>
+                <td class="action-field">{{ timelines }}</td>
+                <td class="action-field">{{ remarks }}</td>
             </tr>
         </table>
 
-        <table>
+        <!-- Final Signature Section -->
+        <table style="width: 100%; table-layout: fixed;">
             <tr>
                 <td style="width: 15%;"></td>
-                <td colspan="2" style="width: 40%; text-align: center;">EPC Representative</td>
-                <td colspan="2" style="width: 45%; text-align: center;">KPIGEL Representative</td>
+                <td colspan="2" style="width: 40%; text-align: center;"><strong>EPC Representative</strong></td>
+                <td colspan="2" style="width: 45%; text-align: center;"><strong>KPIGEL Representative</strong></td>
             </tr>
             <tr>
                 <td style="width: 15%;"></td>
-                <td style="width: 20%; text-align: center;">Execution</td>
-                <td style="width: 20%; text-align: center;">FQA</td>
-                <td style="width: 22.5%; text-align: center;">Execution</td>
-                <td style="width: 22.5%; text-align: center;">FQA</td>
+                <td style="width: 20%; text-align: center;"><strong>Execution</strong></td>
+                <td style="width: 20%; text-align: center;"><strong>FQA</strong></td>
+                <td style="width: 22.5%; text-align: center;"><strong>Execution</strong></td>
+                <td style="width: 22.5%; text-align: center;"><strong>FQA</strong></td>
             </tr>
             <tr>
-                <td style="width: 15%;">Sign</td>
+                <td style="width: 15%;"><strong>Sign</strong></td>
                 <td style="width: 20%; height: 30px;"></td>
                 <td style="width: 20%; height: 30px;"></td>
                 <td style="width: 22.5%; height: 30px;"></td>
                 <td style="width: 22.5%; height: 30px;"></td>
             </tr>
             <tr>
-                <td style="width: 15%;">Name</td>
+                <td style="width: 15%;"><strong>Name</strong></td>
                 <td style="width: 20%;">{{ epc_execution_name }}</td>
                 <td style="width: 20%;">{{ epc_fqa_name }}</td>
                 <td style="width: 22.5%;">{{ kpi_execution_name }}</td>
                 <td style="width: 22.5%;">{{ kpi_fqa_name }}</td>
             </tr>
             <tr>
-                <td style="width: 15%;">Date</td>
+                <td style="width: 15%;"><strong>Date</strong></td>
                 <td style="width: 20%;">{{ epc_execution_date }}</td>
                 <td style="width: 20%;">{{ epc_fqa_date }}</td>
                 <td style="width: 22.5%;">{{ kpi_execution_date }}</td>
