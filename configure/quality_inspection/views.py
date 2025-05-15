@@ -865,6 +865,8 @@ class CategoryWisePDFViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
+            project_id = request.data.get('project_id')
+            project = Project.objects.get(id=project_id)
             project_name = request.data.get('project_name')
             doc_no = request.data.get('doc_no')
             customer = request.data.get('customer')
@@ -874,9 +876,9 @@ class CategoryWisePDFViewSet(viewsets.ModelViewSet):
             submitted_by = request.data.get('submitted_by')
             govern = request.data.get('govern')
 
-            category1_items = ItemsProduct.objects.filter(item_category='category_1')
-            category2_items = ItemsProduct.objects.filter(item_category='category_2')
-            category3_items = ItemsProduct.objects.filter(item_category='category_3')
+            category1_items = ItemsProduct.objects.filter(item_category='category_1', project__in=project_id)
+            category2_items = ItemsProduct.objects.filter(item_category='category_2', project__in=project_id)
+            category3_items = ItemsProduct.objects.filter(item_category='category_3', project__in=project_id)
 
             context = {
                 'project_name': project_name,
