@@ -241,7 +241,7 @@
     {% for item in other_items %}
     <tr class="cat-item-row">
         <td>{{ forloop.counter }}</td>
-        <td>{{ item }}</td>
+        <td>{{ item.item_name }}</td>
         {% if forloop.first %}
         <td rowspan="{{ other_items|length }}" style="width: 40%;">
             {{ epc_name }} shall carry out 33 kV transmission line/Bay - design, drawing, material, vendor, GTP, QAP, Quality Inspection, testing & installation from concern authorities i.e. {{ govern }} as the case may be.<br><br>
