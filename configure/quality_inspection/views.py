@@ -156,7 +156,7 @@ class AddVendorViewSet(viewsets.ModelViewSet):
             item_id = request.data.get('item_id')
             project_id = request.data.get('project_id')
             vendor_name = request.data.get('vendor_name')
-            file = request.data.get('file')
+            file = request.FILES.getlist('file')
 
             item = ItemsProduct.objects.get(id=item_id)
             project = Project.objects.get(id=project_id)
@@ -166,8 +166,8 @@ class AddVendorViewSet(viewsets.ModelViewSet):
                 vendor_name=vendor_name,
             )
 
-            if file:
-                vendor_document = VendorFileUpload.objects.create(file=file)
+            for file_obj in file:
+                vendor_document = VendorFileUpload.objects.create(file=file_obj)
                 vendor.vendor_file.add(vendor_document)
 
             serializer = VendorSerializer(vendor)
