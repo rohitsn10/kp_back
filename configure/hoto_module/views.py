@@ -305,7 +305,7 @@ class HOTOCertificateViewSet(viewsets.ModelViewSet):
                 'plant_cod': data.get('plant_cod'),
                 'issued_date': data.get('issued_date'),
                 'project_team_name': data.get('project_team_name'),
-                'o&m_team_name': data.get('o&m_team_name'),
+                'onm_team_name': data.get('onm_team_name'),
                 'epc_team_name': data.get('epc_team_name'),
                 'list_attached': [doc for doc in data.get('list_attached', []) if doc.strip()],
                 'design_section': data.get('design_section', {}),
