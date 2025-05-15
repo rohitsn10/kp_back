@@ -231,75 +231,27 @@
         <!-- Start of page 2 -->
         <!-- Interconnecting Transmission Line Table -->
         <table>
-            <tr>
-                <td colspan="3" class="interconnection-title">Interconnecting 33kV Transmission Line</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>D.</td>
-                <td colspan="2"></td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>1</td>
-                <td>Control Relay Panel</td>
-                <td rowspan="14" style="width: 40%;">
-                    {{ epc_name }} shall carry out 33 kV transmission line/Bay - design, drawing, material, vendor, GTP, QAP, Quality Inspection, testing & installation from concern authorities i.e. {{ govern }} as the case may be.<br><br>
-                    {{ customer }} shall issue only MRC (Material receipt certificates) for BBU items to facilitate process of payments.<br><br>
-                    - Wherein, Design, drawing, material inspection, quality, statutory approvals etc. shall be the responsibility of {{ epc_name }} from respective concern authorities.
-                </td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>2</td>
-                <td>SF6/Vacuum circuit breaker</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>3</td>
-                <td>Current Transformer HV</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>4</td>
-                <td>Potential Transformer HV</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>5</td>
-                <td>Transmission Line Conductor / Cable</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>6</td>
-                <td>Earth Switch (out door type) & Earthing Material</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>7</td>
-                <td>Isolator (out door type)</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>8</td>
-                <td>Gantry Structure/ Equipement Structure</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>9</td>
-                <td>Transmission Line Poles/ Towers & Supports</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>10</td>
-                <td>Nut Bolt & Washer</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>11</td>
-                <td>Insulators</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>12</td>
-                <td>Connectors/Hardware for Conductor</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>13</td>
-                <td>Lightning Arrestor</td>
-            </tr>
-            <tr class="cat-item-row">
-                <td>14</td>
-                <td>Misc. Material for 33 kv line</td>
-            </tr>
-        </table>
+    <tr>
+        <td colspan="3" class="interconnection-title">Interconnecting 33kV Transmission Line</td>
+    </tr>
+    <tr class="cat-item-row">
+        <td>D.</td>
+        <td colspan="2"></td>
+    </tr>
+    {% for item in other_items %}
+    <tr class="cat-item-row">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item }}</td>
+        {% if forloop.first %}
+        <td rowspan="{{ other_items|length }}" style="width: 40%;">
+            {{ epc_name }} shall carry out 33 kV transmission line/Bay - design, drawing, material, vendor, GTP, QAP, Quality Inspection, testing & installation from concern authorities i.e. {{ govern }} as the case may be.<br><br>
+            {{ customer }} shall issue only MRC (Material receipt certificates) for BBU items to facilitate process of payments.<br><br>
+            - Wherein, Design, drawing, material inspection, quality, statutory approvals etc. shall be the responsibility of {{ epc_name }} from respective concern authorities.
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
 
         <!-- Notes Section -->
         <div class="note-section">

@@ -879,6 +879,7 @@ class CategoryWisePDFViewSet(viewsets.ModelViewSet):
             category1_items = ItemsProduct.objects.filter(item_category='category_1', project__in=project_id)
             category2_items = ItemsProduct.objects.filter(item_category='category_2', project__in=project_id)
             category3_items = ItemsProduct.objects.filter(item_category='category_3', project__in=project_id)
+            other_items = ItemsProduct.objects.filter(item_category='other', project__in=project_id)
 
             context = {
                 'project_name': project_name,
@@ -892,6 +893,7 @@ class CategoryWisePDFViewSet(viewsets.ModelViewSet):
                 'category1_items': category1_items,
                 'category2_items': category2_items,
                 'category3_items': category3_items,
+                'other_items': other_items,
             }
 
             template = get_template('categorywise_pdf.html')

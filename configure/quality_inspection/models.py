@@ -8,7 +8,8 @@ class ItemsProduct(models.Model):
     CATEGORY_CHOICES = [
         ('category_1', 'Category 1'),
         ('category_2', 'Category 2'),
-        ('category_3', 'Category 3')
+        ('category_3', 'Category 3'),
+        ('other', 'Other')
     ]
     project = models.ManyToManyField(Project, blank=True)
     item_number = models.CharField(max_length=255, null=True, blank=True)
