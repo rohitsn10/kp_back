@@ -7,6 +7,8 @@ from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.conf import settings
+from django.template.loader import get_template
+from weasyprint import HTML
 import os
 import time
 
@@ -289,3 +291,44 @@ class GetAllObjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
             })
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
+
+
+class HOTOCertificateViewSet(viewsets.ModelViewSet):
+
+    def update(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            context = {
+                'project_id': data.get('project_id'),
+                'plant_name': data.get('plant_name'),
+                'plant_cod': data.get('plant_cod'),
+                'issued_date': data.get('issued_date'),
+                'project_team_name': data.get('project_team_name'),
+                'o&m_team_name': data.get('o&m_team_name'),
+                'epc_team_name': data.get('epc_team_name'),
+                'list_attached': [doc for doc in data.get('list_attached', []) if doc.strip()],
+                'design_section': data.get('design_section', {}),
+                'scm_section': data.get('scm_section', {}),
+                'project_section': data.get('project_section', {}),
+                'user_names': data.get('user_names', {})
+            }
+
+            # Load and render HTML template
+            template = get_template('hoto_certificate.html')  # Ensure template name matches
+            html = template.render(context)
+
+            # Save PDF
+            timestamp = int(time.time())
+            filename = f"hoto_certificate_{timestamp}.pdf"
+            file_path = os.path.join(settings.MEDIA_ROOT, 'hoto_pdfs', filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(file_path)
+
+            # Respond with full URL
+            file_url = f"{settings.MEDIA_URL}hoto_pdfs/{filename}"
+            full_url = f"{request.scheme}://{request.get_host()}{file_url}"
+            return Response({"status": True, "message": "PDF generated successfully", "data": full_url})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": ""})

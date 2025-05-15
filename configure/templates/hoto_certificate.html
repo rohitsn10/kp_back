@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTO Certificate</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 11px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .certificate-container {
+            width: 100%;
+            border: 1px solid #000;
+            border-collapse: collapse;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        td, th {
+            border: 1px solid #000;
+            padding: 5px;
+            vertical-align: middle;
+        }
+        
+        /* Header section */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .header-table td {
+            padding: 8px;
+            vertical-align: middle;
+        }
+        
+        .logo-cell {
+            width: 20%;
+            text-align: center;
+        }
+        
+        .title-cell {
+            width: 50%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .info-cell {
+            width: 15%;
+            vertical-align: middle;
+        }
+        
+        /* Category headers */
+        .category-header {
+            background-color: #ffb6b6; /* Light red */
+            text-align: center;
+            font-weight: bold;
+            padding: 6px;
+        }
+        
+        .subcategory-header {
+            text-align: center;
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+        
+        /* Data rows */
+        .data-row td {
+            padding: 6px;
+            height: 24px; /* Taller rows for content */
+        }
+        
+        .data-row td:first-child {
+            text-align: center;
+            width: 5%;
+        }
+        
+        .status-cell {
+            text-align: center;
+            width: 20%;
+        }
+        
+        .description-cell {
+            width: 60%;
+        }
+        
+        /* Note section */
+        .note-section {
+            padding: 8px;
+            font-size: 10px;
+            font-style: italic;
+        }
+        
+        /* Signature section */
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .signature-header {
+            background-color: #b6e7b6; /* Light green */
+            text-align: center;
+            font-weight: bold;
+            padding: 6px;
+        }
+        
+        .signature-title {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+            height: 20px;
+        }
+        
+        .signature-field {
+            text-align: center;
+            height: 90px;
+            vertical-align: bottom;
+            padding-bottom: 5px;
+        }
+        
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        /* Logo styling */
+        .logo {
+            height: 40px;
+            max-width: 80px;
+            margin: 0 5px;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            .certificate-container {
+                width: 100%;
+                margin: 0;
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <!-- Header Section -->
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell">
+                    <img src="{'static/images/logo.png'}" alt="KPI Logo" class="logo">
+                </td>
+                <td class="title-cell">{{ plant_name }}</td>
+                <td class="info-cell"><strong>Plant COD:</strong><br>{{ plant_cod }}</td>
+                <td class="info-cell"><strong>Issued Date:</strong><br>{{ issued_date }}</td>
+            </tr>
+        </table>
+        
+        <!-- Main Content Table -->
+        <table>
+            <!-- Category Headers Row -->
+            <tr>
+                <td class="category-header" colspan="2">Design</td>
+                <td class="category-header" colspan="2">SCM</td>
+                <td class="category-header" colspan="2">Project</td>
+            </tr>
+            
+            <!-- Subcategory Headers Row -->
+            <tr>
+                <td class="subcategory-header">Description</td>
+                <td class="subcategory-header">Status</td>
+                <td class="subcategory-header">Description</td>
+                <td class="subcategory-header">Status</td>
+                <td class="subcategory-header">Description</td>
+                <td class="subcategory-header">Status</td>
+            </tr>
+            
+            <!-- Data Row 1 -->
+            <tr class="data-row">
+                <td>As-Built Drawings</td>
+                <td class="status-cell">{{ design_section.as_built_drawings }}</td>
+                <td>Warranty Certificate</td>
+                <td class="status-cell">{{ scm_section.warranty_certificate }}</td>
+                <td>Factory Test Report</td>
+                <td class="status-cell">{{ project_section.factory_test_report }}</td>
+            </tr>
+            
+            <!-- Data Row 2 -->
+            <tr class="data-row">
+                <td>Pvsyst Report</td>
+                <td class="status-cell">{{ design_section.pvsyst_report }}</td>
+                <td>SLA</td>
+                <td class="status-cell">{{ scm_section.sla }}</td>
+                <td>Inspection Report</td>
+                <td class="status-cell">{{ project_section.inspection_report }}</td>
+            </tr>
+            
+            <!-- Data Row 2b (special case) -->
+            <tr class="data-row">
+                <td>Data Sheet</td>
+                <td class="status-cell">{{ design_section.data_sheet }}</td>
+                <td>Manual</td>
+                <td class="status-cell">{{ scm_section.manual }}</td>
+                <td>Punch Point List</td>
+                <td class="status-cell">{{ project_section.punch_point_list }}</td>
+            </tr>
+            
+            <!-- Data Row 3 -->
+            <!-- <tr class="data-row">
+                <td></td>
+                <td class="status-cell">{{ design_status_3 }}</td>
+                <td>Manual</td>
+                <td class="status-cell">{{ scm_status_3 }}</td>
+                <td>Punch point list</td>
+                <td class="status-cell">{{ project_status_3 }}</td>
+            </tr> -->
+            
+            <!-- Data Row 4 -->
+            <tr class="data-row">
+                <td>GAD and GTP</td>
+                <td class="status-cell">{{ design_section.gad_and_gtp }}</td>
+                <td>Escalation Matrix</td>
+                <td class="status-cell">{{ scm_section.escalation_matrix }}</td>
+                <td>On Site Test Report</td>
+                <td class="status-cell">{{ project_section.on_site_test_report }}</td>
+            </tr>
+        </table>
+        
+        <!-- Note Section -->
+        <table>
+    <tr>
+        <td colspan="6" class="note-section">
+            <strong>Note:</strong> {{ note_text|default:"This HOTO will be completed only after closure of all punch point. List of the punch point is attached along with HOTO sheet." }}
+        </td>
+    </tr>
+    <tr>
+        <td colspan="6" class="text-left" style="padding-left: 10px;">
+            <strong>List Attached:</strong><br>
+            {% if list_attached %}
+                {% for item in list_attached %}
+                    {{ forloop.counter }}. {{ item }}<br>
+                {% endfor %}
+            {% else %}
+                No list attached.
+            {% endif %}
+        </td>
+    </tr>
+</table>
+        
+        <!-- Signature Section -->
+        <table class="signature-table">
+            <tr>
+                <td class="signature-header">Project Team-{{ project_team_name }}</td>
+                <td class="signature-header">O&M Team-{{ o&m_team_name }}</td>
+                <td class="signature-header">EPC Team-{{ epc_team_name }}</td>
+            </tr>
+            <tr>
+                <td class="signature-title">Project Manager</td>
+                <td class="signature-title">Head O&M</td>
+                <td class="signature-title">Project Manager</td>
+            </tr>
+            <tr>
+                <td class="signature-field">{{ user_names.project_manager_name_project_team }}</td>
+                <td class="signature-field">{{ user_names.head_om_name }}</td>
+                <td class="signature-field">{{ user_names.epc_team_bepl }}</td>
+            </tr>
+            <tr>
+                <td class="signature-title">Site Incharge/HOTO Engineer</td>
+                <td class="signature-title">Site In-Charge</td>
+                <td class="signature-title">Sr. Engineer</td>
+            </tr>
+            <tr>
+                <td class="signature-field">{{ user_names.site_incharge_hoto_engineer_name }}</td>
+                <td class="signature-field">{{ user_names.site_in_charge_name }}</td>
+                <td class="signature-field">{{ user_names.senior_engineer_bepl }}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
