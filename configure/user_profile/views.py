@@ -799,13 +799,12 @@ class DepartmentAddView(viewsets.ModelViewSet):
 
     def create(self,request):
             try:
-                user = self.request.user
                 department_name = request.data.get('department_name')
 
                 if not department_name:
                     return Response({'status': False,'message': 'Department name is required'})
 
-                department_obj = Department.objects.create(user=user,department_name=department_name)
+                department_obj = Department.objects.create(department_name=department_name)
                 department_obj.save()
                 return Response({'status': True,'message':"Department created successfully"})
             except Exception as e:
