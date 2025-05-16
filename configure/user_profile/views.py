@@ -586,12 +586,12 @@ class LoginAPIView(ViewSet):
             # Add new fields: groups, department, assignments
             data['groups'] = list(auth_user.groups.values_list('name', flat=True))
 
-            data['department'] = list(UserAssign.objects.filter(user=auth_user).values_list('department_name', flat=True).distinct())
+            data['department'] = list(UserAssign.objects.filter(user=auth_user).values_list('department__name', flat=True).distinct())
 
             data['assignments'] = [
                 {
-                    "project": a.project.name if a.project else None,
-                    "department": a.department.name if a.department else None,
+                    "project": a.project.project_name if a.project else None,
+                    "department": a.department.department_name if a.department else None,
                     "group": a.group.name if a.group else None,
                 }
                 for a in UserAssign.objects.filter(user=auth_user).select_related('project', 'department', 'group')
