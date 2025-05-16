@@ -80,7 +80,7 @@ class LoginUserSerializer(serializers.ModelSerializer):
     def get_department(self, obj):
         assignments = UserAssign.objects.filter(user=obj).select_related('department')
         return list({
-            a.department.name
+            a.department.department_name
             for a in assignments
             if a.department
         })
@@ -89,8 +89,8 @@ class LoginUserSerializer(serializers.ModelSerializer):
         assignments = UserAssign.objects.filter(user=obj).select_related('project', 'department', 'group')
         return [
             {
-                "project": a.project.name if a.project else None,
-                "department": a.department.name if a.department else None,
+                "project": a.project.project_name if a.project else None,
+                "department": a.department.department_name if a.department else None,
                 "group": a.group.name if a.group else None
             }
             for a in assignments
