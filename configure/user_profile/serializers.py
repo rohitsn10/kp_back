@@ -75,7 +75,12 @@ class LoginUserSerializer(serializers.ModelSerializer):
         }
     
     def get_groups(self, obj):
-        return list(obj.groups.values_list('name', flat=True))
+        assignments = UserAssign.objects.filter(user=obj).select_related('group')
+        return list({
+            a.group.name
+            for a in assignments
+            if a.group  # Ensure group is not None
+        })
 
     def get_department(self, obj):
         assignments = UserAssign.objects.filter(user=obj).select_related('department')
