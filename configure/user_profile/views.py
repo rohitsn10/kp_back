@@ -584,7 +584,6 @@ class LoginAPIView(ViewSet):
             data['token'] = str(refresh.access_token)
 
             # Add new fields: groups, department, assignments
-            data['groups'] = list(auth_user.groups.values_list('name', flat=True))
 
             data['department'] = list(UserAssign.objects.filter(user=auth_user).values_list('department__department_name', flat=True).distinct())
 
