@@ -35,9 +35,12 @@ class LoginUserSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField()
     group_id = serializers.SerializerMethodField()
     user_permissions = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
+    assignments = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name','group_id','group_name','user_permissions']
+        fields = ['id', 'full_name','group_id','group_name','user_permissions', 'groups','department','assignments']
 
     def get_group_name(self, obj):
 
@@ -70,6 +73,28 @@ class LoginUserSerializer(serializers.ModelSerializer):
             },
             "permissions": permission_list if permission_list else None
         }
+    
+    def get_groups(self, obj):
+        return list(obj.groups.values_list('name', flat=True))
+
+    def get_department(self, obj):
+        assignments = UserAssign.objects.filter(user=obj).select_related('department')
+        return list({
+            a.department.name
+            for a in assignments
+            if a.department
+        })
+
+    def get_assignments(self, obj):
+        assignments = UserAssign.objects.filter(user=obj).select_related('project', 'department', 'group')
+        return [
+            {
+                "project": a.project.name if a.project else None,
+                "department": a.department.name if a.department else None,
+                "group": a.group.name if a.group else None
+            }
+            for a in assignments
+        ]
     
     def to_representation(self, instance):
         """Override to ensure all IDs are strings."""
@@ -151,3 +176,8 @@ class GetDepartmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'department_name', 'created_at']
 
 
+class UserAssignSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserAssign
+        fields = ['user', 'project', 'department', 'group', 'created_at', 'updated_at']

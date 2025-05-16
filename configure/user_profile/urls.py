@@ -24,5 +24,7 @@ urlpatterns = [
     path('create_get_department', DepartmentAddView.as_view({'post': 'create', 'get': 'list'}), name='create_get_department'),
     path('get_department', DepartmentAddView.as_view({'post': 'create', 'get': 'list'}), name='get_department'),
     path('update_delete_department/<int:department_id>', DepartmentUpdatesViewSet.as_view({'put': 'update', 'delete': 'destroy'}), name='update_delete_department'),
+
+    path('assign_user_all_things', AssignUserAllThingsViewSet.as_view({'post': 'create', 'get': 'list'}), name='assign_user_all_things'),
     
 ]

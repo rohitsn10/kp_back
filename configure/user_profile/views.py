@@ -577,13 +577,27 @@ class LoginAPIView(ViewSet):
                 user.device_token = device_token
                 user.save()
 
-            # Successful login - generate JWT token
+            # Generate JWT token
             refresh = RefreshToken.for_user(auth_user)
             serializer = LoginUserSerializer(auth_user, context={'request': request})
             data = serializer.data
             data['token'] = str(refresh.access_token)
 
-             # If type is mobile, encode all data into a JWT token
+            # Add new fields: groups, department, assignments
+            data['groups'] = list(auth_user.groups.values_list('name', flat=True))
+
+            data['department'] = list(UserAssign.objects.filter(user=auth_user).values_list('department__name', flat=True).distinct())
+
+            data['assignments'] = [
+                {
+                    "project": a.project.name if a.project else None,
+                    "department": a.department.name if a.department else None,
+                    "group": a.group.name if a.group else None,
+                }
+                for a in UserAssign.objects.filter(user=auth_user).select_related('project', 'department', 'group')
+            ]
+
+            # For mobile, encode entire `data` dict
             if login_type == 'mobile':
                 encoded_data = jwt.encode(data, settings.SECRET_KEY, algorithm='HS256')
                 return Response({"status": True, "message": "You are logged in!", "token": encoded_data})
@@ -899,3 +913,55 @@ class LogoutViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong!"})
+        
+
+    
+class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserAssignSerializer
+    queryset = UserAssign.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user_id = request.data.get('user_id')
+            department_id = request.data.get('department_id')
+            project_id = request.data.get('project_id')
+            group_id = request.data.get('group_id')
+
+            user_obj = CustomUser.objects.filter(id=user_id).first()
+            if not user_obj:
+                return Response({"status": False, "message": "User does not exist", "data": []})
+
+            department_obj = Department.objects.filter(id=department_id).first()
+            if not department_obj:
+                return Response({"status": False, "message": "Department does not exist", "data": []})
+
+            project_obj = Project.objects.filter(id=project_id).first()
+            if not project_obj:
+                return Response({"status": False, "message": "Project does not exist", "data": []})
+
+            group_obj = Group.objects.filter(id=group_id).first()
+            if not group_obj:
+                return Response({"status": False, "message": "Group does not exist", "data": []})
+
+            # Create the assignment
+            assignment = UserAssign.objects.create(user=user_obj, department=department_obj, project=project_obj, group=group_obj)
+            assignment.save()
+
+            return Response({"status": True, "message": "User assigned successfully", "data": []})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            user_id = request.query_params.get('user_id')
+            user_obj = CustomUser.objects.filter(id=user_id).first()
+            if not user_obj:
+                return Response({"status": False, "message": "User does not exist", "data": []})
+            queryset = self.filter_queryset(self.get_queryset()).filter(user=user_obj).order_by('-id')
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "User assignments fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
