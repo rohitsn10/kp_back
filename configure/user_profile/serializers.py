@@ -188,13 +188,19 @@ from user_profile.serializers import *
 class UserAssignSerializer(serializers.ModelSerializer):
     assignments = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.full_name', read_only=True)
+    user_mail = serializers.CharField(source='user.email', read_only=True)
+    user_phone = serializers.CharField(source='user.phone', read_only=True)
+    user_dob = serializers.CharField(source='user.dob', read_only=True)
+    user_address = serializers.CharField(source='user.address', read_only=True)
+    user_profile_image = serializers.CharField(source='user.profile_image', read_only=True)
+    user_designation = serializers.CharField(source='user.designation', read_only=True)
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     department_name = serializers.CharField(source='department.department_name', read_only=True)
     group_name = serializers.CharField(source='group.name', read_only=True)
 
     class Meta:
         model = UserAssign
-        fields = ['username', 'user', 'project_name', 'project', 'department_name', 'department', 'group_name', 'group', 'assignments', 'created_at', 'updated_at']
+        fields = ['username', 'user_mail', 'user_phone', 'user_dob', 'user_address', 'user_profile_image', 'user_designation', 'user', 'project_name', 'project', 'department_name', 'department', 'group_name', 'group', 'assignments', 'created_at', 'updated_at']
         
     def get_assignments(self, obj):
         assignments = UserAssign.objects.filter(user=obj.user).select_related('project', 'department', 'group')
