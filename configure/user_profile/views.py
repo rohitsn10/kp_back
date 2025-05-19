@@ -979,17 +979,21 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
         try:
             user_id = request.query_params.get('user_id')
             if not user_id:
-                return Response({"status": False, "message": "user_id is required", "data": []})
+                return Response({"status": False, "message": "user_id is required", "data": {}})
 
             user_obj = CustomUser.objects.filter(id=user_id).first()
             if not user_obj:
-                return Response({"status": False, "message": "User does not exist", "data": []})
+                return Response({"status": False, "message": "User does not exist", "data": {}})
 
             latest_assignment = self.get_queryset().filter(user=user_obj).order_by('-id').first()
-            if not latest_assignment:
-                return Response({"status": False, "message": "No assignment found", "data": []})
 
-            serializer = self.serializer_class(latest_assignment, context={'request': request})
-            return Response({"status": True, "message": "Latest user assignment fetched successfully", "data": serializer.data})
+            if latest_assignment:
+                serializer = self.serializer_class(latest_assignment, context={'request': request})
+                return Response({"status": True, "message": "Latest user assignment fetched successfully", "data": serializer.data})
+            else:
+                dummy = UserAssign(user=user_obj)
+                serializer = self.serializer_class(dummy, context={'request': request})
+                return Response({"status": True, "message": "No assignment found, but user data is shown", "data": serializer.data})
+
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            return Response({"status": False, "message": str(e), "data": {}})
