@@ -201,8 +201,11 @@ class UserAssignSerializer(serializers.ModelSerializer):
         return [
             {
                 "project": a.project.project_name if a.project else None,
+                "project_id": str(a.project.id) if a.project else None,
                 "department": a.department.department_name if a.department else None,
-                "group": a.group.name if a.group else None
+                "department_id": str(a.department.id) if a.department else None,
+                "group": a.group.name if a.group else None,
+                "group_id": str(a.group.id) if a.group else None,
             }
             for a in assignments
         ]
