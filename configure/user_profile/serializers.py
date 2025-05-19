@@ -186,11 +186,19 @@ from project_module.serializers import *
 from user_profile.serializers import *
 
 class UserAssignSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer(read_only=True)
-    project = ProjectSerializer(read_only=True)
-    department = DepartmentSerializer(read_only=True)
-    group = GroupSerializer(read_only=True)
+    assignments = serializers.SerializerMethodField()
 
     class Meta:
         model = UserAssign
-        fields = ['user', 'project', 'department', 'group', 'created_at', 'updated_at']
+        fields = ['user', 'project', 'department', 'group', 'assignments', 'created_at', 'updated_at']
+        
+    def get_assignments(self, obj):
+        assignments = UserAssign.objects.filter(user=obj.user).select_related('project', 'department', 'group')
+        return [
+            {
+                "project": a.project.project_name if a.project else None,
+                "department": a.department.department_name if a.department else None,
+                "group": a.group.name if a.group else None
+            }
+            for a in assignments
+        ]
