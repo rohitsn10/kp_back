@@ -107,6 +107,7 @@ class RFIFieldActivitySerializer(serializers.ModelSerializer):
         return InspectionOutcomeSerializer(outcomes, many=True).data
         
 class InspectionOutcomeSerializer(serializers.ModelSerializer):
+    observation = ObservationReportSerializer(many=True, read_only=True)
         
     class Meta:
         model = InspectionOutcome
