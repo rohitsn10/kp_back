@@ -187,10 +187,14 @@ from user_profile.serializers import *
 
 class UserAssignSerializer(serializers.ModelSerializer):
     assignments = serializers.SerializerMethodField()
+    username = serializers.CharField(source='user.full_name', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    department_name = serializers.CharField(source='department.department_name', read_only=True)
+    group_name = serializers.CharField(source='group.name', read_only=True)
 
     class Meta:
         model = UserAssign
-        fields = ['user', 'project', 'department', 'group', 'assignments', 'created_at', 'updated_at']
+        fields = ['username', 'user', 'project_name', 'project', 'department_name', 'department', 'group_name', 'group', 'assignments', 'created_at', 'updated_at']
         
     def get_assignments(self, obj):
         assignments = UserAssign.objects.filter(user=obj.user).select_related('project', 'department', 'group')
