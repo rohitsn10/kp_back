@@ -978,12 +978,18 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             user_id = request.query_params.get('user_id')
+            if not user_id:
+                return Response({"status": False, "message": "user_id is required", "data": []})
+
             user_obj = CustomUser.objects.filter(id=user_id).first()
             if not user_obj:
                 return Response({"status": False, "message": "User does not exist", "data": []})
-            queryset = self.filter_queryset(self.get_queryset()).filter(user=user_obj).order_by('-id')
-            serializer = self.serializer_class(queryset, many=True, context={'request': request})
-            data = serializer.data
-            return Response({"status": True, "message": "User assignments fetched successfully", "data": data})
+
+            latest_assignment = self.get_queryset().filter(user=user_obj).order_by('-id').first()
+            if not latest_assignment:
+                return Response({"status": False, "message": "No assignment found", "data": []})
+
+            serializer = self.serializer_class(latest_assignment, context={'request': request})
+            return Response({"status": True, "message": "Latest user assignment fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
