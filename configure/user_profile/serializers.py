@@ -38,6 +38,7 @@ class LoginUserSerializer(serializers.ModelSerializer):
     groups = serializers.SerializerMethodField()
     department = serializers.SerializerMethodField()
     assignments = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
         fields = ['id', 'full_name','group_id','group_name','user_permissions', 'groups','department','assignments']
@@ -182,6 +183,10 @@ class GetDepartmentSerializer(serializers.ModelSerializer):
 
 
 class UserAssignSerializer(serializers.ModelSerializer):
+    user = CustomUser(many=True, read_only=True)
+    project = Project(many=True, read_only=True)
+    department = Department(many=True, read_only=True)
+    group = GroupSerializer(many=True, read_only=True)
 
     class Meta:
         model = UserAssign

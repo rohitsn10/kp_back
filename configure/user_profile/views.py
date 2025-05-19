@@ -926,6 +926,30 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
             project_id = request.data.get('project_id')
             group_id = request.data.get('group_id')
 
+            remove_department_id = request.data.get('remove_department_id')
+            remove_project_id = request.data.get('remove_project_id')
+            remove_group_id = request.data.get('remove_group_id')
+
+            if remove_department_id or remove_project_id or remove_group_id:
+                if not user_id:
+                    return Response({"status": False, "message": "User ID is required for removal", "data": []})
+
+                filters = {"user_id": user_id}
+                if remove_department_id:
+                    filters["department_id"] = remove_department_id
+                if remove_project_id:
+                    filters["project_id"] = remove_project_id
+                if remove_group_id:
+                    filters["group_id"] = remove_group_id
+
+                removed = UserAssign.objects.filter(**filters)
+                if removed.exists():
+                    count = removed.count()
+                    removed.delete()
+                    return Response({"status": True, "message": f"{count} user assignment(s) removed successfully", "data": []})
+                else:
+                    return Response({"status": False, "message": "No matching assignment(s) found to remove", "data": []})
+
             user_obj = CustomUser.objects.filter(id=user_id).first()
             if not user_obj:
                 return Response({"status": False, "message": "User does not exist", "data": []})
