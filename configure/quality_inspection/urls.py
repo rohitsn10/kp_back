@@ -26,6 +26,7 @@ urlpatterns = [
     path('electrical_get_rfi/<int:project_id>', ElectricalGetRFIViewSet.as_view({'get': 'list'}), name='electrical_get_rfi'),
     path('mechanical_get_rfi/<int:project_id>', MechanicalGetRFIViewSet.as_view({'get': 'list'}), name='mechanical_get_rfi'),
     path('civil_get_rfi/<int:project_id>', CivilGetRFIViewSet.as_view({'get': 'list'}), name='civil_get_rfi'),
+    path('count_all_rfi/<int:project_id>', CountAllRFIViewSet.as_view({'get': 'list'}), name='count_all_rfi'),
     path('update_rfi/<int:rfi_id>', UpdateRFIViewSet.as_view({'put': 'update','delete': 'destroy'}), name='update_rfi'),
 
     path('create_rfi_inspection_outcome', CreateRFIInspectionOutcomeViewSet.as_view({'post': 'create'}), name='create_rfi_inspection_outcome'),

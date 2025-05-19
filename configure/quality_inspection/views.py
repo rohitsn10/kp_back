@@ -594,6 +594,73 @@ class CivilGetRFIViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+
+from django.db.models import Count
+class CountAllRFIViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = RFIFieldActivitySerializer
+    queryset = RFIFieldActivity.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            project_id = kwargs.get('project_id')
+
+            # Count RFIs by activity type
+            rfi_queryset = RFIFieldActivity.objects.filter(project=project_id)
+            rfi_counts = rfi_queryset.values('rfi_activity').annotate(total=Count('id'))
+
+            rfi_result = {'mechanical': 0, 'electrical': 0, 'civil': 0}
+            for item in rfi_counts:
+                if item['rfi_activity']:
+                    rfi_result[item['rfi_activity']] = item['total']
+
+            # Disposition statuses to track
+            disposition_statuses = [
+                'Approved with comments',
+                'Hold',
+                'Reject',
+                'Use-As-Is/Deviate',
+                'Rework',
+                'Sort',
+                'Released'
+            ]
+
+            # Initialize nested outcome result
+            outcome_result = {
+                'mechanical': {status: 0 for status in disposition_statuses},
+                'electrical': {status: 0 for status in disposition_statuses},
+                'civil': {status: 0 for status in disposition_statuses},
+            }
+
+            # Filter InspectionOutcome by project
+            outcome_queryset = InspectionOutcome.objects.filter(project=project_id).select_related('rfi_field_activity')
+
+            # Count disposition_status grouped by rfi_activity
+            outcome_data = outcome_queryset.values('rfi_field_activity__rfi_activity', 'disposition_status') \
+                                           .annotate(total=Count('id'))
+
+            for item in outcome_data:
+                activity = item['rfi_field_activity__rfi_activity']
+                status = item['disposition_status']
+                if activity in outcome_result and status in disposition_statuses:
+                    outcome_result[activity][status] += item['total']
+
+            return Response({
+                "status": True,
+                "message": "RFI and outcome counts fetched successfully",
+                "data": {
+                    "rfi_counts_by_activity": rfi_result,
+                    "outcome_counts_by_activity_and_status": outcome_result
+                }
+            })
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": str(e),
+                "data": {}
+            })
+        
     
 class UpdateRFIViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
