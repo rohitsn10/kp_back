@@ -186,10 +186,10 @@ from project_module.serializers import *
 from user_profile.serializers import *
 
 class UserAssignSerializer(serializers.ModelSerializer):
-    user = CustomUser(many=True, read_only=True)
-    project = Project(many=True, read_only=True)
-    department = Department(many=True, read_only=True)
-    group = GroupSerializer(many=True, read_only=True)
+    user = CustomUserSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+    department = DepartmentSerializer(read_only=True)
+    group = GroupSerializer(read_only=True)
 
     class Meta:
         model = UserAssign
