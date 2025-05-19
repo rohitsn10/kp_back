@@ -182,6 +182,9 @@ class GetDepartmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'department_name', 'created_at']
 
 
+from project_module.serializers import *
+from user_profile.serializers import *
+
 class UserAssignSerializer(serializers.ModelSerializer):
     user = CustomUser(many=True, read_only=True)
     project = Project(many=True, read_only=True)
