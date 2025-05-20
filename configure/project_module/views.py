@@ -1956,9 +1956,8 @@ class DrawingandDesignResubmittedActionViewSet(viewsets.ModelViewSet):
             if not drawing_and_design:
                 return Response({"status": True, "message": "Drawing and design Data is not found"})
             current_submitted_count = int(drawing_and_design.submitted_count) if drawing_and_design.submitted_count else 0
-            current_commented_count = int(drawing_and_design.commented_count) if drawing_and_design.commented_count else 0
             remarks = request.data.get('remarks')
-            drawing_and_design.approval_status = f"submitted_R{current_commented_count}"
+            drawing_and_design.approval_status = 'submitted'
             drawing_and_design.submitted_count = current_submitted_count + 1
             re_submitted = DrawingAndDesignReSubmittedActions.objects.create(drawing_and_design = drawing_and_design,project = drawing_and_design.project , user=user, remarks = remarks,submitted_count = current_submitted_count + 1)
             re_submitted.save()
