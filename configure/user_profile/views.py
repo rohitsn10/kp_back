@@ -950,29 +950,23 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
                 else:
                     return Response({"status": False, "message": "No matching assignment(s) found to remove", "data": []})
 
-            user_obj = CustomUser.objects.filter(id=user_id).first()
-            if not user_obj:
-                return Response({"status": False, "message": "User does not exist", "data": []})
+            user_obj = CustomUser.objects.filter(id=user_id).first() if user_id else None
+            department_obj = Department.objects.filter(id=department_id).first() if department_id else None
+            project_obj = Project.objects.filter(id=project_id).first() if project_id else None
+            group_obj = Group.objects.filter(id=group_id).first() if group_id else None
 
-            department_obj = Department.objects.filter(id=department_id).first()
-            if not department_obj:
-                return Response({"status": False, "message": "Department does not exist", "data": []})
-
-            project_obj = Project.objects.filter(id=project_id).first()
-            if not project_obj:
-                return Response({"status": False, "message": "Project does not exist", "data": []})
-
-            group_obj = Group.objects.filter(id=group_id).first()
-            if not group_obj:
-                return Response({"status": False, "message": "Group does not exist", "data": []})
-
-            # Create the assignment
-            assignment = UserAssign.objects.create(user=user_obj, department=department_obj, project=project_obj, group=group_obj)
-            assignment.save()
+            assignment = UserAssign.objects.create(
+                user=user_obj,
+                department=department_obj,
+                project=project_obj,
+                group=group_obj
+            )
 
             return Response({"status": True, "message": "User assigned successfully", "data": []})
+
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
         
     
     def list(self, request, *args, **kwargs):
