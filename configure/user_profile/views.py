@@ -919,16 +919,20 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
     serializer_class = UserAssignSerializer
     queryset = UserAssign.objects.all()
 
+    @staticmethod
+    def get_valid_id(value):
+        return None if value in [None, '', 'null'] else value
+
     def create(self, request, *args, **kwargs):
         try:
-            user_id = request.data.get('user_id')
-            department_id = request.data.get('department_id')
-            project_id = request.data.get('project_id')
-            group_id = request.data.get('group_id')
+            user_id = self.get_valid_id(request.data.get('user_id'))
+            department_id = self.get_valid_id(request.data.get('department_id'))
+            project_id = self.get_valid_id(request.data.get('project_id'))
+            group_id = self.get_valid_id(request.data.get('group_id'))
 
-            remove_department_id = request.data.get('remove_department_id')
-            remove_project_id = request.data.get('remove_project_id')
-            remove_group_id = request.data.get('remove_group_id')
+            remove_department_id = self.get_valid_id(request.data.get('remove_department_id'))
+            remove_project_id = self.get_valid_id(request.data.get('remove_project_id'))
+            remove_group_id = self.get_valid_id(request.data.get('remove_group_id'))
 
             if remove_department_id or remove_project_id or remove_group_id:
                 if not user_id:
@@ -955,6 +959,9 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
             project_obj = Project.objects.filter(id=project_id).first() if project_id else None
             group_obj = Group.objects.filter(id=group_id).first() if group_id else None
 
+            if not user_obj:
+                return Response({"status": False, "message": "User does not exist", "data": []})
+
             assignment = UserAssign.objects.create(
                 user=user_obj,
                 department=department_obj,
@@ -966,7 +973,6 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-
         
     
     def list(self, request, *args, **kwargs):
