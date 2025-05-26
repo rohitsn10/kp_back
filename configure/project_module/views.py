@@ -2157,27 +2157,3 @@ class ProjectIdwiseGetLandBankLocationViewSet(viewsets.ModelViewSet):
         
         
 
-class DrawingDashboardCountViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = DrawingAndDesignManagement.objects.all()
-    
-    def list(self, request, *args, **kwargs):
-        try:
-            queryset = self.filter_queryset(self.get_queryset())
-            total_drawings = queryset.count()
-            total_approved = queryset.filter(approval_status='approved').count()
-            total_commented = queryset.filter(approval_status='commented').count()
-            total_submitted = queryset.filter(approval_status='submitted').count()
-            total_new = queryset.filter(approval_status='N').count()
-            
-            data = {
-                "total_drawings": total_drawings,
-                "total_approved": total_approved,
-                "total_commented": total_commented,
-                "total_submitted": total_submitted,
-                "total_new": total_new
-            }
-            
-            return Response({"status": True, "message": "Drawing dashboard count fetched successfully", "data": data})
-        except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
