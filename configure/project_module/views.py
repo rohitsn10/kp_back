@@ -2163,13 +2163,16 @@ class DrawingDashboardCountViewSet(viewsets.ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset())
+            project_id = request.query_params.get('project_id')
+            if not project_id:
+                return Response({"status": False, "message": "Project Id is required", "data": []})
+            queryset = self.filter_queryset(self.get_queryset()).filter(project_id=project_id)
             total_drawings = queryset.count()
             total_approved = queryset.filter(approval_status='approved').count()
             total_commented = queryset.filter(approval_status='commented').count()
             total_submitted = queryset.filter(approval_status='submitted').count()
             total_new = queryset.filter(approval_status='N').count()
-            
+
             data = {
                 "total_drawings": total_drawings,
                 "total_approved": total_approved,
@@ -2177,7 +2180,6 @@ class DrawingDashboardCountViewSet(viewsets.ModelViewSet):
                 "total_submitted": total_submitted,
                 "total_new": total_new
             }
-            
             return Response({"status": True, "message": "Drawing dashboard count fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
