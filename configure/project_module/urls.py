@@ -56,5 +56,6 @@ urlpatterns = [
     path('milestone_id_wise_get_inflow_payment_on_milestone/<int:milestone_id>',MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet.as_view({'get':'list'}), name='milestone_id_wise_get_inflow_payment_on_milestone'),
     
     path('project_id_wise_landbank_location/<int:project_id>',ProjectIdwiseGetLandBankLocationViewSet.as_view({'get':'list'}), name='project_id_wise_landbank_location'),
-    
+
+    path('drawing_dashboard_count', DrawingDashboardCountViewSet.as_view({'get':'list'}), name='drawing_dashboard_count'),
 ]
