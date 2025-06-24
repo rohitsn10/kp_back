@@ -58,4 +58,9 @@ urlpatterns = [
     path('project_id_wise_landbank_location/<int:project_id>',ProjectIdwiseGetLandBankLocationViewSet.as_view({'get':'list'}), name='project_id_wise_landbank_location'),
 
     path('drawing_dashboard_count', DrawingDashboardCountViewSet.as_view({'get':'list'}), name='drawing_dashboard_count'),
+
+    
+    path('upload_project_progress/', UploadExcelProgressView.as_view(), name='upload_project_progress'),
+    path('get_progress/', ProjectProgressListView.as_view(), name='get_progress'),
+
 ]

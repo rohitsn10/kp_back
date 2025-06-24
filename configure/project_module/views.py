@@ -2183,3 +2183,123 @@ class DrawingDashboardCountViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Drawing dashboard count fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+
+class UploadExcelProgressView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            file = request.FILES.get('file')
+            project_id = request.data.get('project_id')
+
+            if not file:
+                return Response({"status": False, "message": "No file uploaded"})
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required"})
+
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Invalid project ID"})
+
+            # Save file temporarily
+            file_path = default_storage.save(file.name, file)
+            xls = pd.ExcelFile(default_storage.path(file_path))
+            sheet_name = xls.sheet_names[0]
+            df = pd.read_excel(xls, sheet_name=sheet_name)
+
+            expected_headers = [
+                'Particulars', 'Status', 'Category', 'UOM', 'Qty.', 'Days to Complete',
+                'Scheduled Start Date', 'Targeted End Date', 'Actual Start Date',
+                'Today QTY', 'Cumulative Task Completed as on date',
+                'Balance Task to be Completed', 'Actual Completion Date',
+                'Days to deadline', '% Completion', 'Remarks'
+            ]
+
+            header_row = None
+            for i, row in df.iterrows():
+                if all(col in row.values for col in expected_headers):
+                    header_row = i
+                    break
+
+            if header_row is None:
+                return Response({"status": False, "message": "Could not find header row in the uploaded file"})
+
+            df = pd.read_excel(xls, sheet_name=sheet_name, skiprows=header_row + 1)
+            df = df.rename(columns={
+                'Particulars': 'particulars',
+                'Status': 'status',
+                'Category': 'category',
+                'UOM': 'uom',
+                'Qty.': 'qty',
+                'Days to Complete': 'days_to_complete',
+                'Scheduled Start Date': 'scheduled_start_date',
+                'Targeted End Date': 'targeted_end_date',
+                'Actual Start Date': 'actual_start_date',
+                'Today QTY': 'today_qty',
+                'Cumulative Task Completed as on date': 'cumulative_completed',
+                'Balance Task to be Completed': 'balance_task',
+                'Actual Completion Date': 'actual_completion_date',
+                'Days to deadline': 'days_to_deadline',
+                '% Completion': 'percent_completion',
+                'Remarks': 'remarks'
+            })
+
+            df = df[['particulars', 'status', 'category', 'uom', 'qty', 'days_to_complete',
+                     'scheduled_start_date', 'targeted_end_date', 'actual_start_date',
+                     'today_qty', 'cumulative_completed', 'balance_task',
+                     'actual_completion_date', 'days_to_deadline',
+                     'percent_completion', 'remarks']]
+            
+            df = df.dropna(subset=['particulars']).reset_index(drop=True)
+
+            # Save to database
+            progress_entries = []
+            for _, row in df.iterrows():
+                progress = ProjectProgress(
+                    project=project,
+                    user=request.user,
+                    particulars=row['particulars'],
+                    status=row.get('status'),
+                    category=row.get('category'),
+                    uom=row.get('uom'),
+                    qty=row.get('qty'),
+                    days_to_complete=row.get('days_to_complete'),
+                    scheduled_start_date=row.get('scheduled_start_date'),
+                    targeted_end_date=row.get('targeted_end_date'),
+                    actual_start_date=row.get('actual_start_date'),
+                    today_qty=row.get('today_qty'),
+                    cumulative_completed=row.get('cumulative_completed'),
+                    balance_task=row.get('balance_task'),
+                    actual_completion_date=row.get('actual_completion_date'),
+                    days_to_deadline=row.get('days_to_deadline'),
+                    percent_completion=row.get('percent_completion'),
+                    remarks=row.get('remarks')
+                )
+                progress_entries.append(progress)
+
+            ProjectProgress.objects.bulk_create(progress_entries)
+
+            return Response({"status": True, "message": "Progress data uploaded successfully", "total_records": len(progress_entries)})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})        
+
+
+class ProjectProgressListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        project_id = request.query_params.get('project_id')
+        if not project_id:
+            return Response({"status": False, "message": "Project ID is required"}, status=400)
+
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({"status": False, "message": "Invalid project ID"}, status=404)
+
+        progress_qs = ProjectProgress.objects.filter(project=project)
+        serializer = ProjectProgressSerializer(progress_qs, many=True)
+        return Response(serializer.data)

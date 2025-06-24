@@ -315,3 +315,32 @@ class DrawingAndDesignReSubmittedActions(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+class ProjectProgress(models.Model):
+    STATUS_CHOICES = [
+        ('not_started', 'Not Started'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
+    
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    
+    particulars = models.CharField(max_length=255)
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES, null=True, blank=True)
+    category = models.CharField(max_length=100, null=True, blank=True)
+    uom = models.CharField(max_length=50, null=True, blank=True)
+    qty = models.FloatField(null=True, blank=True)
+    days_to_complete = models.IntegerField(null=True, blank=True)
+    scheduled_start_date = models.DateField(null=True, blank=True)
+    targeted_end_date = models.DateField(null=True, blank=True)
+    actual_start_date = models.DateField(null=True, blank=True)
+    today_qty = models.FloatField(null=True, blank=True)
+    cumulative_completed = models.FloatField(null=True, blank=True)
+    balance_task = models.FloatField(null=True, blank=True)
+    actual_completion_date = models.DateField(null=True, blank=True)
+    days_to_deadline = models.IntegerField(null=True, blank=True)
+    percent_completion = models.FloatField(null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

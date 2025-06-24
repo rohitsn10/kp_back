@@ -498,3 +498,33 @@ class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['id','location_name','land_bank_location_name']
+
+
+class ProjectProgressSerializer(serializers.ModelSerializer):
+    taskName = serializers.CharField(source='particulars')
+    totalQuantity = serializers.FloatField(source='qty')
+    completedQuantity = serializers.FloatField(source='cumulative_completed')
+    plannedStartDate = serializers.DateField(source='scheduled_start_date', format="%Y-%m-%d")
+    plannedEndDate = serializers.DateField(source='targeted_end_date', format="%Y-%m-%d")
+    actualStartDate = serializers.DateField(source='actual_start_date', format="%Y-%m-%d", allow_null=True)
+    actualEndDate = serializers.DateField(source='actual_completion_date', format="%Y-%m-%d", allow_null=True)
+    completionPercentage = serializers.FloatField(source='percent_completion')
+
+    class Meta:
+        model = ProjectProgress
+        fields = [
+            'id', 'taskName', 'status', 'category', 'uom',
+            'totalQuantity', 'completedQuantity',
+            'plannedStartDate', 'plannedEndDate',
+            'actualStartDate', 'actualEndDate',
+            'completionPercentage', 'days_to_complete', 'remarks'
+        ]
+        extra_kwargs = {
+            'status': {'required': False},
+            'remarks': {'required': False}
+        }
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['daysToComplete'] = data.pop('days_to_complete')
+        return data
