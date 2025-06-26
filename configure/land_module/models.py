@@ -158,13 +158,13 @@ class LandBankMaster(models.Model):
     sfa_land_category = models.CharField(max_length=100, choices=SFA_LAND_CATEGORY_CHOICES, null=True, blank=True)
     sfa_land_profile = models.CharField(max_length=100, choices=SFA_LAND_PROFILE_CHOICES, null=True, blank=True)
     sfa_land_orientation = models.CharField(max_length=100, choices=SFA_LAND_ORIENTATION_CHOICES, null=True, blank=True)
-    sfa_land_soil_testing_availability = models.BooleanField(default=False, null=True, blank=True)
+    sfa_land_soil_testing_availability = models.CharField(max_length=255, null=True, blank=True)
     sfa_soil_bearing_capacity_files = models.ManyToManyField(SfaSoilBearingCapacityAttachment)
-    any_shadow_casting_buildings_or_hill = models.BooleanField(default=False, null=True, blank=True)
+    any_shadow_casting_buildings_or_hill = models.CharField(max_length=255, null=True, blank=True)
     any_water_ponds_or_nalas_within_the_proposed_location = models.CharField(max_length=500, null=True, blank=True)
     any_roads_or_bridge_within_the_proposed_location = models.CharField(max_length=500,null=True, blank=True)
     any_railway_lane_within_the_proposed_location = models.CharField(max_length=500,null=True, blank=True)
-    is_the_proposed_site_is_of_natural_contour_or_filled_up_area = models.BooleanField(default=False, null=True, blank=True)
+    is_the_proposed_site_is_of_natural_contour_or_filled_up_area = models.CharField(max_length=255, null=True, blank=True)
     geo_graphical_cordinates = models.CharField(max_length=500, null=True, blank=True)
     land_co_ordinates = models.CharField(max_length=500, null=True, blank=True)
     substation_cordinates = models.CharField(max_length=500, null=True, blank=True)
@@ -172,7 +172,7 @@ class LandBankMaster(models.Model):
     rain_fall_pattern = models.CharField(max_length=500, choices = SFA_WEATHER_TEMP_CHOICES, null=True, blank=True)
     communication_network_availability = models.CharField(max_length=500, null=True, blank=True)
     # Power Evacuation
-    permission_required_for_power_generation = models.BooleanField(default=False, null=True, blank=True)
+    permission_required_for_power_generation = models.CharField(max_length=255, null=True, blank=True)
     transmission_network_availabilty_above_400_220_33kv = models.CharField(max_length=500, null=True, blank=True)
     distance_of_supply_point_from_proposed_site = models.CharField(max_length=500, null=True, blank=True)
     distance_of_nearest_substation_from_proposed_site = models.CharField(max_length=500, null=True, blank=True)
@@ -209,7 +209,7 @@ class LandBankMaster(models.Model):
     nearest_seashore_and_distance = models.CharField(max_length=500, null=True, blank=True)
     availability_of_accommodation_to_site_approximate_cost = models.CharField(max_length=500, null=True, blank=True)
     provide_near_by_civil_electrical_contractors = models.CharField(max_length=500, null=True, blank=True)
-    availability_of_construction_material_nearby = models.BooleanField(default=False, null=True, blank=True)
+    availability_of_construction_material_nearby = models.CharField(max_length=255, null=True, blank=True)
     any_weather_station_nearby = models.CharField(max_length=500, null=True, blank=True)
     # Water Availability 
     water_belt_profile_of_the_area = models.CharField(max_length=500, null=True, blank=True)
@@ -245,7 +245,7 @@ class LandBankMaster(models.Model):
     actual_bucket = models.CharField(max_length=500, blank=True, null=True)
     remarks = models.CharField(max_length=500, blank=True, null=True)
     index_number = models.CharField(max_length=500, blank=True, null=True)
-    tcr = models.BooleanField(default=True, null=True, blank=True)
+    tcr = models.CharField(max_length=100, blank=True, null=True)
     advocate_name = models.CharField(max_length=500, blank=True, null=True)
 
     total_land_area = models.CharField(max_length=500, null=True, blank=True)
@@ -261,6 +261,26 @@ class LandBankMaster(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
+
+#geographic cordinates
+    geo_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
+    geo_easting = models.CharField(max_length=100, null=True, blank=True)
+    geo_northing = models.CharField(max_length=100, null=True, blank=True)
+    geo_zone = models.CharField(max_length=100, null=True, blank=True)
+
+#land cordinates
+    land_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
+    land_easting = models.CharField(max_length=100, null=True, blank=True)
+    land_northing = models.CharField(max_length=100, null=True, blank=True)
+    land_zone = models.CharField(max_length=100, null=True, blank=True)
+
+#substation coordinates
+    substation_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
+    substation_easting = models.CharField(max_length=100, null=True, blank=True)
+    substation_northing = models.CharField(max_length=100, null=True, blank=True)
+    substation_zone = models.CharField(max_length=100, null=True, blank=True)    
+    
+
 
 class SaveApprovalDataOfStatusOfSiteVisit(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)

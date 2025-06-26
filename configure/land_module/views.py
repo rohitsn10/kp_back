@@ -718,6 +718,21 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             availability_of_potable_water = request.data.get('availability_of_potable_water')
     
             any_other_general_observation = request.data.get('any_other_general_observation')
+
+            geo_coordinate_format = request.data.get('geo_coordinate_format')
+            geo_easting = request.data.get('geo_easting')
+            geo_northing = request.data.get('geo_northing')
+            geo_zone = request.data.get('geo_zone')
+
+            land_coordinate_format = request.data.get('land_coordinate_format')
+            land_easting = request.data.get('land_easting')
+            land_northing = request.data.get('land_northing')
+            land_zone = request.data.get('land_zone')
+
+            substation_coordinate_format = request.data.get('substation_coordinate_format')
+            substation_easting = request.data.get('substation_easting')
+            substation_northing = request.data.get('substation_northing')
+            substation_zone = request.data.get('substation_zone')
             
             if not sfa_name:
                 return Response({"status": False, "message": "SFA name is required", "data": []})
@@ -741,7 +756,7 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
                                                     transmission_network_availabilty_above_400_220_33kv=transmission_network_availabilty_above_400_220_33kv, distance_of_supply_point_from_proposed_site=distance_of_supply_point_from_proposed_site, distance_of_nearest_substation_from_proposed_site=distance_of_nearest_substation_from_proposed_site, transmission_line_load_carrying_or_evacuation_capacity=transmission_line_load_carrying_or_evacuation_capacity, right_of_way_requirement_up_to_the_delivery_point=right_of_way_requirement_up_to_the_delivery_point, construction_power_availability_and_identify_source_distance=construction_power_availability_and_identify_source_distance, grid_availability_data_outage_pattern=grid_availability_data_outage_pattern, substation_capacity_mva=substation_capacity_mva, substation_load_side_voltage_level_kv=substation_load_side_voltage_level_kv,
                                                     kv_grid_voltage_variation=kv_grid_voltage_variation, hz_grid_voltage_variation=hz_grid_voltage_variation, check_space_availability_in_substation_to_conct_power_by_area=check_space_availability_in_substation_to_conct_power_by_area, transformer_rating_in_substation=transformer_rating_in_substation, check_protection_system_details_of_substation=check_protection_system_details_of_substation, any_future_plan_for_expansion_of_substation=any_future_plan_for_expansion_of_substation, is_there_any_power_export_happening_at_substation=is_there_any_power_export_happening_at_substation, any_specific_requirements_of_eb_for_double_pole_structure=any_specific_requirements_of_eb_for_double_pole_structure, any_transmission_communication_line_passing_through_site = any_transmission_communication_line_passing_through_site, neighboring_area_or_vicinity_details=neighboring_area_or_vicinity_details, nearest_industry_category_and_distance=nearest_industry_category_and_distance, nearest_village_or_district_name_and_distance = nearest_village_or_district_name_and_distance, nearest_highway_or_airport_name_and_distance=nearest_highway_or_airport_name_and_distance, availability_of_labor_and_cost_of_labor=availability_of_labor_and_cost_of_labor, logistics=logistics, 
                                                     is_there_an_approach_road_available_to_the_site=is_there_an_approach_road_available_to_the_site, can_truck_of_Multi_axel_with_40_foot_container_reach_site=can_truck_of_Multi_axel_with_40_foot_container_reach_site, availability_of_vehicle_for_hiring_or_cost_per_km=availability_of_vehicle_for_hiring_or_cost_per_km, list_the_risks_including_journey=list_the_risks_including_journey, nearest_police_station_and_distance=nearest_police_station_and_distance, nearest_hospital_and_distance=nearest_hospital_and_distance, nearest_fire_station_and_distance=nearest_fire_station_and_distance, nearest_seashore_and_distance=nearest_seashore_and_distance, availability_of_accommodation_to_site_approximate_cost=availability_of_accommodation_to_site_approximate_cost, provide_near_by_civil_electrical_contractors=provide_near_by_civil_electrical_contractors, availability_of_construction_material_nearby=availability_of_construction_material_nearby, any_weather_station_nearby=any_weather_station_nearby, water_belt_profile_of_the_area=water_belt_profile_of_the_area, water_availability=water_availability, construction_water_availability=construction_water_availability, details_of_local_drainage_scheme=details_of_local_drainage_scheme, availability_of_potable_water=availability_of_potable_water,
-                                                    any_other_general_observation=any_other_general_observation)
+                                                    any_other_general_observation=any_other_general_observation,geo_coordinate_format=geo_coordinate_format,geo_easting=geo_easting,geo_northing=geo_northing,geo_zone=geo_zone,land_coordinate_format=land_coordinate_format,land_easting=land_easting,land_northing=land_northing,land_zone=land_zone,substation_coordinate_format=substation_coordinate_format,substation_easting=substation_easting,substation_northing=substation_northing,substation_zone=substation_zone,)
             for file in land_sfa_file:
                 land_sfa_attachments = SFAAttachment.objects.create(user=user, land_sfa_file=file)
                 created.land_sfa_file.add(land_sfa_attachments)
@@ -864,6 +879,21 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             construction_water_availability = request.data.get('construction_water_availability')
             details_of_local_drainage_scheme = request.data.get('details_of_local_drainage_scheme')
             availability_of_potable_water = request.data.get('availability_of_potable_water')
+
+            geo_coordinate_format = request.data.get('geo_coordinate_format')
+            geo_easting = request.data.get('geo_easting')
+            geo_northing = request.data.get('geo_northing')
+            geo_zone = request.data.get('geo_zone')
+
+            land_coordinate_format = request.data.get('land_coordinate_format')
+            land_easting = request.data.get('land_easting')
+            land_northing = request.data.get('land_northing')
+            land_zone = request.data.get('land_zone')
+
+            substation_coordinate_format = request.data.get('substation_coordinate_format')
+            substation_easting = request.data.get('substation_easting')
+            substation_northing = request.data.get('substation_northing')
+            substation_zone = request.data.get('substation_zone')
     
             any_other_general_observation = request.data.get('any_other_general_observation')
 
@@ -1020,6 +1050,33 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
                 land_bank.availability_of_potable_water = availability_of_potable_water
             if any_other_general_observation:
                 land_bank.any_other_general_observation = any_other_general_observation
+
+            if geo_coordinate_format:
+                land_bank.geo_coordinate_format = geo_coordinate_format
+            if geo_easting:
+                land_bank.geo_easting = geo_easting
+            if geo_northing:
+                land_bank.geo_northing = geo_northing
+            if geo_zone:
+                land_bank.geo_zone = geo_zone
+
+            if land_coordinate_format:
+                land_bank.land_coordinate_format = land_coordinate_format
+            if land_easting:
+                land_bank.land_easting = land_easting
+            if land_northing:
+                land_bank.land_northing = land_northing
+            if land_zone:
+                land_bank.land_zone = land_zone
+
+            if substation_coordinate_format:
+                land_bank.substation_coordinate_format = substation_coordinate_format
+            if substation_easting:
+                land_bank.substation_easting = substation_easting
+            if substation_northing:
+                land_bank.substation_northing = substation_northing
+            if substation_zone:
+                land_bank.substation_zone = substation_zone    
 
 
             if land_sfa_file:

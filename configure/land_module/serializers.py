@@ -86,7 +86,8 @@ class LandBankSerializer(serializers.ModelSerializer):
             'nearest_police_station_and_distance', 'nearest_hospital_and_distance', 'nearest_fire_station_and_distance', 'nearest_seashore_and_distance',
             'availability_of_accommodation_to_site_approximate_cost', 'provide_near_by_civil_electrical_contractors', 'availability_of_construction_material_nearby',
             'any_weather_station_nearby', 'water_belt_profile_of_the_area', 'water_availability', 'construction_water_availability', 'details_of_local_drainage_scheme',
-            'availability_of_potable_water', 'any_other_general_observation'
+            'availability_of_potable_water', 'any_other_general_observation','geo_coordinate_format', 'geo_easting', 'geo_northing', 'geo_zone',
+            'land_coordinate_format', 'land_easting', 'land_northing', 'land_zone','substation_coordinate_format', 'substation_easting', 'substation_northing', 'substation_zone',
         ]
 
     def get_land_sfa_file(self, obj):
