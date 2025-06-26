@@ -2217,16 +2217,18 @@ class UploadExcelProgressView(APIView):
                 'Days to deadline', '% Completion', 'Remarks'
             ]
 
-            header_row = None
-            for i, row in df.iterrows():
-                if all(col in row.values for col in expected_headers):
-                    header_row = i
-                    break
+            actual_headers = [col.strip() for col in df.columns]
 
-            if header_row is None:
-                return Response({"status": False, "message": "Could not find header row in the uploaded file"})
+            missing_headers = [h for h in expected_headers if h not in actual_headers]
+            if missing_headers:
+                return Response({
+                    "status": False,
+                    "message": "Missing headers in Excel file",
+                    "missing": missing_headers,
+                    "found": actual_headers
+                })
 
-            df = pd.read_excel(xls, sheet_name=sheet_name, skiprows=header_row + 1)
+            # Rename columns to match model fields
             df = df.rename(columns={
                 'Particulars': 'particulars',
                 'Status': 'status',
@@ -2246,12 +2248,13 @@ class UploadExcelProgressView(APIView):
                 'Remarks': 'remarks'
             })
 
+            # Keep only required columns
             df = df[['particulars', 'status', 'category', 'uom', 'qty', 'days_to_complete',
                      'scheduled_start_date', 'targeted_end_date', 'actual_start_date',
                      'today_qty', 'cumulative_completed', 'balance_task',
                      'actual_completion_date', 'days_to_deadline',
                      'percent_completion', 'remarks']]
-            
+
             df = df.dropna(subset=['particulars']).reset_index(drop=True)
 
             # Save to database
@@ -2260,7 +2263,7 @@ class UploadExcelProgressView(APIView):
                 progress = ProjectProgress(
                     project=project,
                     user=request.user,
-                    particulars=row['particulars'],
+                    particulars=row.get('particulars'),
                     status=row.get('status'),
                     category=row.get('category'),
                     uom=row.get('uom'),
@@ -2281,10 +2284,14 @@ class UploadExcelProgressView(APIView):
 
             ProjectProgress.objects.bulk_create(progress_entries)
 
-            return Response({"status": True, "message": "Progress data uploaded successfully", "total_records": len(progress_entries)})
+            return Response({
+                "status": True,
+                "message": "Progress data uploaded successfully",
+                "total_records": len(progress_entries)
+            })
 
         except Exception as e:
-            return Response({"status": False, "message": str(e)})        
+            return Response({"status": False, "message": str(e)})    
 
 
 class ProjectProgressListView(APIView):

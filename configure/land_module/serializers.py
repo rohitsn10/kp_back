@@ -57,7 +57,7 @@ class LandBankSerializer(serializers.ModelSerializer):
     class Meta:
         model = LandBankMaster
         fields = [
-            'id', 'user', 'user_full_name','land_category','land_category_name','created_at', 'updated_at','solar_or_winds',
+            'id', 'user', 'user_full_name','land_category','land_category_name','created_at', 'updated_at','solar_or_winds','keypoints',
             'sfa_name','land_sfa_file','sfa_for_transmission_line_gss_files',
             'land_location_file', 'land_survey_number_file', 'land_key_plan_file',
             'land_attach_approval_report_file', 'land_approach_road_file', 
