@@ -79,7 +79,7 @@ class LandApprovedReportAttachment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-
+from django.contrib.postgres.fields import ArrayField
 class LandBankMaster(models.Model):
     SFA_LAND_TITLE_CHOICES = (
         ('Freehold', 'Freehold'),
@@ -143,6 +143,8 @@ class LandBankMaster(models.Model):
     sale_deed_date = models.DateTimeField(null=True, blank=True)
     lease_deed_number = models.CharField(max_length=200, null=True, blank=True)
     lease_deed_file = models.ManyToManyField(LandLeaseDeedAttachment)
+
+    keypoints = ArrayField(models.CharField(max_length=255), default=list, blank=True)
     
     #=============== SFA ================
     sfa_name = models.CharField(max_length=255, null=True, blank=True)

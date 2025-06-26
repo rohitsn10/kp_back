@@ -124,6 +124,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             tcr = request.data.get('tcr')
             advocate_name = request.data.get('advocate_name')
             total_land_area = request.data.get('total_land_area')
+            keypoints = request.data.getlist('keypoints[]') or request.data.get('keypoints') or []
 
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
@@ -264,6 +265,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land.advocate_name = advocate_name
             land.total_land_area = total_land_area
             land.remaining_land_area = total_land_area
+            land.keypoints = keypoints
 
             # Attach the files if provided
             if land_location_files:
@@ -720,14 +722,14 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             any_other_general_observation = request.data.get('any_other_general_observation')
 
             geo_coordinate_format = request.data.get('geo_coordinate_format')
-            geo_easting = request.data.get('geo_easting')
-            geo_northing = request.data.get('geo_northing')
-            geo_zone = request.data.get('geo_zone')
+            geo_easting = request.data.get('geo_graphical_easting')
+            geo_northing = request.data.get('geo_graphical_northing')
+            geo_zone = request.data.get('geo_graphical_zone')
 
             land_coordinate_format = request.data.get('land_coordinate_format')
-            land_easting = request.data.get('land_easting')
-            land_northing = request.data.get('land_northing')
-            land_zone = request.data.get('land_zone')
+            land_easting = request.data.get('land_co_easting')
+            land_northing = request.data.get('land_co_northing')
+            land_zone = request.data.get('land_co_zone')
 
             substation_coordinate_format = request.data.get('substation_coordinate_format')
             substation_easting = request.data.get('substation_easting')
