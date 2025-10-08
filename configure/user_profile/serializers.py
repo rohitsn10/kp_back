@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import Group, Permission
+from .models import  Role,RolePermission
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -215,3 +216,97 @@ class UserAssignSerializer(serializers.ModelSerializer):
             }
             for a in assignments
         ]
+    
+class ModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Module
+        fields = ['id', 'name', 'created_at']
+
+
+class RolePermissionSerializer(serializers.ModelSerializer):
+    module_name = serializers.CharField(source='module.name', read_only=True)
+    role_name = serializers.CharField(source='role.name', read_only=True)
+    
+    class Meta:
+        model = RolePermission
+        fields = ['id', 'role', 'role_name', 'module', 'module_name', 'can_access', 'created_at']
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source='department.department_name', read_only=True)
+    permissions = RolePermissionSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Role
+        fields = ['id', 'name', 'department', 'department_name', 'permissions', 'created_at']
+
+
+class RoleWithPermissionsSerializer(serializers.ModelSerializer):
+    """Serializer for creating/updating roles with permissions"""
+    department_name = serializers.CharField(source='department.department_name', read_only=True)
+    permission_list = serializers.ListField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False
+    )
+    permissions = RolePermissionSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Role
+        fields = ['id', 'name', 'department', 'department_name', 'permission_list', 'permissions', 'created_at']
+    
+    def create(self, validated_data):
+        permission_list = validated_data.pop('permission_list', [])
+        role = Role.objects.create(**validated_data)
+        
+        # Create permissions
+        for perm in permission_list:
+            module_id = perm.get('module_id')
+            can_access = perm.get('can_access', False)
+            if module_id:
+                RolePermission.objects.create(
+                    role=role,
+                    module_id=module_id,
+                    can_access=can_access
+                )
+        
+        return role
+    
+    def update(self, instance, validated_data):
+        permission_list = validated_data.pop('permission_list', None)
+        
+        # Update role basic fields
+        instance.name = validated_data.get('name', instance.name)
+        instance.department = validated_data.get('department', instance.department)
+        instance.save()
+        
+        # Update permissions if provided
+        if permission_list is not None:
+            # Delete existing permissions
+            RolePermission.objects.filter(role=instance).delete()
+            
+            # Create new permissions
+            for perm in permission_list:
+                module_id = perm.get('module_id')
+                can_access = perm.get('can_access', False)
+                if module_id:
+                    RolePermission.objects.create(
+                        role=instance,
+                        module_id=module_id,
+                        can_access=can_access
+                    )
+        
+        return instance
+
+
+class UserRoleAssignSerializer(serializers.ModelSerializer):
+    """Serializer for assigning roles to users"""
+    user_name = serializers.CharField(source='user.full_name', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    department_name = serializers.CharField(source='department.department_name', read_only=True)
+    role_name = serializers.CharField(source='group.name', read_only=True)
+    
+    class Meta:
+        model = UserAssign
+        fields = ['id', 'user', 'user_name', 'user_email', 'department', 'department_name', 
+                  'group', 'role_name', 'created_at', 'updated_at']

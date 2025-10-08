@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group
 from project_module.models import *
 
 
@@ -63,3 +63,29 @@ class UserAssign(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class Role(models.Model):
+    name = models.CharField(max_length=255)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="roles")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.department.department_name})"
+
+
+class Module(models.Model):
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class RolePermission(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="permissions")
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="permissions")
+    can_access = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.role.name} - {self.module.name} - {'Allowed' if self.can_access else 'Denied'}"

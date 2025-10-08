@@ -14,6 +14,7 @@ from rest_framework import permissions
 from rest_framework import filters
 from rest_framework import viewsets
 import ipdb 
+from rest_framework import status
 from user_profile.function_call import *
 from django.conf import settings
 import jwt 
@@ -584,7 +585,6 @@ class LoginAPIView(ViewSet):
             data['token'] = str(refresh.access_token)
 
             # Add new fields: groups, department, assignments
-
             data['department'] = list(UserAssign.objects.filter(user=auth_user).values_list('department__department_name', flat=True).distinct())
 
             data['assignments'] = [
@@ -997,3 +997,363 @@ class AssignUserAllThingsViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": {}})
+
+# ======================= NEW ROLE & PERMISSION MANAGEMENT APIs =======================
+
+class RoleManagementViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Roles with permissions
+    
+    List: GET /api/roles/
+    Create: POST /api/roles/ with payload: {"name": "Manager", "department": 1, "permission_list": [{"module_id": 1, "can_access": true}]}
+    Retrieve: GET /api/roles/{id}/
+    Update: PUT /api/roles/{id}/
+    Delete: DELETE /api/roles/{id}/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = RoleWithPermissionsSerializer
+    queryset = Role.objects.all().select_related('department').prefetch_related('permissions__module')
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'department__department_name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['-created_at']
+    
+    def list(self, request, *args, **kwargs):
+        """List all roles with their permissions"""
+        department_id = request.query_params.get('department_id')
+        
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            "status": True,
+            "message": "Roles fetched successfully",
+            "data": serializer.data
+        })
+    
+    def create(self, request, *args, **kwargs):
+        """Create a new role with permissions"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "Role created successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            "status": False,
+            "message": "Validation error",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Get a specific role with its permissions"""
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            "status": True,
+            "message": "Role details fetched successfully",
+            "data": serializer.data
+        })
+    
+    def update(self, request, *args, **kwargs):
+        """Update a role and its permissions"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "Role updated successfully",
+                "data": serializer.data
+            })
+        return Response({
+            "status": False,
+            "message": "Validation error",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Delete a role"""
+        instance = self.get_object()
+        role_name = instance.name
+        instance.delete()
+        return Response({
+            "status": True,
+            "message": f"Role '{role_name}' deleted successfully"
+        }, status=status.HTTP_200_OK)
+
+
+class ModuleManagementViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Modules
+    
+    List: GET /api/modules/
+    Create: POST /api/modules/ with payload: {"name": "User Management"}
+    Retrieve: GET /api/modules/{id}/
+    Update: PUT /api/modules/{id}/
+    Delete: DELETE /api/modules/{id}/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ModuleSerializer
+    queryset = Module.objects.all()
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+    
+    def list(self, request, *args, **kwargs):
+        """List all modules"""
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            "status": True,
+            "message": "Modules fetched successfully",
+            "data": serializer.data
+        })
+    
+    def create(self, request, *args, **kwargs):
+        """Create a new module"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "Module created successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            "status": False,
+            "message": "Validation error",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Delete a module"""
+        instance = self.get_object()
+        module_name = instance.name
+        instance.delete()
+        return Response({
+            "status": True,
+            "message": f"Module '{module_name}' deleted successfully"
+        }, status=status.HTTP_200_OK)
+
+
+class RolePermissionViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for fetching role permissions (Read-only)
+    
+    List all permissions: GET /api/role-permissions/
+    Get permissions by role: GET /api/role-permissions/?role_id=1
+    Get permissions by module: GET /api/role-permissions/?module_id=1
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = RolePermissionSerializer
+    queryset = RolePermission.objects.all().select_related('role', 'module', 'role__department')
+    filter_backends = [filters.OrderingFilter]
+    ordering = ['module__name']
+    
+    def list(self, request, *args, **kwargs):
+        """List permissions with optional filtering by role or module"""
+        role_id = request.query_params.get('role_id')
+        module_id = request.query_params.get('module_id')
+        
+        queryset = self.get_queryset()
+        
+        if role_id:
+            queryset = queryset.filter(role_id=role_id)
+        if module_id:
+            queryset = queryset.filter(module_id=module_id)
+        
+        queryset = self.filter_queryset(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        
+        return Response({
+            "status": True,
+            "message": "Permissions fetched successfully",
+            "data": serializer.data
+        })
+
+
+class RolePermissionsByModuleView(APIView):
+    """
+    Get permissions grouped by module for a specific role
+    
+    GET /api/role-permissions-by-module/?role_id=1
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        role_id = request.query_params.get('role_id')
+        
+        if not role_id:
+            return Response({
+                "status": False,
+                "message": "role_id parameter is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            role = Role.objects.get(id=role_id)
+        except Role.DoesNotExist:
+            return Response({
+                "status": False,
+                "message": "Role not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get all modules
+        modules = Module.objects.all()
+        
+        # Get permissions for this role
+        permissions = RolePermission.objects.filter(role=role).select_related('module')
+        permission_dict = {perm.module_id: perm.can_access for perm in permissions}
+        
+        # Build response with all modules and their access status
+        module_permissions = []
+        for module in modules:
+            module_permissions.append({
+                "module_id": module.id,
+                "module_name": module.name,
+                "can_access": permission_dict.get(module.id, False)
+            })
+        
+        return Response({
+            "status": True,
+            "message": "Role permissions fetched successfully",
+            "data": {
+                "role_id": role.id,
+                "role_name": role.name,
+                "department_id": role.department.id,
+                "department_name": role.department.department_name,
+                "permissions": module_permissions
+            }
+        })
+
+
+class UserRoleAssignmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for assigning roles to users
+    
+    List user roles: GET /api/user-roles/
+    Assign role to user: POST /api/user-roles/ with payload: {"user": 1, "department": 1, "group": 1}
+    Update assignment: PUT /api/user-roles/{id}/
+    Remove assignment: DELETE /api/user-roles/{id}/
+    Get user's roles: GET /api/user-roles/?user_id=1
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserRoleAssignSerializer
+    queryset = UserAssign.objects.all().select_related('user', 'department', 'group')
+    filter_backends = [filters.OrderingFilter]
+    ordering = ['-created_at']
+    
+    def list(self, request, *args, **kwargs):
+        """List user role assignments with optional filtering by user"""
+        user_id = request.query_params.get('user_id')
+        department_id = request.query_params.get('department_id')
+        
+        queryset = self.get_queryset()
+        
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        
+        queryset = self.filter_queryset(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        
+        return Response({
+            "status": True,
+            "message": "User role assignments fetched successfully",
+            "data": serializer.data
+        })
+    
+    def create(self, request, *args, **kwargs):
+        """Assign a role to a user"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "Role assigned to user successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            "status": False,
+            "message": "Validation error",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, *args, **kwargs):
+        """Update user role assignment"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "User role assignment updated successfully",
+                "data": serializer.data
+            })
+        return Response({
+            "status": False,
+            "message": "Validation error",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Remove role assignment from user"""
+        instance = self.get_object()
+        instance.delete()
+        return Response({
+            "status": True,
+            "message": "Role assignment removed successfully"
+        }, status=status.HTTP_200_OK)
+
+
+class DepartmentRolesView(APIView):
+    """
+    Get all roles for a specific department
+    
+    GET /api/department-roles/?department_id=1
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        department_id = request.query_params.get('department_id')
+        
+        if not department_id:
+            return Response({
+                "status": False,
+                "message": "department_id parameter is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist:
+            return Response({
+                "status": False,
+                "message": "Department not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        roles = Role.objects.filter(department=department).prefetch_related('permissions__module')
+        serializer = RoleSerializer(roles, many=True)
+        
+        return Response({
+            "status": True,
+            "message": "Department roles fetched successfully",
+            "data": {
+                "department_id": department.id,
+                "department_name": department.department_name,
+                "roles": serializer.data
+            }
+        })

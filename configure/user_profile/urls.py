@@ -26,5 +26,29 @@ urlpatterns = [
     path('update_delete_department/<int:department_id>', DepartmentUpdatesViewSet.as_view({'put': 'update', 'delete': 'destroy'}), name='update_delete_department'),
 
     path('assign_user_all_things', AssignUserAllThingsViewSet.as_view({'post': 'create', 'get': 'list'}), name='assign_user_all_things'),
+
+    # ========== NEW ROLE & PERMISSION MANAGEMENT APIs ==========
     
+    # Role Management
+    path('roles/', RoleManagementViewSet.as_view({'get': 'list', 'post': 'create'}), name='role-list-create'),
+    path('roles/<int:pk>/', RoleManagementViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='role-detail'),
+    
+    # Module Management
+    path('modules/', ModuleManagementViewSet.as_view({'get': 'list', 'post': 'create'}), name='module-list-create'),
+    path('modules/<int:pk>/', ModuleManagementViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='module-detail'),
+    
+    # Role Permissions (Read-only)
+    path('role-permissions/', RolePermissionViewSet.as_view({'get': 'list'}), name='role-permissions-list'),
+    path('role-permissions/<int:pk>/', RolePermissionViewSet.as_view({'get': 'retrieve'}), name='role-permissions-detail'),
+    
+    # Get permissions by module for a specific role
+    path('role-permissions-by-module/', RolePermissionsByModuleView.as_view(), name='role-permissions-by-module'),
+    
+    # User Role Assignments
+    path('user-roles/', UserRoleAssignmentViewSet.as_view({'get': 'list', 'post': 'create'}), name='user-roles-list-create'),
+    path('user-roles/<int:pk>/', UserRoleAssignmentViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='user-roles-detail'),
+    
+    # Get all roles for a department
+    path('department-roles/', DepartmentRolesView.as_view(), name='department-roles'),
+
 ]
