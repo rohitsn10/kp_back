@@ -562,7 +562,7 @@ class LoginAPIView(ViewSet):
             # Check if user exists
             user = CustomUser.objects.filter(email=email).first()
             if not user:
-                return Response({"status": False, "message": "Invalid email or password!", "data": []})
+                return Response({"status": False, "message": "Invalid email or password!!!", "data": []})
             
             # if not user.is_active:
             #     return Response({"status": False, "message": "Your account is not active. Please contact support.", "data": []})
@@ -570,7 +570,7 @@ class LoginAPIView(ViewSet):
            # Authenticate user
             auth_user = authenticate_user_by_email(email, password)
             if not auth_user:
-                return Response({"status": False, "message": "Invalid email or password!"})
+                return Response({"status": False, "message": "Invalid email or password8!"})
 
             if login_type == 'mobile':
                 user.device_id = device_id

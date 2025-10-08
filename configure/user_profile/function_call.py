@@ -5,6 +5,9 @@ from rest_framework.request import Request
 from dateutil import parser
 from django.utils.timezone import make_aware
 from datetime import datetime, timedelta
+import logging
+
+logger = logging.getLogger(__name__)
 
 def validate_dates(start_date, end_date):
     date_format = '%d-%m-%Y'
@@ -57,11 +60,11 @@ def authenticate_user_by_email(email, password):
     try:
         # Retrieve the user by email
         user = CustomUser.objects.get(email=email)
+        logger.info(f"Password from request: {password}")
+        logger.info(f"Password hash in database: {user.password}")
         if user and check_password(password, user.password):
             return user
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.error(f"Authentication error: {str(e)}", exc_info=True)
     return None
 
