@@ -645,12 +645,11 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             sfa_name = request.data.get('sfa_name')
             land_sfa_file = request.FILES.getlist('land_sfa_file') or []
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
-            timeline = request.data.get('timeline')
             solar_or_winds = request.data.get('solar_or_winds')
             date_of_assessment = request.data.get('date_of_assessment')
             site_visit_date = request.data.get('site_visit_date')
             land_address = request.data.get('land_address')
-            client_consultant = request.data.get("client_consultant")
+            client_consultant = request.data.get("client_consultant", "")
             palnt_capacity = request.data.get('palnt_capacity')
             land_owner = request.data.get('land_owner')
             sfa_available_area_acres = request.data.get('sfa_available_area_acres')
@@ -667,8 +666,7 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             any_roads_or_bridge_within_the_proposed_location = request.data.get('any_roads_or_bridge_within_the_proposed_location')
             any_railway_lane_within_the_proposed_location = request.data.get('any_railway_lane_within_the_proposed_location')
             is_the_proposed_site_is_of_natural_contour_or_filled_up_area = request.data.get('is_the_proposed_site_is_of_natural_contour_or_filled_up_area')
-            geo_graphical_cordinates = request.data.get('geo_graphical_cordinates')
-            land_co_ordinates = request.data.get('land_co_ordinates')
+            land_co_ordinates = request.data.get('land_co_cordinates')
             substation_cordinates = request.data.get('substation_cordinates')
             solar_isolation_data = request.data.get('solar_isolation_data')
             rain_fall_pattern = request.data.get('rain_fall_pattern')
@@ -726,7 +724,8 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             geo_northing = request.data.get('geo_graphical_northing')
             geo_zone = request.data.get('geo_graphical_zone')
 
-            land_coordinate_format = request.data.get('land_coordinate_format')
+            land_coordinate_format = request.data.get('land_co_coordinate_format')
+
             land_easting = request.data.get('land_co_easting')
             land_northing = request.data.get('land_co_northing')
             land_zone = request.data.get('land_co_zone')
@@ -742,8 +741,7 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Land SFA file is required", "data": []})
             if not sfa_for_transmission_line_gss_files:
                 return Response({"status": False, "message": "SFA for transmission line GSS files are required", "data": []})
-            if not timeline:
-                return Response({"status": False, "message": "Timeline is required", "data": []})
+        
             if not solar_or_winds:
                 return Response({"status": False, "message": "Solar or Winds is required", "data": []})
             if not date_of_assessment:
@@ -751,10 +749,10 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             if not site_visit_date:
                 return Response({"status": False, "message": "Site visit date is required", "data": []})
 
-            created = LandBankMaster.objects.create(user = user, sfa_name = sfa_name, timeline = timeline, solar_or_winds = solar_or_winds,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user, 
+            created = LandBankMaster.objects.create(user = user, sfa_name = sfa_name, solar_or_winds = solar_or_winds,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user, 
                                                     land_address = land_address, client_consultant = client_consultant, palnt_capacity=palnt_capacity, land_owner = land_owner, sfa_available_area_acres = sfa_available_area_acres, distance_from_main_road = distance_from_main_road, road_highway_details = road_highway_details, land_title=land_title, sfa_land_category=sfa_land_category,
                                                     sfa_land_profile=sfa_land_profile, sfa_land_orientation=sfa_land_orientation, sfa_land_soil_testing_availability=sfa_land_soil_testing_availability, any_shadow_casting_buildings_or_hill=any_shadow_casting_buildings_or_hill, any_water_ponds_or_nalas_within_the_proposed_location=any_water_ponds_or_nalas_within_the_proposed_location, any_roads_or_bridge_within_the_proposed_location=any_roads_or_bridge_within_the_proposed_location, any_railway_lane_within_the_proposed_location=any_railway_lane_within_the_proposed_location, is_the_proposed_site_is_of_natural_contour_or_filled_up_area=is_the_proposed_site_is_of_natural_contour_or_filled_up_area,
-                                                    geo_graphical_cordinates=geo_graphical_cordinates, land_co_ordinates=land_co_ordinates, substation_cordinates=substation_cordinates, solar_isolation_data=solar_isolation_data, rain_fall_pattern=rain_fall_pattern, communication_network_availability=communication_network_availability, permission_required_for_power_generation=permission_required_for_power_generation,
+                                                    land_co_ordinates=land_co_ordinates, substation_cordinates=substation_cordinates, solar_isolation_data=solar_isolation_data, rain_fall_pattern=rain_fall_pattern, communication_network_availability=communication_network_availability, permission_required_for_power_generation=permission_required_for_power_generation,
                                                     transmission_network_availabilty_above_400_220_33kv=transmission_network_availabilty_above_400_220_33kv, distance_of_supply_point_from_proposed_site=distance_of_supply_point_from_proposed_site, distance_of_nearest_substation_from_proposed_site=distance_of_nearest_substation_from_proposed_site, transmission_line_load_carrying_or_evacuation_capacity=transmission_line_load_carrying_or_evacuation_capacity, right_of_way_requirement_up_to_the_delivery_point=right_of_way_requirement_up_to_the_delivery_point, construction_power_availability_and_identify_source_distance=construction_power_availability_and_identify_source_distance, grid_availability_data_outage_pattern=grid_availability_data_outage_pattern, substation_capacity_mva=substation_capacity_mva, substation_load_side_voltage_level_kv=substation_load_side_voltage_level_kv,
                                                     kv_grid_voltage_variation=kv_grid_voltage_variation, hz_grid_voltage_variation=hz_grid_voltage_variation, check_space_availability_in_substation_to_conct_power_by_area=check_space_availability_in_substation_to_conct_power_by_area, transformer_rating_in_substation=transformer_rating_in_substation, check_protection_system_details_of_substation=check_protection_system_details_of_substation, any_future_plan_for_expansion_of_substation=any_future_plan_for_expansion_of_substation, is_there_any_power_export_happening_at_substation=is_there_any_power_export_happening_at_substation, any_specific_requirements_of_eb_for_double_pole_structure=any_specific_requirements_of_eb_for_double_pole_structure, any_transmission_communication_line_passing_through_site = any_transmission_communication_line_passing_through_site, neighboring_area_or_vicinity_details=neighboring_area_or_vicinity_details, nearest_industry_category_and_distance=nearest_industry_category_and_distance, nearest_village_or_district_name_and_distance = nearest_village_or_district_name_and_distance, nearest_highway_or_airport_name_and_distance=nearest_highway_or_airport_name_and_distance, availability_of_labor_and_cost_of_labor=availability_of_labor_and_cost_of_labor, logistics=logistics, 
                                                     is_there_an_approach_road_available_to_the_site=is_there_an_approach_road_available_to_the_site, can_truck_of_Multi_axel_with_40_foot_container_reach_site=can_truck_of_Multi_axel_with_40_foot_container_reach_site, availability_of_vehicle_for_hiring_or_cost_per_km=availability_of_vehicle_for_hiring_or_cost_per_km, list_the_risks_including_journey=list_the_risks_including_journey, nearest_police_station_and_distance=nearest_police_station_and_distance, nearest_hospital_and_distance=nearest_hospital_and_distance, nearest_fire_station_and_distance=nearest_fire_station_and_distance, nearest_seashore_and_distance=nearest_seashore_and_distance, availability_of_accommodation_to_site_approximate_cost=availability_of_accommodation_to_site_approximate_cost, provide_near_by_civil_electrical_contractors=provide_near_by_civil_electrical_contractors, availability_of_construction_material_nearby=availability_of_construction_material_nearby, any_weather_station_nearby=any_weather_station_nearby, water_belt_profile_of_the_area=water_belt_profile_of_the_area, water_availability=water_availability, construction_water_availability=construction_water_availability, details_of_local_drainage_scheme=details_of_local_drainage_scheme, availability_of_potable_water=availability_of_potable_water,
@@ -812,16 +810,16 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             remove_sfa_for_transmission_line_gss_files = request.data.get('remove_sfa_for_transmission_line_gss_files') or []
             solar_or_winds = request.data.get('solar_or_winds')
             land_address = request.data.get('land_address')
-            client_consultant = request.data.get("client_consultant")
+            client_consultant = request.data.get("client_consultant", None)
             palnt_capacity = request.data.get('palnt_capacity')
             land_owner = request.data.get('land_owner')
             sfa_available_area_acres = request.data.get('sfa_available_area_acres')
             distance_from_main_road = request.data.get('distance_from_main_road')
             road_highway_details = request.data.get('road_highway_details')
-            land_title = request.data.get('land_title')
+            land_title = request.data.get('land_title', None)
             sfa_land_category = request.data.get('sfa_land_category')
             sfa_land_profile = request.data.get('sfa_land_profile')
-            sfa_land_orientation = request.data.get('sfa_land_orientation')
+            sfa_land_orientation = request.data.get('sfa_land_orientation', None)
             sfa_land_soil_testing_availability = request.data.get('sfa_land_soil_testing_availability')
             sfa_soil_bearing_capacity_files = request.FILES.getlist('sfa_soil_bearing_capacity_files') or []
             remove_sfa_soil_bearing_capacity_files = request.FILES.getlist('remove_sfa_soil_bearing_capacity_files') or []
@@ -830,7 +828,6 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             any_roads_or_bridge_within_the_proposed_location = request.data.get('any_roads_or_bridge_within_the_proposed_location')
             any_railway_lane_within_the_proposed_location = request.data.get('any_railway_lane_within_the_proposed_location')
             is_the_proposed_site_is_of_natural_contour_or_filled_up_area = request.data.get('is_the_proposed_site_is_of_natural_contour_or_filled_up_area')
-            geo_graphical_cordinates = request.data.get('geo_graphical_cordinates')
             land_co_ordinates = request.data.get('land_co_ordinates')
             substation_cordinates = request.data.get('substation_cordinates')
             solar_isolation_data = request.data.get('solar_isolation_data')
@@ -840,26 +837,26 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             transmission_network_availabilty_above_400_220_33kv = request.data.get('transmission_network_availabilty_above_400_220_33kv')
             distance_of_supply_point_from_proposed_site = request.data.get('distance_of_supply_point_from_proposed_site')
             distance_of_nearest_substation_from_proposed_site = request.data.get('distance_of_nearest_substation_from_proposed_site')
-            transmission_line_load_carrying_or_evacuation_capacity = request.data.get('transmission_line_load_carrying_or_evacuation_capacity')
+            transmission_line_load_carrying_or_evacuation_capacity = request.data.get('transmission_line_load_carrying_or_evacuation_capacity',None)
             right_of_way_requirement_up_to_the_delivery_point = request.data.get('right_of_way_requirement_up_to_the_delivery_point')
-            construction_power_availability_and_identify_source_distance = request.data.get('construction_power_availability_and_identify_source_distance')
-            grid_availability_data_outage_pattern = request.data.get('grid_availability_data_outage_pattern')
+            construction_power_availability_and_identify_source_distance = request.data.get('construction_power_availability_and_identify_source_distance',None)
+            grid_availability_data_outage_pattern = request.data.get('grid_availability_data_outage_pattern',None)
             substation_capacity_mva = request.data.get('substation_capacity_mva')
             substation_load_side_voltage_level_kv = request.data.get('substation_load_side_voltage_level_kv')
-            kv_grid_voltage_variation = request.data.get('kv_grid_voltage_variation')
-            hz_grid_voltage_variation = request.data.get('hz_grid_voltage_variation')
+            kv_grid_voltage_variation = request.data.get('kv_grid_voltage_variation',None)
+            hz_grid_voltage_variation = request.data.get('hz_grid_voltage_variation',None)
             check_space_availability_in_substation_to_conct_power_by_area = request.data.get('check_space_availability_in_substation_to_conct_power_by_area')
             transformer_rating_in_substation = request.data.get('transformer_rating_in_substation')
-            check_protection_system_details_of_substation = request.data.get('check_protection_system_details_of_substation')
-            any_future_plan_for_expansion_of_substation = request.data.get('any_future_plan_for_expansion_of_substation')
-            is_there_any_power_export_happening_at_substation = request.data.get('is_there_any_power_export_happening_at_substation')
-            any_specific_requirements_of_eb_for_double_pole_structure = request.data.get('any_specific_requirements_of_eb_for_double_pole_structure')
+            check_protection_system_details_of_substation = request.data.get('check_protection_system_details_of_substation',None)
+            any_future_plan_for_expansion_of_substation = request.data.get('any_future_plan_for_expansion_of_substation',None)
+            is_there_any_power_export_happening_at_substation = request.data.get('is_there_any_power_export_happening_at_substation',None)
+            any_specific_requirements_of_eb_for_double_pole_structure = request.data.get('any_specific_requirements_of_eb_for_double_pole_structure',None)
             any_transmission_communication_line_passing_through_site = request.data.get('any_transmission_communication_line_passing_through_site')
             neighboring_area_or_vicinity_details = request.data.get('neighboring_area_or_vicinity_details')
-            nearest_industry_category_and_distance = request.data.get('nearest_industry_category_and_distance')
+            nearest_industry_category_and_distance = request.data.get('nearest_industry_category_and_distance',None)
             nearest_village_or_district_name_and_distance = request.data.get('nearest_village_or_district_name_and_distance')
             nearest_highway_or_airport_name_and_distance = request.data.get('nearest_highway_or_airport_name_and_distance')
-            availability_of_labor_and_cost_of_labor = request.data.get('availability_of_labor_and_cost_of_labor')
+            availability_of_labor_and_cost_of_labor = request.data.get('availability_of_labor_and_cost_of_labor',None)
             logistics = request.data.get('logistics')
             is_there_an_approach_road_available_to_the_site = request.data.get('is_there_an_approach_road_available_to_the_site')
             can_truck_of_Multi_axel_with_40_foot_container_reach_site = request.data.get('can_truck_of_Multi_axel_with_40_foot_container_reach_site')
@@ -872,15 +869,15 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             nearest_fire_station_and_distance = request.data.get('nearest_fire_station_and_distance')
             nearest_seashore_and_distance = request.data.get('nearest_seashore_and_distance')
             availability_of_accommodation_to_site_approximate_cost = request.data.get('availability_of_accommodation_to_site_approximate_cost')
-            provide_near_by_civil_electrical_contractors = request.data.get('provide_near_by_civil_electrical_contractors')
-            availability_of_construction_material_nearby = request.data.get('availability_of_construction_material_nearby')
-            any_weather_station_nearby = request.data.get('any_weather_station_nearby')
+            provide_near_by_civil_electrical_contractors = request.data.get('provide_near_by_civil_electrical_contractors',None)
+            availability_of_construction_material_nearby = request.data.get('availability_of_construction_material_nearby',None)
+            any_weather_station_nearby = request.data.get('any_weather_station_nearby',None)
 
-            water_belt_profile_of_the_area = request.data.get('water_belt_profile_of_the_area')
-            water_availability = request.data.get('water_availability')
-            construction_water_availability = request.data.get('construction_water_availability')
-            details_of_local_drainage_scheme = request.data.get('details_of_local_drainage_scheme')
-            availability_of_potable_water = request.data.get('availability_of_potable_water')
+            water_belt_profile_of_the_area = request.data.get('water_belt_profile_of_the_area',None)
+            water_availability = request.data.get('water_availability',None)
+            construction_water_availability = request.data.get('construction_water_availability',None)
+            details_of_local_drainage_scheme = request.data.get('details_of_local_drainage_scheme',None)
+            availability_of_potable_water = request.data.get('availability_of_potable_water',None)
 
             geo_coordinate_format = request.data.get('geo_coordinate_format')
             geo_easting = request.data.get('geo_easting')
@@ -954,8 +951,7 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
                 land_bank.any_railway_lane_within_the_proposed_location = any_railway_lane_within_the_proposed_location
             if is_the_proposed_site_is_of_natural_contour_or_filled_up_area:
                 land_bank.is_the_proposed_site_is_of_natural_contour_or_filled_up_area = is_the_proposed_site_is_of_natural_contour_or_filled_up_area
-            if geo_graphical_cordinates:
-                land_bank.geo_graphical_cordinates = geo_graphical_cordinates
+            
             if land_co_ordinates:
                 land_bank.land_co_ordinates = land_co_ordinates
             if substation_cordinates:

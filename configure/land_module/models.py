@@ -167,7 +167,6 @@ class LandBankMaster(models.Model):
     any_roads_or_bridge_within_the_proposed_location = models.CharField(max_length=500,null=True, blank=True)
     any_railway_lane_within_the_proposed_location = models.CharField(max_length=500,null=True, blank=True)
     is_the_proposed_site_is_of_natural_contour_or_filled_up_area = models.CharField(max_length=255, null=True, blank=True)
-    geo_graphical_cordinates = models.CharField(max_length=500, null=True, blank=True)
     land_co_ordinates = models.CharField(max_length=500, null=True, blank=True)
     substation_cordinates = models.CharField(max_length=500, null=True, blank=True)
     solar_isolation_data = models.CharField(max_length=500, null=True, blank=True)
@@ -223,7 +222,6 @@ class LandBankMaster(models.Model):
 
     land_sfa_file = models.ManyToManyField(SFAAttachment)
     sfa_for_transmission_line_gss_files = models.ManyToManyField(SFAforTransmissionLineGSSAttachment)
-    timeline = models.DateTimeField(null=True, blank=True)
     solar_or_winds = models.CharField(max_length=10, choices=SOLAR_WIND_CHOICES, null=True, blank=True)
     date_of_assessment = models.DateTimeField(null=True, blank=True)
     status_of_site_visit = models.CharField(max_length=255, choices=STATUS_OF_SITE_VISIT, null=True, blank=True,default='Pending')
