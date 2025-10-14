@@ -261,7 +261,7 @@ class LandBankMaster(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
-
+    is_land_bank_created = models.BooleanField(default=False)
 #geographic cordinates
     geo_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
     geo_easting = models.CharField(max_length=100, null=True, blank=True)
