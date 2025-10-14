@@ -30,15 +30,15 @@ class CreateLandCategoryViewSet(viewsets.ModelViewSet):
         
     def list(self, request, *args, **kwargs):
         try:
-            user = self.request.user
-            if self.request.user.groups.filter(name='Admin').exists():
-                categories = LandCategory.objects.all()
-                serializer = LandCategorySerializer(categories, many=True)
-                return Response({"status": True, "message": "Land categories retrieved successfully", "data": serializer.data})
-            else:
-                categories = LandCategory.objects.filter(user=user)
-                serializer = LandCategorySerializer(categories, many=True)
-                return Response({"status": True, "message": "Land categories retrieved successfully", "data": serializer.data})
+            # user = self.request.user
+            # if self.request.user.groups.filter(name='Admin').exists():
+            categories = LandCategory.objects.all()
+            serializer = LandCategorySerializer(categories, many=True)
+            return Response({"status": True, "message": "Land categories retrieved successfully", "data": serializer.data})
+            # else:
+            #     categories = LandCategory.objects.filter(user=user)
+            #     serializer = LandCategorySerializer(categories, many=True)
+            #     return Response({"status": True, "message": "Land categories retrieved successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
@@ -300,7 +300,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
                     land.land_transmission_line_file.add(land_transmission_line_attachments)
-
+            land.is_land_bank_created = True
             land.save()
             # Serialize the created LandBankMaster instance
             # serializer = LandBankSerializer(land, context={'request': request})
@@ -314,7 +314,9 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            # Filter the queryset to include only records with is_land_bank_created=True
+            queryset = self.filter_queryset(self.get_queryset().filter(is_land_bank_created=True)).order_by('-id')
+            
             if not queryset.exists():
                 return Response({"status": False, "message": "No data found", "data": []})
 
@@ -324,7 +326,6 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
 class ApproveRejectLandbankStatus(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
