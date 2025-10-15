@@ -225,19 +225,8 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Advocate name is required", "data": []})
             
             if not total_land_area:
-                return Response({"status": False, "message": "Total land area is required", "data": []})
-
-            if not land_key_plan_files:
-                return Response({"status": False, "message": "Land key plan files are required", "data": []})
-            
-            if not land_approach_road_files:
-                return Response({"status": False, "message": "Land approach road files are required", "data": []})
-            
-            if not land_co_ordinates_files:
-                return Response({"status": False, "message": "Land co-ordinates files are required", "data": []})
-            
-            if not land_lease_deed_files:
-                return Response({"status": False, "message": "Land Lease Deed files are required", "data": []})
+                return Response({"status": False, "message": "Total land area is required", "data": []})            
+           
             
             land = LandBankMaster.objects.get(id=land_bank_id)
             if not land:
@@ -381,7 +370,6 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         try:
             land_bank_id = self.kwargs.get('land_bank_id')
-            land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
             block_number = request.data.get('block_number')
             land_type=request.data.get('land_type')
@@ -390,7 +378,6 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             lease_deed_date = request.data.get('lease_deed_date')
 
             lease_deed_number = request.data.get('lease_deed_number')
-            solar_or_winds = request.data.get('solar_or_winds')
             survey_number = request.data.get('survey_number')
             taluka_tahshil_name = request.data.get('taluka_tahshil_name')
             total_land_area = request.data.get('total_land_area')
@@ -442,26 +429,17 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_transmission_line_files_to_remove = process_file_ids(land_transmission_line_files_to_remove)
             approved_report_files_to_remove = process_file_ids(approved_report_files_to_remove)
 
-            if not land_category_id:
-                return Response({"status": False, "message": "Land category is required", "data": []})
+        
 
             if not land_name:
                 return Response({"status": False, "message": "Land name is required", "data": []})
             
-            if not solar_or_winds:
-                return Response({"status": False, "message": "Please select solar or wind", "data": []})
-            
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
             if not land_bank:
                 return Response({"status": False, "message": "Land Bank data not found", "data": []})
-            
-            if land_category_id:
-                land_category = LandCategory.objects.get(id=land_category_id)
-                land_bank.land_category = land_category
             if land_name:
                 land_bank.land_name = land_name
-            if solar_or_winds:
-                land_bank.solar_or_winds = solar_or_winds
+        
             if survey_number:
                 land_bank.survey_number = survey_number
             if taluka_tahshil_name:
@@ -827,7 +805,6 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
             land_sfa_assigned_to_users = request.data.get('land_sfa_assigned_to_users') or []  # Use getlist here for list data
             remove_land_sfa_file = request.data.get('remove_land_sfa_file') or []
             remove_sfa_for_transmission_line_gss_files = request.data.get('remove_sfa_for_transmission_line_gss_files') or []
-            solar_or_winds = request.data.get('solar_or_winds')
             land_address = request.data.get('land_address')
             client_consultant = request.data.get("client_consultant", None)
             palnt_capacity = request.data.get('palnt_capacity')
@@ -934,8 +911,6 @@ class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
                 land_bank.sfa_name = sfa_name
             if timeline:
                 land_bank.timeline = timeline
-            if solar_or_winds:
-                land_bank.solar_or_winds = solar_or_winds
             if land_address:
                 land_bank.land_address = land_address
             if client_consultant:
