@@ -145,7 +145,7 @@ class LandBankMaster(models.Model):
     land_name = models.TextField(null=True, blank=True)
     block_number = models.CharField(max_length=200, null=True, blank=True)
     land_type=models.CharField(max_length=10, choices=LAND_TYPE_CHOICES, null=True, blank=True)
-    sale_deed_date = models.DateTimeField(null=True, blank=True) or None
+    sale_deed_date = models.DateTimeField(null=True, blank=True)
     sale_deed_number= models.CharField(max_length=200, null=True, blank=True)
     lease_deed_date = models.DateTimeField(null=True, blank=True) 
     lease_deed_number = models.CharField(max_length=200, null=True, blank=True)
