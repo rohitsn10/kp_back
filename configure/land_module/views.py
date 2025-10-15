@@ -8,6 +8,7 @@ import ipdb
 from user_profile.function_call import *
 import ast
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
@@ -88,7 +89,7 @@ class UpdateLandCategoryViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
-
+import json
 class LandBankMasterCreateViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
@@ -97,12 +98,13 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
         try:
             user = self.request.user
             land_bank_id = request.data.get('land_bank_id')
-            land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
-            old_block_number = request.data.get('old_block_number')
-            new_block_number = request.data.get('new_block_number')
-            sale_deed_date = request.data.get('sale_deed_date')
-            lease_deed_number = request.data.get('lease_deed_number')
+            block_number = request.data.get('block_number')
+            land_type=request.data.get('land_type')
+            sale_deed_date = request.data.get('sale_deed_date') or None
+            sale_deed_number=request.data.get('sale_deed_number') or None
+            lease_deed_date = request.data.get('lease_deed_date') or None
+            lease_deed_number = request.data.get('lease_deed_number') or None
 
             survey_number = request.data.get('survey_number')
             village_name = request.data.get('village_name')
@@ -121,11 +123,19 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             actual_bucket = request.data.get('actual_bucket')
             remarks = request.data.get('remarks')
             index_number = request.data.get('index_number')
-            tcr = request.data.get('tcr')
+            tsr = request.data.get('tsr')
             advocate_name = request.data.get('advocate_name')
             total_land_area = request.data.get('total_land_area')
-            keypoints = request.data.getlist('keypoints[]') or request.data.get('keypoints') or []
-
+            # keypoints = request.data.getlist('keypoints[]') or request.data.get('keypoints') or []
+            keypoints_raw = request.data.get('keypoints') or '[]'
+            # Parse it into a Python list
+            if isinstance(keypoints_raw, str):
+                try:
+                    keypoints = json.loads(keypoints_raw)
+                except json.JSONDecodeError:
+                    keypoints = []
+            else:
+                keypoints = keypoints_raw if isinstance(keypoints_raw, list) else []
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
             land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
@@ -138,24 +148,24 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             if not land_bank_id:
                 return Response({"status": False, "message": "Land bank id is required", "data": []})
             
-            if not land_category_id:
-                return Response({"status": False, "message": "Land category is required", "data": []})
 
             if not land_name:
                 return Response({"status": False, "message": "Land name is required", "data": []})
-            
-            if not old_block_number:
-                return Response({"status": False, "message": "Old block number is required", "data": []})
-            
-            if not new_block_number:
-                return Response({"status": False, "message": "New block number is required", "data": []})
-            
-            if not sale_deed_date:
+
+            if not block_number:
+                return Response({"status": False, "message": "Block number is required", "data": []})
+
+            if land_type =='buy' and not sale_deed_date:
                 return Response({"status": False, "message": "Sale deed date is required", "data": []})
             
-            if not lease_deed_number:
+            if land_type =='buy' and not sale_deed_number:
+                return Response({"status": False, "message": "Sale deed number is required", "data": []})
+
+            if land_type =='lease' and not lease_deed_number:
                 return Response({"status": False, "message": "Lease deed number is required", "data": []})
-            
+           
+            if land_type =='lease' and not lease_deed_date:
+                return Response({"status": False, "message": "Lease deed date is required", "data": []})
 
             if not survey_number:
                 return Response({"status": False, "message": "Survey number is required", "data": []})
@@ -207,21 +217,16 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             
             if not index_number:
                 return Response({"status": False, "message": "Index number is required", "data": []})
-            
-            if not tcr:
-                return Response({"status": False, "message": "TCR is required", "data": []})
-            
+
+            if not tsr:
+                return Response({"status": False, "message": "TSR is required", "data": []})
+
             if not advocate_name:
                 return Response({"status": False, "message": "Advocate name is required", "data": []})
             
             if not total_land_area:
                 return Response({"status": False, "message": "Total land area is required", "data": []})
 
-            if land_category_id:
-                land_category = LandCategory.objects.get(id=land_category_id)
-                if not land_category:
-                    return Response({"status": False, "message": "Land category not found", "data": []})
-            
             if not land_key_plan_files:
                 return Response({"status": False, "message": "Land key plan files are required", "data": []})
             
@@ -238,11 +243,12 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             if not land:
                 return Response({"status": False, "message": "Land not found", "data": []})
 
-            land.land_category = land_category
             land.land_name = land_name
-            land.old_block_number = old_block_number
-            land.new_block_number = new_block_number
+            land.block_number = block_number
+            land.land_type=land_type
             land.sale_deed_date = sale_deed_date
+            land.sale_deed_number=sale_deed_number
+            land.lease_deed_date = lease_deed_date
             land.lease_deed_number = lease_deed_number
             land.survey_number = survey_number
             land.village_name = village_name
@@ -261,7 +267,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             land.actual_bucket = actual_bucket
             land.remarks = remarks
             land.index_number = index_number
-            land.tcr = tcr
+            land.tsr = tsr
             land.advocate_name = advocate_name
             land.total_land_area = total_land_area
             land.remaining_land_area = total_land_area
@@ -326,6 +332,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
 class ApproveRejectLandbankStatus(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
@@ -376,9 +383,12 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_bank_id = self.kwargs.get('land_bank_id')
             land_category_id = request.data.get('land_category_id')
             land_name = request.data.get('land_name')
-            old_block_number = request.data.get('old_block_number')
-            new_block_number = request.data.get('new_block_number')
+            block_number = request.data.get('block_number')
+            land_type=request.data.get('land_type')
             sale_deed_date = request.data.get('sale_deed_date')
+            sale_deed_number=request.data.get('sale_deed_number')
+            lease_deed_date = request.data.get('lease_deed_date')
+
             lease_deed_number = request.data.get('lease_deed_number')
             solar_or_winds = request.data.get('solar_or_winds')
             survey_number = request.data.get('survey_number')
@@ -400,7 +410,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             actual_bucket = request.data.get('actual_bucket')
             remarks = request.data.get('remarks')
             index_number = request.data.get('index_number')
-            tcr = request.data.get('tcr')
+            tsr = request.data.get('tsr')
             advocate_name = request.data.get('advocate_name')
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
@@ -489,8 +499,8 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 land_bank.remarks = remarks
             if advocate_name:
                 land_bank.advocate_name = advocate_name
-            if tcr:
-                land_bank.tcr = tcr
+            if tsr:
+                land_bank.tsr = tsr
 
             land_bank.save()
                 
@@ -646,7 +656,8 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             sfa_name = request.data.get('sfa_name')
             land_sfa_file = request.FILES.getlist('land_sfa_file') or []
             sfa_for_transmission_line_gss_files = request.FILES.getlist('sfa_for_transmission_line_gss_files') or []
-            solar_or_winds = request.data.get('solar_or_winds')
+            land_category = request.data.get('land_category')
+            land_category_id = request.data.get('land_category_id')
             date_of_assessment = request.data.get('date_of_assessment')
             site_visit_date = request.data.get('site_visit_date')
             land_address = request.data.get('land_address')
@@ -743,14 +754,21 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             if not sfa_for_transmission_line_gss_files:
                 return Response({"status": False, "message": "SFA for transmission line GSS files are required", "data": []})
         
-            if not solar_or_winds:
-                return Response({"status": False, "message": "Solar or Winds is required", "data": []})
+            if not land_category_id:
+                return Response({"status": False, "message": "Land category is required", "data": []})
             if not date_of_assessment:
                 return Response({"status": False, "message": "Date of assessment is required", "data": []})
             if not site_visit_date:
                 return Response({"status": False, "message": "Site visit date is required", "data": []})
+            land_category_id = request.data.get('land_category_id')
 
-            created = LandBankMaster.objects.create(user = user, sfa_name = sfa_name, solar_or_winds = solar_or_winds,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user, 
+            if not land_category_id:
+                return Response({"status": False, "message": "Land category ID is required", "data": []})
+
+            # Fetch the LandCategory instance
+            land_category = get_object_or_404(LandCategory, id=land_category_id)
+
+            created = LandBankMaster.objects.create(user = user, sfa_name = sfa_name, land_category = land_category,date_of_assessment = date_of_assessment,site_visit_date = site_visit_date,sfa_checked_by_user = user, 
                                                     land_address = land_address, client_consultant = client_consultant, palnt_capacity=palnt_capacity, land_owner = land_owner, sfa_available_area_acres = sfa_available_area_acres, distance_from_main_road = distance_from_main_road, road_highway_details = road_highway_details, land_title=land_title, sfa_land_category=sfa_land_category,
                                                     sfa_land_profile=sfa_land_profile, sfa_land_orientation=sfa_land_orientation, sfa_land_soil_testing_availability=sfa_land_soil_testing_availability, any_shadow_casting_buildings_or_hill=any_shadow_casting_buildings_or_hill, any_water_ponds_or_nalas_within_the_proposed_location=any_water_ponds_or_nalas_within_the_proposed_location, any_roads_or_bridge_within_the_proposed_location=any_roads_or_bridge_within_the_proposed_location, any_railway_lane_within_the_proposed_location=any_railway_lane_within_the_proposed_location, is_the_proposed_site_is_of_natural_contour_or_filled_up_area=is_the_proposed_site_is_of_natural_contour_or_filled_up_area,
                                                     land_co_ordinates=land_co_ordinates, substation_cordinates=substation_cordinates, solar_isolation_data=solar_isolation_data, rain_fall_pattern=rain_fall_pattern, communication_network_availability=communication_network_availability, permission_required_for_power_generation=permission_required_for_power_generation,

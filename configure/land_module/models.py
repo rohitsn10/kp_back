@@ -135,12 +135,19 @@ class LandBankMaster(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     )
+    LAND_TYPE_CHOICES = (
+        ('BUY', 'buy'),
+        ('LEASE', 'lease')
+    )
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     land_category = models.ForeignKey(LandCategory, on_delete=models.CASCADE, null=True, blank=True)
     land_name = models.TextField(null=True, blank=True)
-    old_block_number = models.CharField(max_length=200, null=True, blank=True)
-    new_block_number = models.CharField(max_length=200, null=True, blank=True)
+    block_number = models.CharField(max_length=200, null=True, blank=True)
+    land_type=models.CharField(max_length=10, choices=LAND_TYPE_CHOICES, null=True, blank=True)
     sale_deed_date = models.DateTimeField(null=True, blank=True)
+    sale_deed_number= models.CharField(max_length=200, null=True, blank=True)
+    lease_deed_date = models.DateTimeField(null=True, blank=True)
     lease_deed_number = models.CharField(max_length=200, null=True, blank=True)
     lease_deed_file = models.ManyToManyField(LandLeaseDeedAttachment, null=True, blank=True)
 
@@ -245,7 +252,7 @@ class LandBankMaster(models.Model):
     actual_bucket = models.CharField(max_length=500, blank=True, null=True)
     remarks = models.CharField(max_length=500, blank=True, null=True)
     index_number = models.CharField(max_length=500, blank=True, null=True)
-    tcr = models.CharField(max_length=100, blank=True, null=True)
+    tsr = models.CharField(max_length=100, blank=True, null=True)
     advocate_name = models.CharField(max_length=500, blank=True, null=True)
 
     total_land_area = models.CharField(max_length=500, null=True, blank=True)
