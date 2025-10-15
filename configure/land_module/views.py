@@ -88,7 +88,7 @@ class UpdateLandCategoryViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
-
+import json
 class LandBankMasterCreateViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
@@ -124,8 +124,16 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             tcr = request.data.get('tcr')
             advocate_name = request.data.get('advocate_name')
             total_land_area = request.data.get('total_land_area')
-            keypoints = request.data.getlist('keypoints[]') or request.data.get('keypoints') or []
-
+            # keypoints = request.data.getlist('keypoints[]') or request.data.get('keypoints') or []
+            keypoints_raw = request.data.get('keypoints') or '[]'
+            # Parse it into a Python list
+            if isinstance(keypoints_raw, str):
+                try:
+                    keypoints = json.loads(keypoints_raw)
+                except json.JSONDecodeError:
+                    keypoints = []
+            else:
+                keypoints = keypoints_raw if isinstance(keypoints_raw, list) else []
             land_location_files = request.FILES.getlist('land_location_files') or []
             land_survey_number_files = request.FILES.getlist('land_survey_number_files') or []
             land_key_plan_files = request.FILES.getlist('land_key_plan_files') or []
@@ -326,6 +334,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
 class ApproveRejectLandbankStatus(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
