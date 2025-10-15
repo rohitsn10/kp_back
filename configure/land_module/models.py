@@ -145,9 +145,9 @@ class LandBankMaster(models.Model):
     land_name = models.TextField(null=True, blank=True)
     block_number = models.CharField(max_length=200, null=True, blank=True)
     land_type=models.CharField(max_length=10, choices=LAND_TYPE_CHOICES, null=True, blank=True)
-    sale_deed_date = models.DateTimeField(null=True, blank=True)
+    sale_deed_date = models.DateTimeField(null=True, blank=True) or None
     sale_deed_number= models.CharField(max_length=200, null=True, blank=True)
-    lease_deed_date = models.DateTimeField(null=True, blank=True)
+    lease_deed_date = models.DateTimeField(null=True, blank=True) 
     lease_deed_number = models.CharField(max_length=200, null=True, blank=True)
     lease_deed_file = models.ManyToManyField(LandLeaseDeedAttachment, null=True, blank=True)
 
@@ -269,6 +269,7 @@ class LandBankMaster(models.Model):
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
     is_land_bank_created = models.BooleanField(default=False)
+    is_land_bank_started = models.BooleanField(default=False)
 #geographic cordinates
     geo_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
     geo_easting = models.CharField(max_length=100, null=True, blank=True)

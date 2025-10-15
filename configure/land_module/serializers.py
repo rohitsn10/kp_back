@@ -88,7 +88,7 @@ class LandBankSerializer(serializers.ModelSerializer):
             'any_weather_station_nearby', 'water_belt_profile_of_the_area', 'water_availability', 'construction_water_availability', 'details_of_local_drainage_scheme',
             'availability_of_potable_water', 'any_other_general_observation','geo_coordinate_format', 'geo_easting', 'geo_northing', 'geo_zone',
             'land_coordinate_format', 'land_easting', 'land_northing', 'land_zone','substation_coordinate_format', 'substation_easting', 'substation_northing', 'substation_zone',
-            'is_land_bank_created'
+            'is_land_bank_created','is_land_bank_started'
         ]
 
     def get_land_sfa_file(self, obj):

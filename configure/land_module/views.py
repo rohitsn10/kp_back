@@ -295,7 +295,21 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
                     land.land_transmission_line_file.add(land_transmission_line_attachments)
-            land.is_land_bank_created = True
+            if (
+                land_location_files and
+                land_survey_number_files and
+                land_key_plan_files and
+                land_attach_approval_report_files and
+                land_approach_road_files and
+                land_co_ordinates_files and
+                land_lease_deed_files and
+                land_transmission_line_files
+            ):
+                land.is_land_bank_created = True
+            else:
+                land.is_land_bank_created = False
+            land.is_land_bank_started = True
+
             land.save()
             # Serialize the created LandBankMaster instance
             # serializer = LandBankSerializer(land, context={'request': request})
@@ -602,7 +616,19 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=land_bank.user, land_transmission_line_file=file)
                     land_bank.land_transmission_line_file.add(land_transmission_line_attachments)
-
+            if (
+                land_location_files and
+                land_survey_number_files and
+                land_key_plan_files and
+                land_attach_approval_report_files and
+                land_approach_road_files and
+                land_co_ordinates_files and
+                land_lease_deed_files and
+                land_transmission_line_files
+            ):
+                land_bank.is_land_bank_created = True
+            else:
+                land_bank.is_land_bank_created = False
             land_bank.save()
             serializer = LandBankSerializer(land_bank, context={'request': request})
             data = serializer.data
