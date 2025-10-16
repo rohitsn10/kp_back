@@ -1205,6 +1205,51 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
         
+class ApproveRejectLandBankDataByProjectHODViewset(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        try:
+            user = self.request.user
+            land_bank_id = self.kwargs.get('land_bank_id')
+            land_bank = LandBankMaster.objects.get(id=land_bank_id)
+            is_land_bank_approved_by_project_hod = request.data.get('is_land_bank_approved_by_project_hod')
+            approved_report_files = request.FILES.getlist('approved_report_files') or []
+            if not is_land_bank_approved_by_project_hod:
+                return Response({"status": False, "message": "Land bank approval status is required", "data": []})
+            if not approved_report_files:
+                return Response({"status": False, "message": "Approval Report Files are required", "data": []})
+
+            if is_land_bank_approved_by_project_hod== "Approved":
+                land_bank.is_land_bank_approved_by_project_hod = is_land_bank_approved_by_project_hod
+                land_bank.land_bank_approved_by_user = user
+                
+                for file in approved_report_files:
+                    approved_report_attachments = LandApprovedReportAttachment.objects.create(user=land_bank.user, approved_report_file=file)
+                    land_bank.approved_report_file.add(approved_report_attachments)
+                    land_bank.save()
+                approved_obj = SaveApprovalDataOfStatusOfSiteVisit.objects.create(land_bank=land_bank, user=user, is_land_bank_approved_by_project_hod=is_land_bank_approved_by_project_hod)
+                approved_obj.save()
+                land_bank.save()
+                serializer = LandBankSerializer(land_bank, context={'request': request})
+                data = serializer.data
+                return Response({"status": True, "message": "Land approved successfully", "data": data})
+            
+            if is_land_bank_approved_by_project_hod == "Rejected":
+                land_bank.is_land_bank_approved_by_project_hod = is_land_bank_approved_by_project_hod
+                land_bank.land_bank_rejected_by_user = user
+                approved_obj = SaveRejectDataOfStatusOfSiteVisit.objects.create(land_bank=land_bank, user=user, is_land_bank_approved_by_project_hod=is_land_bank_approved_by_project_hod)
+                approved_obj.save()
+                land_bank.save()
+                serializer = LandBankSerializer(land_bank, context={'request': request})
+                data = serializer.data
+                return Response({"status": True, "message": "Land rejected successfully", "data": data})
+            
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
 
 class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
     queryset = LandBankAfterApprovedData.objects.all()
@@ -1360,7 +1405,6 @@ class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
                 for file in list_of_approvals_required_for_transmission_line_file:
                     list_of_approvals_required_for_transmission_line_files = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.create(user=user, list_of_approvals_required_for_transmission_line_file=file)
                     land_bank_after_approved_data.list_of_approvals_required_for_transmission_line_file.add(list_of_approvals_required_for_transmission_line_files)        
-
             land_bank.is_land_bank_added_attachment=True
             land_bank_after_approved_data.save()
             land_bank.save()

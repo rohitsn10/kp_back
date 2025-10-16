@@ -272,6 +272,11 @@ class LandBankMaster(models.Model):
     is_land_bank_started = models.BooleanField(default=False)
     is_land_bank_added_attachment = models.BooleanField(default=False)
 
+    land_bank_approved_by_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='land_bank_approved_user', null=True, blank=True, on_delete=models.SET_NULL)
+    land_bank_rejected_by_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='land_bank_rejected_user', null=True, blank=True, on_delete=models.SET_NULL)
+    land_bank_checked_by_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='land_bank_checked_user', null=True, blank=True, on_delete=models.SET_NULL)
+    is_land_bank_approved_by_project_hod = models.BooleanField(default=False)
+
 #geographic cordinates
     geo_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
     geo_easting = models.CharField(max_length=100, null=True, blank=True)
