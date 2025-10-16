@@ -270,6 +270,8 @@ class LandBankMaster(models.Model):
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
     is_land_bank_created = models.BooleanField(default=False)
     is_land_bank_started = models.BooleanField(default=False)
+    is_land_bank_added_attachment = models.BooleanField(default=False)
+
 #geographic cordinates
     geo_coordinate_format = models.CharField(max_length=100, null=True, blank=True)
     geo_easting = models.CharField(max_length=100, null=True, blank=True)
