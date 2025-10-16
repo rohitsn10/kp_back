@@ -8,6 +8,7 @@ urlpatterns = [
     path('create_land_bank_master', LandBankMasterCreateViewset.as_view({'post':'create','get':'list'}), name='land_bank'),
     path('update_land_bank_master/<int:land_bank_id>', LandBankMasterUpdateViewset.as_view({'put':'update','delete':'destroy'}), name='land_bank_update'),
     path('approve_land_bank_by_hod/<int:land_bank_id>', ApproveRejectLandBankDataByHODViewset.as_view({'put':'update'}), name='approve_land_bank_by_hod'),
+    path('approve_land_bank_by_project_hod/<int:land_bank_id>', ApproveRejectLandBankDataByProjectHODViewset.as_view({'put':'update'}), name='approve_land_bank_by_project_hod'),
 
     path('add_data_after_approval_land_bank', AddDataAfterApprovalLandBankViewset.as_view({'post':'create','get':'list'}), name='update_data_after_approval_land_bank'),
     path('update_data_after_approval_land_bank/<int:land_bank_after_approved_data_id>', UpdateDateAfterApprovalLandBankViewset.as_view({'put':'update'}), name='update_data_after_approval_land_bank'),
