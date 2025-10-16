@@ -1361,7 +1361,9 @@ class AddDataAfterApprovalLandBankViewset(viewsets.ModelViewSet):
                     list_of_approvals_required_for_transmission_line_files = ListOfApprovalsRequiredForTransmissionLineAttachment.objects.create(user=user, list_of_approvals_required_for_transmission_line_file=file)
                     land_bank_after_approved_data.list_of_approvals_required_for_transmission_line_file.add(list_of_approvals_required_for_transmission_line_files)        
 
+            land_bank.is_land_bank_added_attachment=True
             land_bank_after_approved_data.save()
+            land_bank.save()
             serializer = LandBankAfterApprovalSerializer(land_bank_after_approved_data, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Land bank after approval updated successfully!", "data": data})
