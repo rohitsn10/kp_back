@@ -149,7 +149,6 @@ class LandBankMaster(models.Model):
     sale_deed_number= models.CharField(max_length=200, null=True, blank=True)
     lease_deed_date = models.DateTimeField(null=True, blank=True) 
     lease_deed_number = models.CharField(max_length=200, null=True, blank=True)
-    lease_deed_file = models.ManyToManyField(LandLeaseDeedAttachment, null=True, blank=True)
 
     keypoints = ArrayField(models.CharField(max_length=255), default=list, blank=True)
     

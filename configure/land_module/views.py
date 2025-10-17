@@ -303,7 +303,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 ('land_attach_approval_report_files', land.land_attach_approval_report_file),
                 ('land_approach_road_files', land.land_approach_road_file),
                 ('land_co_ordinates_files', land.land_co_ordinates_file),
-                ('land_lease_deed_files', land.lease_deed_file),
+                ('land_lease_deed_files', land.land_lease_deed_file),
                 ('land_transmission_line_files', land.land_transmission_line_file),
             ]
 
@@ -559,7 +559,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 for file_id in land_lease_deed_files_to_remove:
                     try:
                         file_instance = LandLeaseDeedAttachment.objects.get(id=file_id)
-                        land_bank.lease_deed_file.remove(file_instance)
+                        land_bank.land_lease_deed_file.remove(file_instance)
                         file_instance.delete()
                     except LandLeaseDeedAttachment.DoesNotExist:
                         continue
@@ -615,7 +615,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             if land_lease_deed_files:
                 for file in land_lease_deed_files:
                     land_lease_deed_attachments = LandLeaseDeedAttachment.objects.create(user=land_bank.user, land_lease_deed_file=file)
-                    land_bank.lease_deed_file.add(land_lease_deed_attachments)
+                    land_bank.land_lease_deed_file.add(land_lease_deed_attachments)
 
             if land_transmission_line_files:
                 for file in land_transmission_line_files:
@@ -629,7 +629,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 ('land_attach_approval_report_files', land_bank.land_attach_approval_report_file),
                 ('land_approach_road_files', land_bank.land_approach_road_file),
                 ('land_co_ordinates_files', land_bank.land_co_ordinates_file),
-                ('land_lease_deed_files', land_bank.lease_deed_file),
+                ('land_lease_deed_files', land_bank.land_lease_deed_file),
                 ('land_transmission_line_files', land_bank.land_transmission_line_file),
             ]
 
