@@ -263,7 +263,7 @@ class LandBankMaster(models.Model):
     land_attach_approval_report_file = models.ManyToManyField(LandAttachApprovalReportAttachment, null=True, blank=True)
     land_approach_road_file = models.ManyToManyField(LandApproachRoadAttachment, null=True, blank=True)
     land_co_ordinates_file = models.ManyToManyField(LandCoOrdinatesAttachment, null=True, blank=True)
-    land_lease_deed_files = models.ManyToManyField(LandLeaseDeedAttachment, null=True, blank=True)
+    land_lease_deed_file = models.ManyToManyField(LandLeaseDeedAttachment, null=True, blank=True)
     land_transmission_line_file = models.ManyToManyField(LandTransmissionLineAttachment, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
