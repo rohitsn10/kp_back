@@ -9,7 +9,7 @@ from user_profile.function_call import *
 import ast
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-
+from .utils.utility import parse_file_ids
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
     serializer_class = LandCategorySerializer
@@ -438,15 +438,15 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_transmission_line_files_to_remove = request.data.get('land_transmission_line_files_to_remove', [])
             approved_report_files_to_remove = request.data.get('approved_report_files_to_remove', [])
 
-            land_location_files_to_remove = process_file_ids(land_location_files_to_remove)
-            land_survey_number_files_to_remove = process_file_ids(land_survey_number_files_to_remove)
-            land_key_plan_files_to_remove = process_file_ids(land_key_plan_files_to_remove)
-            land_attach_approval_report_files_to_remove = process_file_ids(land_attach_approval_report_files_to_remove)
-            land_approach_road_files_to_remove = process_file_ids(land_approach_road_files_to_remove)
-            land_co_ordinates_files_to_remove = process_file_ids(land_co_ordinates_files_to_remove)
-            land_lease_deed_files_to_remove = process_file_ids(land_lease_deed_files_to_remove)
-            land_transmission_line_files_to_remove = process_file_ids(land_transmission_line_files_to_remove)
-            approved_report_files_to_remove = process_file_ids(approved_report_files_to_remove)
+            land_location_files_to_remove = parse_file_ids(land_location_files_to_remove)
+            land_survey_number_files_to_remove = parse_file_ids(land_survey_number_files_to_remove)
+            land_key_plan_files_to_remove = parse_file_ids(land_key_plan_files_to_remove)
+            land_attach_approval_report_files_to_remove = parse_file_ids(land_attach_approval_report_files_to_remove)
+            land_approach_road_files_to_remove = parse_file_ids(land_approach_road_files_to_remove)
+            land_co_ordinates_files_to_remove = parse_file_ids(land_co_ordinates_files_to_remove)
+            land_lease_deed_files_to_remove = parse_file_ids(land_lease_deed_files_to_remove)
+            land_transmission_line_files_to_remove = parse_file_ids(land_transmission_line_files_to_remove)
+            approved_report_files_to_remove = parse_file_ids(approved_report_files_to_remove)
 
         
 

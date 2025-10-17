@@ -11,7 +11,7 @@ import pandas as pd
 from django.core.files.storage import default_storage
 from openpyxl import load_workbook
 from rest_framework.views import APIView
-
+from land_module.models import LandBankMaster
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
     serializer_class = ExpenseTrackingSerializer
@@ -2310,3 +2310,17 @@ class ProjectProgressListView(APIView):
         progress_qs = ProjectProgress.objects.filter(project=project)
         serializer = ProjectProgressSerializer(progress_qs, many=True)
         return Response(serializer.data)
+
+class ApprovedLandBankByProjectHODDataViewSet(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LandBankSerializer
+    queryset = LandBankMaster.objects.filter(is_land_bank_approved_by_project_hod=True)
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            serializer = LandBankSerializer(queryset, many=True, context={'request': request})
+            data = serializer.data
+            return Response({"status": True, "message": "Approved Land Bank data fetched successfully", "data": data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
