@@ -2314,11 +2314,11 @@ class ProjectProgressListView(APIView):
 class ApprovedLandBankByProjectHODDataViewSet(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LandBankSerializer
-    queryset = LandBankMaster.objects.filter(is_land_bank_approved_by_project_hod=True)
+    # queryset = LandBankMaster.objects.filter(is_land_bank_approved_by_project_hod=True)
     
     def get(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            queryset = LandBankMaster.objects.filter(is_land_bank_approved_by_project_hod=True).order_by('-id')
             serializer = LandBankSerializer(queryset, many=True, context={'request': request})
             data = serializer.data
             return Response({"status": True, "message": "Approved Land Bank data fetched successfully", "data": data})
