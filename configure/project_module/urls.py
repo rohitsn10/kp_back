@@ -63,4 +63,7 @@ urlpatterns = [
     path('upload_project_progress/', UploadExcelProgressView.as_view(), name='upload_project_progress'),
     path('get_progress/', ProjectProgressListView.as_view(), name='get_progress'),
 
+    ## Approved Land Bank Data
+    path('land_bank_data_approved_by_project_hod/', ApprovedLandBankByProjectHODDataViewSet.as_view(), name='approved_land_bank_data'),
+
 ]
