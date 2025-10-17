@@ -295,19 +295,24 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
                     land.land_transmission_line_file.add(land_transmission_line_attachments)
-            if (
-                land_location_files and
-                land_survey_number_files and
-                land_key_plan_files and
-                land_attach_approval_report_files and
-                land_approach_road_files and
-                land_co_ordinates_files and
-                land_lease_deed_files and
-                land_transmission_line_files
-            ):
-                land.is_land_bank_created = True
-            else:
-                land.is_land_bank_created = False
+            # Check if all required files are present in the payload or already stored in the database
+            required_files = [
+                ('land_location_files', land.land_location_file),
+                ('land_survey_number_files', land.land_survey_number_file),
+                ('land_key_plan_files', land.land_key_plan_file),
+                ('land_attach_approval_report_files', land.land_attach_approval_report_file),
+                ('land_approach_road_files', land.land_approach_road_file),
+                ('land_co_ordinates_files', land.land_co_ordinates_file),
+                ('land_lease_deed_files', land.lease_deed_file),
+                ('land_transmission_line_files', land.land_transmission_line_file),
+            ]
+
+            # Check if all required files are either in the payload or already exist in the database
+            all_files_present = all(
+                request.FILES.getlist(file_key) or file_field.exists()
+                for file_key, file_field in required_files
+            )
+            land.is_land_bank_created = all_files_present
             land.is_land_bank_started = True
 
             land.save()
@@ -616,19 +621,26 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=land_bank.user, land_transmission_line_file=file)
                     land_bank.land_transmission_line_file.add(land_transmission_line_attachments)
-            if (
-                land_location_files and
-                land_survey_number_files and
-                land_key_plan_files and
-                land_attach_approval_report_files and
-                land_approach_road_files and
-                land_co_ordinates_files and
-                land_lease_deed_files and
-                land_transmission_line_files
-            ):
-                land_bank.is_land_bank_created = True
-            else:
-                land_bank.is_land_bank_created = False
+            # Check if all required files are present in the payload or already stored in the database
+            required_files = [
+                ('land_location_files', land_bank.land_location_file),
+                ('land_survey_number_files', land_bank.land_survey_number_file),
+                ('land_key_plan_files', land_bank.land_key_plan_file),
+                ('land_attach_approval_report_files', land_bank.land_attach_approval_report_file),
+                ('land_approach_road_files', land_bank.land_approach_road_file),
+                ('land_co_ordinates_files', land_bank.land_co_ordinates_file),
+                ('land_lease_deed_files', land_bank.lease_deed_file),
+                ('land_transmission_line_files', land_bank.land_transmission_line_file),
+            ]
+
+            # Check if all required files are either in the payload or already exist in the database
+            all_files_present = all(
+                request.FILES.getlist(file_key) or file_field.exists()
+                for file_key, file_field in required_files
+            )
+
+            # Update the flag based on the presence of all required files
+            land_bank.is_land_bank_created = all_files_present
             land_bank.save()
             serializer = LandBankSerializer(land_bank, context={'request': request})
             data = serializer.data
