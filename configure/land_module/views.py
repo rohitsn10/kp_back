@@ -110,22 +110,22 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             village_name = request.data.get('village_name')
             district_name = request.data.get('district_name')
             taluka_tahshil_name = request.data.get('taluka_tahshil_name')
-            propose_gss_number = request.data.get('propose_gss_number')
+            propose_gss_number = request.data.get('propose_gss_number') or None
             land_co_ordinates = request.data.get('land_co_ordinates')
             land_status = request.data.get('land_status')
             area_meters = request.data.get('area_meters')
             area_acres = request.data.get('area_acres')
-            industrial_jantri = request.data.get('industrial_jantri')
-            jantri_value = request.data.get('jantri_value')
-            mort_gaged = request.data.get('mort_gaged')
-            seller_name = request.data.get('seller_name')
-            buyer_name = request.data.get('buyer_name')
-            actual_bucket = request.data.get('actual_bucket')
-            remarks = request.data.get('remarks')
-            index_number = request.data.get('index_number')
-            tsr = request.data.get('tsr')
-            advocate_name = request.data.get('advocate_name')
-            total_land_area = request.data.get('total_land_area')
+            industrial_jantri = request.data.get('industrial_jantri') or None
+            jantri_value = request.data.get('jantri_value') or None
+            mort_gaged = request.data.get('mort_gaged') or None
+            seller_name = request.data.get('seller_name') 
+            buyer_name = request.data.get('buyer_name') 
+            actual_bucket = request.data.get('actual_bucket') or None
+            remarks = request.data.get('remarks') 
+            index_number = request.data.get('index_number') or None
+            tsr = request.data.get('tsr') 
+            advocate_name = request.data.get('advocate_name') or None
+            total_land_area = request.data.get('total_land_area') 
             # keypoints = request.data.getlist('keypoints[]') or request.data.get('keypoints') or []
             keypoints_raw = request.data.get('keypoints') or '[]'
             # Parse it into a Python list
@@ -437,6 +437,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_lease_deed_files_to_remove = request.data.get('land_lease_deed_files_to_remove', [])
             land_transmission_line_files_to_remove = request.data.get('land_transmission_line_files_to_remove', [])
             approved_report_files_to_remove = request.data.get('approved_report_files_to_remove', [])
+            rejected_report_files_to_remove = request.data.get('rejected_report_files_to_remove', [])
 
             land_location_files_to_remove = parse_file_ids(land_location_files_to_remove)
             land_survey_number_files_to_remove = parse_file_ids(land_survey_number_files_to_remove)
@@ -447,6 +448,7 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
             land_lease_deed_files_to_remove = parse_file_ids(land_lease_deed_files_to_remove)
             land_transmission_line_files_to_remove = parse_file_ids(land_transmission_line_files_to_remove)
             approved_report_files_to_remove = parse_file_ids(approved_report_files_to_remove)
+            rejected_report_files_to_remove = parse_file_ids(rejected_report_files_to_remove)
 
         
 
@@ -581,6 +583,17 @@ class LandBankMasterUpdateViewset(viewsets.ModelViewSet):
                         file_instance.delete()  
                     except LandApprovedReportAttachment.DoesNotExist:
                         continue
+
+            if rejected_report_files_to_remove:
+                for file_id in rejected_report_files_to_remove:
+                    try:
+                        file_instance = LandRejectedReportAttachment.objects.get(id=file_id)
+                        land_bank.rejected_report_file.remove(file_instance)
+                        file_instance.delete()  
+                    except LandRejectedReportAttachment.DoesNotExist:
+                        continue
+
+             # Attach the new files if provided
 
             if land_location_files:
                 for file in land_location_files:
@@ -1184,12 +1197,15 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
             status_of_site_visit = request.data.get('status_of_site_visit')
             approved_report_files = request.FILES.getlist('approved_report_files') or []
+            rejected_report_files = request.FILES.getlist('rejected_report_files') or []
+
             if not status_of_site_visit:
                 return Response({"status": False, "message": "Land bank status is required", "data": []})
-            if not approved_report_files:
-                return Response({"status": False, "message": "Approval Report Files are required", "data": []})
-            
+           
             if status_of_site_visit == "Approved":
+                if not approved_report_files:
+                    return Response({"status": False, "message": "Approval Report Files are required", "data": []})
+            
                 land_bank.status_of_site_visit = status_of_site_visit
                 land_bank.sfa_approved_by_user = user
                 
@@ -1205,8 +1221,14 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
                 return Response({"status": True, "message": "Land approved successfully", "data": data})
             
             if status_of_site_visit == "Rejected":
+                if not rejected_report_files:
+                    return Response({"status": False, "message": "Rejection Report Files are required", "data": []})
                 land_bank.status_of_site_visit = status_of_site_visit
                 land_bank.sfa_rejected_by_user = user
+                for file in rejected_report_files:
+                    rejected_report_attachments = LandRejectedReportAttachment.objects.create(user=land_bank.user, rejected_report_file=file)
+                    land_bank.rejected_report_file.add(rejected_report_attachments)
+                    land_bank.save()
                 approved_obj = SaveRejectDataOfStatusOfSiteVisit.objects.create(land_bank=land_bank, user=user, status_of_site_visit=status_of_site_visit)
                 approved_obj.save()
                 land_bank.save()
@@ -1229,12 +1251,12 @@ class ApproveRejectLandBankDataByProjectHODViewset(viewsets.ModelViewSet):
             land_bank = LandBankMaster.objects.get(id=land_bank_id)
             is_land_bank_approved_by_project_hod = request.data.get('is_land_bank_approved_by_project_hod')
             approved_report_files = request.FILES.getlist('approved_report_files') or []
+            rejected_report_files = request.FILES.getlist('rejected_report_files') or []
             if not is_land_bank_approved_by_project_hod:
                 return Response({"status": False, "message": "Land bank approval status is required", "data": []})
-            # if not approved_report_files:
-            #     return Response({"status": False, "message": "Approval Report Files are required", "data": []})
-
+           
             if is_land_bank_approved_by_project_hod== "Approved":
+
                 land_bank.is_land_bank_approved_by_project_hod = True
                 land_bank.land_bank_approved_by_user = user
                 
@@ -1250,10 +1272,13 @@ class ApproveRejectLandBankDataByProjectHODViewset(viewsets.ModelViewSet):
                 return Response({"status": True, "message": "Land approved successfully", "data": data})
             
             if is_land_bank_approved_by_project_hod == "Rejected":
-                land_bank.is_land_bank_approved_by_project_hod = is_land_bank_approved_by_project_hod
+                land_bank.is_land_bank_approved_by_project_hod = False
                 land_bank.land_bank_rejected_by_user = user
-                approved_obj = SaveRejectDataOfStatusOfSiteVisit.objects.create(land_bank=land_bank, user=user, is_land_bank_approved_by_project_hod=is_land_bank_approved_by_project_hod)
-                approved_obj.save()
+                for file in rejected_report_files:
+                    rejected_report_attachments = LandRejectedReportAttachment.objects.create(user=land_bank.user, rejected_report_file=file)
+                    land_bank.rejected_report_file.add(rejected_report_attachments)
+                    land_bank.save()
+            
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
                 data = serializer.data
