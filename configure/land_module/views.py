@@ -290,7 +290,7 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
             if land_lease_deed_files:
                 for file in land_lease_deed_files:
                     land_lease_deed_attachments = LandLeaseDeedAttachment.objects.create(user=user, land_lease_deed_file=file)
-                    land.lease_deed_file.add(land_lease_deed_attachments)
+                    land.land_lease_deed_file.add(land_lease_deed_attachments)
             if land_transmission_line_files:
                 for file in land_transmission_line_files:
                     land_transmission_line_attachments = LandTransmissionLineAttachment.objects.create(user=user, land_transmission_line_file=file)
