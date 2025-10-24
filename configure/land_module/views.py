@@ -10,6 +10,12 @@ import ast
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from .utils.utility import parse_file_ids
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10  # Number of records per page
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 class CreateLandCategoryViewSet(viewsets.ModelViewSet):
     queryset = LandCategory.objects.all()
     serializer_class = LandCategorySerializer
@@ -341,6 +347,43 @@ class LandBankMasterCreateViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
+    
+class LandBankMasterCreateViewsetWithPagination(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        try:
+            # Filter the queryset to include only records with is_land_bank_created=True
+            queryset = self.filter_queryset(self.get_queryset().filter(is_land_bank_created=True)).order_by('-id')
+
+            # Search by sfa_name and land_name
+            sfa_name = request.query_params.get('sfa_name', None)
+            land_name = request.query_params.get('land_name', None)
+
+            if sfa_name:
+                queryset = queryset.filter(sfa_name__icontains=sfa_name)
+            if land_name:
+                queryset = queryset.filter(land_name__icontains=land_name)
+
+            # Check if the queryset is empty
+            if not queryset.exists():
+                return Response({"status": False, "message": "No data found", "data": []})
+
+            # Apply pagination
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True, context={'request': request})
+                return self.get_paginated_response(serializer.data)
+
+            # Serialize the data if pagination is not applied
+            serializer = self.get_serializer(queryset, many=True, context={'request': request})
+            return Response({"status": True, "message": "Land Bank List Successfully", "data": serializer.data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
 class ApproveRejectLandbankStatus(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
     serializer_class = LandBankSerializer
@@ -837,6 +880,37 @@ class AddFSALandBankDataViewset(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
 
+class AddFSALandBankDataViewsetWithPagination(viewsets.ModelViewSet):
+    queryset = LandBankMaster.objects.all()
+    serializer_class = LandBankSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset()).order_by('-id')
+            user = self.request.user
+            department = user.department
+
+            # Filter by user or department
+            queryset = queryset.filter(Q(user=user) | Q(user__department=department))
+
+            # Search by sfa_name if provided
+            sfa_name = request.query_params.get('sfa_name', None)
+            if sfa_name:
+                queryset = queryset.filter(sfa_name__icontains=sfa_name)
+
+            # Apply pagination
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True, context={'request': request})
+                return self.get_paginated_response(serializer.data)
+
+            serializer = self.get_serializer(queryset, many=True, context={'request': request})
+            return Response({"status": True, "message": "Land Bank List Successfully", "data": serializer.data})
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
 
 class UpdateFSALandBankDataViewset(viewsets.ModelViewSet):
     queryset = LandBankMaster.objects.all()
