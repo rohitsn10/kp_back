@@ -2314,7 +2314,6 @@ class ProjectProgressListView(APIView):
 class ApprovedLandBankByProjectHODDataViewSet(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LandBankSerializer
-    # queryset = LandBankMaster.objects.filter(is_land_bank_approved_by_project_hod=True)
     
     def get(self, request, *args, **kwargs):
         try:
