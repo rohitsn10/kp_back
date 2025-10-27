@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from .utils.utility import parse_file_ids
 from rest_framework.pagination import PageNumberPagination
-
+from django.core.mail import send_mail
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Number of records per page
     page_size_query_param = 'page_size'
@@ -1292,6 +1292,11 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
                 data = serializer.data
+                subject = "Land Bank Site Visit Approval Notification"
+                body = f"Dear {land_bank.user.full_name},\n\nYour land bank '{land_bank.land_name}' has been approved after site visit by the HOD.\n\nBest regards,\nTeam"
+                to_email = land_bank.user.email
+                from_email = settings.EMAIL_HOST_USER
+                send_mail(subject, body, from_email, [to_email])
                 return Response({"status": True, "message": "Land approved successfully", "data": data})
             
             if status_of_site_visit == "Rejected":
@@ -1308,6 +1313,11 @@ class ApproveRejectLandBankDataByHODViewset(viewsets.ModelViewSet):
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
                 data = serializer.data
+                subject = "Land Bank Site Visit Rejection Notification"
+                body = f"Dear {land_bank.user.full_name},\n\nWe regret to inform you that your land bank '{land_bank.land_name}' has been rejected after site visit by the HOD.\n\nBest regards,\nTeam"
+                to_email = land_bank.user.email
+                from_email = settings.EMAIL_HOST_USER
+                send_mail(subject, body, from_email, [to_email])
                 return Response({"status": True, "message": "Land rejected successfully", "data": data})
             
         except Exception as e:
@@ -1343,6 +1353,12 @@ class ApproveRejectLandBankDataByProjectHODViewset(viewsets.ModelViewSet):
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
                 data = serializer.data
+                # Send approval email
+                subject = "Land Bank Approval Notification"
+                body = f"Dear {land_bank.user.full_name},\n\nYour land bank '{land_bank.land_name}' has been approved by the Project HOD.\n\nBest regards,\nTeam"
+                to_email = land_bank.user.email
+                from_email = settings.EMAIL_HOST_USER
+                send_mail(subject, body, from_email, [to_email])
                 return Response({"status": True, "message": "Land approved successfully", "data": data})
             
             if is_land_bank_approved_by_project_hod == "Rejected":
@@ -1356,6 +1372,11 @@ class ApproveRejectLandBankDataByProjectHODViewset(viewsets.ModelViewSet):
                 land_bank.save()
                 serializer = LandBankSerializer(land_bank, context={'request': request})
                 data = serializer.data
+                subject = "Land Bank Rejection Notification"
+                body = f"Dear {land_bank.user.full_name},\n\nWe regret to inform you that your land bank '{land_bank.land_name}' has been rejected by the Project HOD.\n\nBest regards,\nTeam"
+                to_email = land_bank.user.email
+                from_email=settings.EMAIL_HOST_USER
+                send_mail(subject, body, from_email, [to_email])
                 return Response({"status": True, "message": "Land rejected successfully", "data": data})
             
         except Exception as e:
