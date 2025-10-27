@@ -6,6 +6,8 @@ urlpatterns = [
     path('land_category_update/<int:land_category_id>', UpdateLandCategoryViewSet.as_view({'put':'update','delete':'destroy'}), name='land_category_update'),
     
     path('create_land_bank_master', LandBankMasterCreateViewset.as_view({'post':'create','get':'list'}), name='land_bank'),
+    path('create_land_bank_master_with_pagination', LandBankMasterCreateViewsetWithPagination.as_view({'get':'list'}), name='land_bank_with_pagination'),
+
     path('update_land_bank_master/<int:land_bank_id>', LandBankMasterUpdateViewset.as_view({'put':'update','delete':'destroy'}), name='land_bank_update'),
     path('approve_land_bank_by_hod/<int:land_bank_id>', ApproveRejectLandBankDataByHODViewset.as_view({'put':'update'}), name='approve_land_bank_by_hod'),
     path('approve_land_bank_by_project_hod/<int:land_bank_id>', ApproveRejectLandBankDataByProjectHODViewset.as_view({'put':'update'}), name='approve_land_bank_by_project_hod'),
@@ -15,6 +17,8 @@ urlpatterns = [
     path('get_land_bank_id_wise_22_forms_data/<int:land_bank_id>', GetLandBankIdWise22FormsDataViewset.as_view({'get':'list'}), name='get_land_bank_id_wise_22_forms_data'),
 
     path('add_sfa_data_to_land_bank', AddFSALandBankDataViewset.as_view({'post':'create','get':'list'}), name='add_sfa_data_to_land_bank'),
+    path('add_sfa_data_to_land_bank_with_pagination', AddFSALandBankDataViewsetWithPagination.as_view({'get':'list'}), name='add_sfa_data_to_land_bank_with_pagination'),
+
     path('update_sfa_data_to_land_bank/<int:land_bank_id>', UpdateFSALandBankDataViewset.as_view({'put':'update'}), name='update_sfa_data_to_land_bank'),
     
     path('approve_reject_land_bank_status/<int:land_bank_id>', ApproveRejectLandbankStatus.as_view({'put':'update'}), name='approve_reject_land_bank_status'),

@@ -31,6 +31,21 @@ class ApprovedReportAttachmentSerializer(serializers.ModelSerializer):
         }
         return representation
 
+class RejectedReportAttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LandRejectedReportAttachment
+        fields = ['id', 'rejected_report_file', 'created_at', 'updated_at']
+
+    def to_representation(self, obj):
+        # Manually define how the data should be represented
+        representation = {
+            "id": str(obj.id),  # Ensure the ID is returned as a string
+            "url": self.context['request'].build_absolute_uri(obj.rejected_report_file.url),  # Full URL of the file
+            "created_at": obj.created_at.isoformat(),  # Format the created_at as ISO string with timezone
+            "updated_at": obj.updated_at.isoformat()   # Format the updated_at as ISO string with timezone
+        }
+        return representation
+
 class SfaSoilBearingCapacityAttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SfaSoilBearingCapacityAttachment
@@ -51,6 +66,7 @@ class LandBankSerializer(serializers.ModelSerializer):
     land_lease_deed_file = serializers.SerializerMethodField()
     land_transmission_line_file = serializers.SerializerMethodField()
     approved_report_file = ApprovedReportAttachmentSerializer(many=True)
+    rejected_report_file = RejectedReportAttachmentSerializer(many=True)
     sfa_approved_by_user_full_name = serializers.CharField(source='sfa_approved_by_user.full_name', read_only=True)
     sfa_rejected_by_user_full_name = serializers.CharField(source='sfa_rejected_by_user.full_name', read_only=True)
     sfa_soil_bearing_capacity_files = SfaSoilBearingCapacityAttachmentSerializer(many=True)
@@ -62,7 +78,7 @@ class LandBankSerializer(serializers.ModelSerializer):
             'land_location_file', 'land_survey_number_file', 'land_key_plan_file',
             'land_attach_approval_report_file', 'land_approach_road_file', 
             'land_co_ordinates_file', 'land_lease_deed_file', 'land_transmission_line_file','land_bank_status',
-            'approved_report_file','sfa_approved_by_user','sfa_rejected_by_user','sfa_approved_by_user_full_name',
+            'approved_report_file','rejected_report_file','sfa_approved_by_user','sfa_rejected_by_user','sfa_approved_by_user_full_name',
             'sfa_rejected_by_user_full_name','land_name','status_of_site_visit','sfa_approved_by_user',
             'date_of_assessment','site_visit_date','sfa_checked_by_user','survey_number','village_name',
             'total_land_area','remaining_land_area','taluka_tahshil_name', 'block_number','land_type', 'sale_deed_date','sale_deed_number',

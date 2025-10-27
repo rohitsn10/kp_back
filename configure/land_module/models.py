@@ -78,6 +78,12 @@ class LandApprovedReportAttachment(models.Model):
     approved_report_file = models.FileField(upload_to='approved_report_file', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class LandRejectedReportAttachment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rejected_report_file = models.FileField(upload_to='rejected_report_file', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
 from django.contrib.postgres.fields import ArrayField
 class LandBankMaster(models.Model):
@@ -268,6 +274,7 @@ class LandBankMaster(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     land_bank_status = models.CharField(max_length=255, choices=LAND_BANK_STATUS, null=True, blank=True, default='Pending')
     approved_report_file = models.ManyToManyField(LandApprovedReportAttachment)
+    rejected_report_file = models.ManyToManyField(LandRejectedReportAttachment)
     is_land_bank_created = models.BooleanField(default=False)
     is_land_bank_started = models.BooleanField(default=False)
     is_land_bank_added_attachment = models.BooleanField(default=False)
