@@ -5,7 +5,7 @@ from .views import *
 urlpatterns = [
     path('upload_main_document', UploadMainDocumentViewSet.as_view({'post': 'create'}), name='upload_main_document'),
     path('view_document/<int:project_id>', ViewDocumentViewSet.as_view({'get': 'list'}), name='view_document'),
-
+    path('fetch_all_documents_names', FetchAllDocumentsNamesView.as_view(), name='fetch_all_documents'),
     path('add_remarks_to_document/<int:doc_id>', AddRemarksToDocumentViewSet.as_view({'put': 'update'}), name='add_remarks_to_document'),
     path('upload_document/<int:doc_id>', UploadDocumentViewSet.as_view({'put': 'update'}), name='upload_document'),
     path('delete_document', DeleteParticularDocumentViewSet.as_view({'delete': 'destroy'}), name='delete_document'),
