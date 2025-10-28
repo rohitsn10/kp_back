@@ -11,7 +11,8 @@ This module provides endpoints to upload and manage documents related to HOTO (H
 - **Request Body (multipart/form-data):**
 	- `project_id` (int, required): Project identifier.
 	- `document_id` (int, required): Document type identifier.
-	- `category_id` (int, required): Document category identifier.
+	- `category_id` (int, required): Document category identifier
+    - `file` (file[], required)
 - **Response:**
 	- `status` (bool): Success status.
 	- `message` (string): Status message.
