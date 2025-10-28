@@ -1,0 +1,633 @@
+id,name,content_type_id,codename
+1,Can add log entry,1,add_logentry
+2,Can change log entry,1,change_logentry
+3,Can delete log entry,1,delete_logentry
+4,Can view log entry,1,view_logentry
+5,Can add permission,2,add_permission
+6,Can change permission,2,change_permission
+7,Can delete permission,2,delete_permission
+8,Can view permission,2,view_permission
+9,Can add group,3,add_group
+10,Can change group,3,change_group
+11,Can delete group,3,delete_group
+12,Can view group,3,view_group
+13,Can add content type,4,add_contenttype
+14,Can change content type,4,change_contenttype
+15,Can delete content type,4,delete_contenttype
+16,Can view content type,4,view_contenttype
+17,Can add session,5,add_session
+18,Can change session,5,change_session
+19,Can delete session,5,delete_session
+20,Can view session,5,view_session
+21,Can add department,6,add_department
+22,Can change department,6,change_department
+23,Can delete department,6,delete_department
+24,Can view department,6,view_department
+25,Can add privacy policy,7,add_privacypolicy
+26,Can change privacy policy,7,change_privacypolicy
+27,Can delete privacy policy,7,delete_privacypolicy
+28,Can view privacy policy,7,view_privacypolicy
+29,Can add custom user,8,add_customuser
+30,Can change custom user,8,change_customuser
+31,Can delete custom user,8,delete_customuser
+32,Can view custom user,8,view_customuser
+33,Can add blacklisted token,9,add_blacklistedtoken
+34,Can change blacklisted token,9,change_blacklistedtoken
+35,Can delete blacklisted token,9,delete_blacklistedtoken
+36,Can view blacklisted token,9,view_blacklistedtoken
+37,Can add outstanding token,10,add_outstandingtoken
+38,Can change outstanding token,10,change_outstandingtoken
+39,Can delete outstanding token,10,delete_outstandingtoken
+40,Can view outstanding token,10,view_outstandingtoken
+41,Can add any gas pipeline crossing attachment,11,add_anygaspipelinecrossingattachment
+42,Can change any gas pipeline crossing attachment,11,change_anygaspipelinecrossingattachment
+43,Can delete any gas pipeline crossing attachment,11,delete_anygaspipelinecrossingattachment
+44,Can view any gas pipeline crossing attachment,11,view_anygaspipelinecrossingattachment
+45,Can add any transmission line crossing permission attachment,12,add_anytransmissionlinecrossingpermissionattachment
+46,Can change any transmission line crossing permission attachment,12,change_anytransmissionlinecrossingpermissionattachment
+47,Can delete any transmission line crossing permission attachment,12,delete_anytransmissionlinecrossingpermissionattachment
+48,Can view any transmission line crossing permission attachment,12,view_anytransmissionlinecrossingpermissionattachment
+49,Can add any transmission line shifting permission attachment,13,add_anytransmissionlineshiftingpermissionattachment
+50,Can change any transmission line shifting permission attachment,13,change_anytransmissionlineshiftingpermissionattachment
+51,Can delete any transmission line shifting permission attachment,13,delete_anytransmissionlineshiftingpermissionattachment
+52,Can view any transmission line shifting permission attachment,13,view_anytransmissionlineshiftingpermissionattachment
+53,Can add approvals required for transmission attachment,14,add_approvalsrequiredfortransmissionattachment
+54,Can change approvals required for transmission attachment,14,change_approvalsrequiredfortransmissionattachment
+55,Can delete approvals required for transmission attachment,14,delete_approvalsrequiredfortransmissionattachment
+56,Can view approvals required for transmission attachment,14,view_approvalsrequiredfortransmissionattachment
+57,Can add canal crossing attachment,15,add_canalcrossingattachment
+58,Can change canal crossing attachment,15,change_canalcrossingattachment
+59,Can delete canal crossing attachment,15,delete_canalcrossingattachment
+60,Can view canal crossing attachment,15,view_canalcrossingattachment
+61,Can add coordinate verification attachment,16,add_coordinateverificationattachment
+62,Can change coordinate verification attachment,16,change_coordinateverificationattachment
+63,Can delete coordinate verification attachment,16,delete_coordinateverificationattachment
+64,Can view coordinate verification attachment,16,view_coordinateverificationattachment
+65,Can add developer permission attachment,17,add_developerpermissionattachment
+66,Can change developer permission attachment,17,change_developerpermissionattachment
+67,Can delete developer permission attachment,17,delete_developerpermissionattachment
+68,Can view developer permission attachment,17,view_developerpermissionattachment
+69,Can add dilr attachment,18,add_dilrattachment
+70,Can change dilr attachment,18,change_dilrattachment
+71,Can delete dilr attachment,18,delete_dilrattachment
+72,Can view dilr attachment,18,view_dilrattachment
+73,Can add encumbrance noc attachment,19,add_encumbrancenocattachment
+74,Can change encumbrance noc attachment,19,change_encumbrancenocattachment
+75,Can delete encumbrance noc attachment,19,delete_encumbrancenocattachment
+76,Can view encumbrance noc attachment,19,view_encumbrancenocattachment
+77,Can add gram panchayat permission attachment,20,add_grampanchayatpermissionattachment
+78,Can change gram panchayat permission attachment,20,change_grampanchayatpermissionattachment
+79,Can delete gram panchayat permission attachment,20,delete_grampanchayatpermissionattachment
+80,Can view gram panchayat permission attachment,20,view_grampanchayatpermissionattachment
+81,Can add land approach road attachment,21,add_landapproachroadattachment
+82,Can change land approach road attachment,21,change_landapproachroadattachment
+83,Can delete land approach road attachment,21,delete_landapproachroadattachment
+84,Can view land approach road attachment,21,view_landapproachroadattachment
+85,Can add land approved report attachment,22,add_landapprovedreportattachment
+86,Can change land approved report attachment,22,change_landapprovedreportattachment
+87,Can delete land approved report attachment,22,delete_landapprovedreportattachment
+88,Can view land approved report attachment,22,view_landapprovedreportattachment
+89,Can add land attach approval report attachment,23,add_landattachapprovalreportattachment
+90,Can change land attach approval report attachment,23,change_landattachapprovalreportattachment
+91,Can delete land attach approval report attachment,23,delete_landattachapprovalreportattachment
+92,Can view land attach approval report attachment,23,view_landattachapprovalreportattachment
+93,Can add land bank master,24,add_landbankmaster
+94,Can change land bank master,24,change_landbankmaster
+95,Can delete land bank master,24,delete_landbankmaster
+96,Can view land bank master,24,view_landbankmaster
+97,Can add land bank location,25,add_landbanklocation
+98,Can change land bank location,25,change_landbanklocation
+99,Can delete land bank location,25,delete_landbanklocation
+100,Can view land bank location,25,view_landbanklocation
+101,Can add land bank approve action,26,add_landbankapproveaction
+102,Can change land bank approve action,26,change_landbankapproveaction
+103,Can delete land bank approve action,26,delete_landbankapproveaction
+104,Can view land bank approve action,26,view_landbankapproveaction
+105,Can add land bank reject action,27,add_landbankrejectaction
+106,Can change land bank reject action,27,change_landbankrejectaction
+107,Can delete land bank reject action,27,delete_landbankrejectaction
+108,Can view land bank reject action,27,view_landbankrejectaction
+109,Can add land category,28,add_landcategory
+110,Can change land category,28,change_landcategory
+111,Can delete land category,28,delete_landcategory
+112,Can view land category,28,view_landcategory
+113,Can add land co ordinates attachment,29,add_landcoordinatesattachment
+114,Can change land co ordinates attachment,29,change_landcoordinatesattachment
+115,Can delete land co ordinates attachment,29,delete_landcoordinatesattachment
+116,Can view land co ordinates attachment,29,view_landcoordinatesattachment
+117,Can add land key plan attachment,30,add_landkeyplanattachment
+118,Can change land key plan attachment,30,change_landkeyplanattachment
+119,Can delete land key plan attachment,30,delete_landkeyplanattachment
+120,Can view land key plan attachment,30,view_landkeyplanattachment
+121,Can add land lease deed attachment,31,add_landleasedeedattachment
+122,Can change land lease deed attachment,31,change_landleasedeedattachment
+123,Can delete land lease deed attachment,31,delete_landleasedeedattachment
+124,Can view land lease deed attachment,31,view_landleasedeedattachment
+125,Can add land location attachment,32,add_landlocationattachment
+126,Can change land location attachment,32,change_landlocationattachment
+127,Can delete land location attachment,32,delete_landlocationattachment
+128,Can view land location attachment,32,view_landlocationattachment
+129,Can add land sfa data,33,add_landsfadata
+130,Can change land sfa data,33,change_landsfadata
+131,Can delete land sfa data,33,delete_landsfadata
+132,Can view land sfa data,33,view_landsfadata
+133,Can add land survey numbe attachment,34,add_landsurveynumbeattachment
+134,Can change land survey numbe attachment,34,change_landsurveynumbeattachment
+135,Can delete land survey numbe attachment,34,delete_landsurveynumbeattachment
+136,Can view land survey numbe attachment,34,view_landsurveynumbeattachment
+137,Can add land survey number,35,add_landsurveynumber
+138,Can change land survey number,35,change_landsurveynumber
+139,Can delete land survey number,35,delete_landsurveynumber
+140,Can view land survey number,35,view_landsurveynumber
+141,Can add land transmission line attachment,36,add_landtransmissionlineattachment
+142,Can change land transmission line attachment,36,change_landtransmissionlineattachment
+143,Can delete land transmission line attachment,36,delete_landtransmissionlineattachment
+144,Can view land transmission line attachment,36,view_landtransmissionlineattachment
+145,Can add lease deed attachment,37,add_leasedeedattachment
+146,Can change lease deed attachment,37,change_leasedeedattachment
+147,Can delete lease deed attachment,37,delete_leasedeedattachment
+148,Can view lease deed attachment,37,view_leasedeedattachment
+149,Can add list of approvals required for transmission line attachment,38,add_listofapprovalsrequiredfortransmissionlineattachment
+150,Can change list of approvals required for transmission line attachment,38,change_listofapprovalsrequiredfortransmissionlineattachment
+151,Can delete list of approvals required for transmission line attachment,38,delete_listofapprovalsrequiredfortransmissionlineattachment
+152,Can view list of approvals required for transmission line attachment,38,view_listofapprovalsrequiredfortransmissionlineattachment
+153,Can add list of other approvals land attachment,39,add_listofotherapprovalslandattachment
+154,Can change list of other approvals land attachment,39,change_listofotherapprovalslandattachment
+155,Can delete list of other approvals land attachment,39,delete_listofotherapprovalslandattachment
+156,Can view list of other approvals land attachment,39,view_listofotherapprovalslandattachment
+157,Can add municipal corporation permission attachment,40,add_municipalcorporationpermissionattachment
+158,Can change municipal corporation permission attachment,40,change_municipalcorporationpermissionattachment
+159,Can delete municipal corporation permission attachment,40,delete_municipalcorporationpermissionattachment
+160,Can view municipal corporation permission attachment,40,view_municipalcorporationpermissionattachment
+161,Can add n a_65 b_ permission_ attachment,41,add_na_65b_permission_attachment
+162,Can change n a_65 b_ permission_ attachment,41,change_na_65b_permission_attachment
+163,Can delete n a_65 b_ permission_ attachment,41,delete_na_65b_permission_attachment
+164,Can view n a_65 b_ permission_ attachment,41,view_na_65b_permission_attachment
+165,Can add no cfrom airport authority of india attachment,42,add_nocfromairportauthorityofindiaattachment
+166,Can change no cfrom airport authority of india attachment,42,change_nocfromairportauthorityofindiaattachment
+167,Can delete no cfrom airport authority of india attachment,42,delete_nocfromairportauthorityofindiaattachment
+168,Can view no cfrom airport authority of india attachment,42,view_nocfromairportauthorityofindiaattachment
+169,Can add no cfrom forest and amp attachment,43,add_nocfromforestandampattachment
+170,Can change no cfrom forest and amp attachment,43,change_nocfromforestandampattachment
+171,Can delete no cfrom forest and amp attachment,43,delete_nocfromforestandampattachment
+172,Can view no cfrom forest and amp attachment,43,view_nocfromforestandampattachment
+173,Can add no cfrom geology and mining office attachment,44,add_nocfromgeologyandminingofficeattachment
+174,Can change no cfrom geology and mining office attachment,44,change_nocfromgeologyandminingofficeattachment
+175,Can delete no cfrom geology and mining office attachment,44,delete_nocfromgeologyandminingofficeattachment
+176,Can view no cfrom geology and mining office attachment,44,view_nocfromgeologyandminingofficeattachment
+177,Can add no cfrom ministryof defence attachment,45,add_nocfromministryofdefenceattachment
+178,Can change no cfrom ministryof defence attachment,45,change_nocfromministryofdefenceattachment
+179,Can delete no cfrom ministryof defence attachment,45,delete_nocfromministryofdefenceattachment
+180,Can view no cfrom ministryof defence attachment,45,view_nocfromministryofdefenceattachment
+181,Can add railway crossing attachment,46,add_railwaycrossingattachment
+182,Can change railway crossing attachment,46,change_railwaycrossingattachment
+183,Can delete railway crossing attachment,46,delete_railwaycrossingattachment
+184,Can view railway crossing attachment,46,view_railwaycrossingattachment
+185,Can add revenue_7_12_ records_ attachment,47,add_revenue_7_12_records_attachment
+186,Can change revenue_7_12_ records_ attachment,47,change_revenue_7_12_records_attachment
+187,Can delete revenue_7_12_ records_ attachment,47,delete_revenue_7_12_records_attachment
+188,Can view revenue_7_12_ records_ attachment,47,view_revenue_7_12_records_attachment
+189,Can add road crossing permission attachment,48,add_roadcrossingpermissionattachment
+190,Can change road crossing permission attachment,48,change_roadcrossingpermissionattachment
+191,Can delete road crossing permission attachment,48,delete_roadcrossingpermissionattachment
+192,Can view road crossing permission attachment,48,view_roadcrossingpermissionattachment
+193,Can add save approval data of status of site visit,49,add_saveapprovaldataofstatusofsitevisit
+194,Can change save approval data of status of site visit,49,change_saveapprovaldataofstatusofsitevisit
+195,Can delete save approval data of status of site visit,49,delete_saveapprovaldataofstatusofsitevisit
+196,Can view save approval data of status of site visit,49,view_saveapprovaldataofstatusofsitevisit
+197,Can add save reject data of status of site visit,50,add_saverejectdataofstatusofsitevisit
+198,Can change save reject data of status of site visit,50,change_saverejectdataofstatusofsitevisit
+199,Can delete save reject data of status of site visit,50,delete_saverejectdataofstatusofsitevisit
+200,Can view save reject data of status of site visit,50,view_saverejectdataofstatusofsitevisit
+201,Can add sfa attachment,51,add_sfaattachment
+202,Can change sfa attachment,51,change_sfaattachment
+203,Can delete sfa attachment,51,delete_sfaattachment
+204,Can view sfa attachment,51,view_sfaattachment
+205,Can add sf afor transmission line gss attachment,52,add_sfafortransmissionlinegssattachment
+206,Can change sf afor transmission line gss attachment,52,change_sfafortransmissionlinegssattachment
+207,Can delete sf afor transmission line gss attachment,52,delete_sfafortransmissionlinegssattachment
+208,Can view sf afor transmission line gss attachment,52,view_sfafortransmissionlinegssattachment
+209,Can add sfa soil bearing capacity attachment,53,add_sfasoilbearingcapacityattachment
+210,Can change sfa soil bearing capacity attachment,53,change_sfasoilbearingcapacityattachment
+211,Can delete sfa soil bearing capacity attachment,53,delete_sfasoilbearingcapacityattachment
+212,Can view sfa soil bearing capacity attachment,53,view_sfasoilbearingcapacityattachment
+213,Can add tsr attachment,54,add_tsrattachment
+214,Can change tsr attachment,54,change_tsrattachment
+215,Can delete tsr attachment,54,delete_tsrattachment
+216,Can view tsr attachment,54,view_tsrattachment
+217,Can add land bank after approved data,55,add_landbankafterapproveddata
+218,Can change land bank after approved data,55,change_landbankafterapproveddata
+219,Can delete land bank after approved data,55,delete_landbankafterapproveddata
+220,Can view land bank after approved data,55,view_landbankafterapproveddata
+221,Can add sub activity,56,add_subactivity
+222,Can change sub activity,56,change_subactivity
+223,Can delete sub activity,56,delete_subactivity
+224,Can view sub activity,56,view_subactivity
+225,Can add subsub activity,57,add_subsubactivity
+226,Can change subsub activity,57,change_subsubactivity
+227,Can delete subsub activity,57,delete_subsubactivity
+228,Can view subsub activity,57,view_subsubactivity
+229,Can add project activity,58,add_projectactivity
+230,Can change project activity,58,change_projectactivity
+231,Can delete project activity,58,delete_projectactivity
+232,Can view project activity,58,view_projectactivity
+233,Can add sub activity name,59,add_subactivityname
+234,Can change sub activity name,59,change_subactivityname
+235,Can delete sub activity name,59,delete_subactivityname
+236,Can view sub activity name,59,view_subactivityname
+237,Can add sub sub activity name,60,add_subsubactivityname
+238,Can change sub sub activity name,60,change_subsubactivityname
+239,Can delete sub sub activity name,60,delete_subsubactivityname
+240,Can view sub sub activity name,60,view_subsubactivityname
+241,Can add electricity,61,add_electricity
+242,Can change electricity,61,change_electricity
+243,Can delete electricity,61,delete_electricity
+244,Can view electricity,61,view_electricity
+245,Can add adhar card attachments,62,add_adharcardattachments
+246,Can change adhar card attachments,62,change_adharcardattachments
+247,Can delete adhar card attachments,62,delete_adharcardattachments
+248,Can view adhar card attachments,62,view_adharcardattachments
+249,Can add company,63,add_company
+250,Can change company,63,change_company
+251,Can delete company,63,delete_company
+252,Can view company,63,view_company
+253,Can add drawing and design attachments,64,add_drawinganddesignattachments
+254,Can change drawing and design attachments,64,change_drawinganddesignattachments
+255,Can delete drawing and design attachments,64,delete_drawinganddesignattachments
+256,Can view drawing and design attachments,64,view_drawinganddesignattachments
+257,Can add drawing and design resubmission attachments,65,add_drawinganddesignresubmissionattachments
+258,Can change drawing and design resubmission attachments,65,change_drawinganddesignresubmissionattachments
+259,Can delete drawing and design resubmission attachments,65,delete_drawinganddesignresubmissionattachments
+260,Can view drawing and design resubmission attachments,65,view_drawinganddesignresubmissionattachments
+261,Can add epc_ contract attachments,66,add_epc_contractattachments
+262,Can change epc_ contract attachments,66,change_epc_contractattachments
+263,Can delete epc_ contract attachments,66,delete_epc_contractattachments
+264,Can view epc_ contract attachments,66,view_epc_contractattachments
+265,Can add expense project attachments,67,add_expenseprojectattachments
+266,Can change expense project attachments,67,change_expenseprojectattachments
+267,Can delete expense project attachments,67,delete_expenseprojectattachments
+268,Can view expense project attachments,67,view_expenseprojectattachments
+269,Can add loa_ po attachments,68,add_loa_poattachments
+270,Can change loa_ po attachments,68,change_loa_poattachments
+271,Can delete loa_ po attachments,68,delete_loa_poattachments
+272,Can view loa_ po attachments,68,view_loa_poattachments
+273,Can add loi attachments,69,add_loiattachments
+274,Can change loi attachments,69,change_loiattachments
+275,Can delete loi attachments,69,delete_loiattachments
+276,Can view loi attachments,69,view_loiattachments
+277,Can add ms me certificate attachments,70,add_msmecertificateattachments
+278,Can change ms me certificate attachments,70,change_msmecertificateattachments
+279,Can delete ms me certificate attachments,70,delete_msmecertificateattachments
+280,Can view ms me certificate attachments,70,view_msmecertificateattachments
+281,Can add omm contact attachments,71,add_ommcontactattachments
+282,Can change omm contact attachments,71,change_ommcontactattachments
+283,Can delete omm contact attachments,71,delete_ommcontactattachments
+284,Can view omm contact attachments,71,view_ommcontactattachments
+285,Can add other drawing and design attachments,72,add_otherdrawinganddesignattachments
+286,Can change other drawing and design attachments,72,change_otherdrawinganddesignattachments
+287,Can delete other drawing and design attachments,72,delete_otherdrawinganddesignattachments
+288,Can view other drawing and design attachments,72,view_otherdrawinganddesignattachments
+289,Can add drawing and design management,73,add_drawinganddesignmanagement
+290,Can change drawing and design management,73,change_drawinganddesignmanagement
+291,Can delete drawing and design management,73,delete_drawinganddesignmanagement
+292,Can view drawing and design management,73,view_drawinganddesignmanagement
+293,Can add pan card attachments,74,add_pancardattachments
+294,Can change pan card attachments,74,change_pancardattachments
+295,Can delete pan card attachments,74,delete_pancardattachments
+296,Can view pan card attachments,74,view_pancardattachments
+297,Can add project,75,add_project
+298,Can change project,75,change_project
+299,Can delete project,75,delete_project
+300,Can view project,75,view_project
+301,Can add other drawing and design resubmission attachments,76,add_otherdrawinganddesignresubmissionattachments
+376,Can view material qap attachment,94,view_materialqapattachment
+302,Can change other drawing and design resubmission attachments,76,change_otherdrawinganddesignresubmissionattachments
+303,Can delete other drawing and design resubmission attachments,76,delete_otherdrawinganddesignresubmissionattachments
+304,Can view other drawing and design resubmission attachments,76,view_otherdrawinganddesignresubmissionattachments
+305,Can add expense tracking,77,add_expensetracking
+306,Can change expense tracking,77,change_expensetracking
+307,Can delete expense tracking,77,delete_expensetracking
+308,Can view expense tracking,77,view_expensetracking
+309,Can add drawing and design re submitted actions,78,add_drawinganddesignresubmittedactions
+310,Can change drawing and design re submitted actions,78,change_drawinganddesignresubmittedactions
+311,Can delete drawing and design re submitted actions,78,delete_drawinganddesignresubmittedactions
+312,Can view drawing and design re submitted actions,78,view_drawinganddesignresubmittedactions
+313,Can add drawing and design commented actions,79,add_drawinganddesigncommentedactions
+314,Can change drawing and design commented actions,79,change_drawinganddesigncommentedactions
+315,Can delete drawing and design commented actions,79,delete_drawinganddesigncommentedactions
+316,Can view drawing and design commented actions,79,view_drawinganddesigncommentedactions
+317,Can add drawing and design approved actions,80,add_drawinganddesignapprovedactions
+318,Can change drawing and design approved actions,80,change_drawinganddesignapprovedactions
+319,Can delete drawing and design approved actions,80,delete_drawinganddesignapprovedactions
+320,Can view drawing and design approved actions,80,view_drawinganddesignapprovedactions
+321,Can add project milestone,81,add_projectmilestone
+322,Can change project milestone,81,change_projectmilestone
+323,Can delete project milestone,81,delete_projectmilestone
+324,Can view project milestone,81,view_projectmilestone
+325,Can add in flow payment on milestone,82,add_inflowpaymentonmilestone
+326,Can change in flow payment on milestone,82,change_inflowpaymentonmilestone
+327,Can delete in flow payment on milestone,82,delete_inflowpaymentonmilestone
+328,Can view in flow payment on milestone,82,view_inflowpaymentonmilestone
+329,Can add third authority adhar card attachments,83,add_thirdauthorityadharcardattachments
+330,Can change third authority adhar card attachments,83,change_thirdauthorityadharcardattachments
+331,Can delete third authority adhar card attachments,83,delete_thirdauthorityadharcardattachments
+332,Can view third authority adhar card attachments,83,view_thirdauthorityadharcardattachments
+333,Can add third authority pan card attachments,84,add_thirdauthoritypancardattachments
+334,Can change third authority pan card attachments,84,change_thirdauthoritypancardattachments
+335,Can delete third authority pan card attachments,84,delete_thirdauthoritypancardattachments
+336,Can view third authority pan card attachments,84,view_thirdauthoritypancardattachments
+337,Can add client details,85,add_clientdetails
+338,Can change client details,85,change_clientdetails
+339,Can delete client details,85,delete_clientdetails
+340,Can view client details,85,view_clientdetails
+341,Can add w o_po,86,add_wo_po
+342,Can change w o_po,86,change_wo_po
+343,Can delete w o_po,86,delete_wo_po
+344,Can view w o_po,86,view_wo_po
+345,Can add document management attachments,87,add_documentmanagementattachments
+346,Can change document management attachments,87,change_documentmanagementattachments
+347,Can delete document management attachments,87,delete_documentmanagementattachments
+348,Can view document management attachments,87,view_documentmanagementattachments
+349,Can add document management,88,add_documentmanagement
+350,Can change document management,88,change_documentmanagement
+351,Can delete document management,88,delete_documentmanagement
+352,Can view document management,88,view_documentmanagement
+353,Can add material gtp attachment,89,add_materialgtpattachment
+354,Can change material gtp attachment,89,change_materialgtpattachment
+355,Can delete material gtp attachment,89,delete_materialgtpattachment
+356,Can view material gtp attachment,89,view_materialgtpattachment
+357,Can add inspection of material,90,add_inspectionofmaterial
+358,Can change inspection of material,90,change_inspectionofmaterial
+359,Can delete inspection of material,90,delete_inspectionofmaterial
+360,Can view inspection of material,90,view_inspectionofmaterial
+361,Can add inseption of material approval action,91,add_inseptionofmaterialapprovalaction
+362,Can change inseption of material approval action,91,change_inseptionofmaterialapprovalaction
+363,Can delete inseption of material approval action,91,delete_inseptionofmaterialapprovalaction
+364,Can view inseption of material approval action,91,view_inseptionofmaterialapprovalaction
+365,Can add material management,92,add_materialmanagement
+366,Can change material management,92,change_materialmanagement
+367,Can delete material management,92,delete_materialmanagement
+368,Can view material management,92,view_materialmanagement
+369,Can add material approval action,93,add_materialapprovalaction
+370,Can change material approval action,93,change_materialapprovalaction
+371,Can delete material approval action,93,delete_materialapprovalaction
+372,Can view material approval action,93,view_materialapprovalaction
+373,Can add material qap attachment,94,add_materialqapattachment
+374,Can change material qap attachment,94,change_materialqapattachment
+375,Can delete material qap attachment,94,delete_materialqapattachment
+377,Can add material quality report attacchments,95,add_materialqualityreportattacchments
+378,Can change material quality report attacchments,95,change_materialqualityreportattacchments
+379,Can delete material quality report attacchments,95,delete_materialqualityreportattacchments
+380,Can view material quality report attacchments,95,view_materialqualityreportattacchments
+381,Can add fire extinguisher inspection,96,add_fireextinguisherinspection
+382,Can change fire extinguisher inspection,96,change_fireextinguisherinspection
+383,Can delete fire extinguisher inspection,96,delete_fireextinguisherinspection
+384,Can view fire extinguisher inspection,96,view_fireextinguisherinspection
+385,Can add training topic,97,add_trainingtopic
+386,Can change training topic,97,change_trainingtopic
+387,Can delete training topic,97,delete_trainingtopic
+388,Can view training topic,97,view_trainingtopic
+389,Can add boom lift inspection,98,add_boomliftinspection
+390,Can change boom lift inspection,98,change_boomliftinspection
+391,Can delete boom lift inspection,98,delete_boomliftinspection
+392,Can view boom lift inspection,98,view_boomliftinspection
+393,Can add crane hydra inspections,99,add_cranehydrainspections
+394,Can change crane hydra inspections,99,change_cranehydrainspections
+395,Can delete crane hydra inspections,99,delete_cranehydrainspections
+396,Can view crane hydra inspections,99,view_cranehydrainspections
+397,Can add excavation permit,100,add_excavationpermit
+398,Can change excavation permit,100,change_excavationpermit
+399,Can delete excavation permit,100,delete_excavationpermit
+400,Can view excavation permit,100,view_excavationpermit
+401,Can add fire extinguisher detail,101,add_fireextinguisherdetail
+402,Can change fire extinguisher detail,101,change_fireextinguisherdetail
+403,Can delete fire extinguisher detail,101,delete_fireextinguisherdetail
+404,Can view fire extinguisher detail,101,view_fireextinguisherdetail
+405,Can add fire extinguisher inspection json format,102,add_fireextinguisherinspectionjsonformat
+406,Can change fire extinguisher inspection json format,102,change_fireextinguisherinspectionjsonformat
+407,Can delete fire extinguisher inspection json format,102,delete_fireextinguisherinspectionjsonformat
+408,Can view fire extinguisher inspection json format,102,view_fireextinguisherinspectionjsonformat
+409,Can add first aid record,103,add_firstaidrecord
+410,Can change first aid record,103,change_firstaidrecord
+411,Can delete first aid record,103,delete_firstaidrecord
+412,Can view first aid record,103,view_firstaidrecord
+413,Can add harness inspection,104,add_harnessinspection
+414,Can change harness inspection,104,change_harnessinspection
+415,Can delete harness inspection,104,delete_harnessinspection
+416,Can view harness inspection,104,view_harnessinspection
+417,Can add incident near miss,105,add_incidentnearmiss
+418,Can change incident near miss,105,change_incidentnearmiss
+419,Can delete incident near miss,105,delete_incidentnearmiss
+420,Can view incident near miss,105,view_incidentnearmiss
+421,Can add approve incident near miss,106,add_approveincidentnearmiss
+422,Can change approve incident near miss,106,change_approveincidentnearmiss
+423,Can delete approve incident near miss,106,delete_approveincidentnearmiss
+424,Can view approve incident near miss,106,view_approveincidentnearmiss
+425,Can add induction training,107,add_inductiontraining
+426,Can change induction training,107,change_inductiontraining
+427,Can delete induction training,107,delete_inductiontraining
+428,Can view induction training,107,view_inductiontraining
+429,Can add internal audit report,108,add_internalauditreport
+430,Can change internal audit report,108,change_internalauditreport
+431,Can delete internal audit report,108,delete_internalauditreport
+432,Can view internal audit report,108,view_internalauditreport
+433,Can add mock drill report,109,add_mockdrillreport
+434,Can change mock drill report,109,change_mockdrillreport
+435,Can delete mock drill report,109,delete_mockdrillreport
+436,Can view mock drill report,109,view_mockdrillreport
+437,Can add participant,110,add_participant
+438,Can change participant,110,change_participant
+439,Can delete participant,110,delete_participant
+440,Can view participant,110,view_participant
+441,Can add permit to work,111,add_permittowork
+442,Can change permit to work,111,change_permittowork
+443,Can delete permit to work,111,delete_permittowork
+444,Can view permit to work,111,view_permittowork
+445,Can add closure of permit,112,add_closureofpermit
+446,Can change closure of permit,112,change_closureofpermit
+447,Can delete closure of permit,112,delete_closureofpermit
+448,Can view closure of permit,112,view_closureofpermit
+449,Can add approve permit,113,add_approvepermit
+450,Can change approve permit,113,change_approvepermit
+451,Can delete approve permit,113,delete_approvepermit
+452,Can view approve permit,113,view_approvepermit
+453,Can add report of incident nearmiss,114,add_reportofincidentnearmiss
+454,Can change report of incident nearmiss,114,change_reportofincidentnearmiss
+455,Can delete report of incident nearmiss,114,delete_reportofincidentnearmiss
+456,Can view report of incident nearmiss,114,view_reportofincidentnearmiss
+457,Can add review incident near miss,115,add_reviewincidentnearmiss
+458,Can change review incident near miss,115,change_reviewincidentnearmiss
+459,Can delete review incident near miss,115,delete_reviewincidentnearmiss
+460,Can view review incident near miss,115,view_reviewincidentnearmiss
+461,Can add safety training attendance,116,add_safetytrainingattendance
+462,Can change safety training attendance,116,change_safetytrainingattendance
+463,Can delete safety training attendance,116,delete_safetytrainingattendance
+464,Can view safety training attendance,116,view_safetytrainingattendance
+465,Can add safety violation report against unsafe act,117,add_safetyviolationreportagainstunsafeact
+466,Can change safety violation report against unsafe act,117,change_safetyviolationreportagainstunsafeact
+467,Can delete safety violation report against unsafe act,117,delete_safetyviolationreportagainstunsafeact
+468,Can view safety violation report against unsafe act,117,view_safetyviolationreportagainstunsafeact
+469,Can add toollbox talk attendence,118,add_toollboxtalkattendence
+470,Can change toollbox talk attendence,118,change_toollboxtalkattendence
+471,Can delete toollbox talk attendence,118,delete_toollboxtalkattendence
+472,Can view toollbox talk attendence,118,view_toollboxtalkattendence
+473,Can add trailer inspection checklist,119,add_trailerinspectionchecklist
+474,Can change trailer inspection checklist,119,change_trailerinspectionchecklist
+475,Can delete trailer inspection checklist,119,delete_trailerinspectionchecklist
+476,Can view trailer inspection checklist,119,view_trailerinspectionchecklist
+477,Can add ladder inspection,120,add_ladderinspection
+478,Can change ladder inspection,120,change_ladderinspection
+479,Can delete ladder inspection,120,delete_ladderinspection
+480,Can view ladder inspection,120,view_ladderinspection
+481,Can add suggestion scheme report,121,add_suggestionschemereport
+482,Can change suggestion scheme report,121,change_suggestionschemereport
+483,Can delete suggestion scheme report,121,delete_suggestionschemereport
+484,Can view suggestion scheme report,121,view_suggestionschemereport
+485,Can add loto register,122,add_lotoregister
+486,Can change loto register,122,change_lotoregister
+487,Can delete loto register,122,delete_lotoregister
+488,Can view loto register,122,view_lotoregister
+489,Can add loto applied info,123,add_lotoappliedinfo
+490,Can change loto applied info,123,change_lotoappliedinfo
+491,Can delete loto applied info,123,delete_lotoappliedinfo
+492,Can view loto applied info,123,view_lotoappliedinfo
+493,Can add minutes safety training,124,add_minutessafetytraining
+494,Can change minutes safety training,124,change_minutessafetytraining
+495,Can delete minutes safety training,124,delete_minutessafetytraining
+496,Can view minutes safety training,124,view_minutessafetytraining
+497,Can add closure internal audit report,125,add_closureinternalauditreport
+498,Can change closure internal audit report,125,change_closureinternalauditreport
+499,Can delete closure internal audit report,125,delete_closureinternalauditreport
+500,Can view closure internal audit report,125,view_closureinternalauditreport
+501,Can add correction internal audit report,126,add_correctioninternalauditreport
+502,Can change correction internal audit report,126,change_correctioninternalauditreport
+503,Can delete correction internal audit report,126,delete_correctioninternalauditreport
+504,Can view correction internal audit report,126,view_correctioninternalauditreport
+505,Can add verification internal audit report,127,add_verificationinternalauditreport
+506,Can change verification internal audit report,127,change_verificationinternalauditreport
+507,Can delete verification internal audit report,127,delete_verificationinternalauditreport
+508,Can view verification internal audit report,127,view_verificationinternalauditreport
+509,Can add approver approve permit,128,add_approverapprovepermit
+510,Can change approver approve permit,128,change_approverapprovepermit
+511,Can delete approver approve permit,128,delete_approverapprovepermit
+512,Can view approver approve permit,128,view_approverapprovepermit
+513,Can add issue approve permit,129,add_issueapprovepermit
+514,Can change issue approve permit,129,change_issueapprovepermit
+515,Can delete issue approve permit,129,delete_issueapprovepermit
+516,Can view issue approve permit,129,view_issueapprovepermit
+517,Can add receiver approve permit,130,add_receiverapprovepermit
+518,Can change receiver approve permit,130,change_receiverapprovepermit
+519,Can delete receiver approve permit,130,delete_receiverapprovepermit
+520,Can view receiver approve permit,130,view_receiverapprovepermit
+521,Can add observation,131,add_observation
+522,Can change observation,131,change_observation
+523,Can delete observation,131,delete_observation
+524,Can view observation,131,view_observation
+525,Can add mdcc upload,132,add_mdccupload
+526,Can change mdcc upload,132,change_mdccupload
+527,Can delete mdcc upload,132,delete_mdccupload
+528,Can view mdcc upload,132,view_mdccupload
+529,Can add drawing upload,133,add_drawingupload
+530,Can change drawing upload,133,change_drawingupload
+531,Can delete drawing upload,133,delete_drawingupload
+532,Can view drawing upload,133,view_drawingupload
+533,Can add rfi field activity,134,add_rfifieldactivity
+534,Can change rfi field activity,134,change_rfifieldactivity
+535,Can delete rfi field activity,134,delete_rfifieldactivity
+536,Can view rfi field activity,134,view_rfifieldactivity
+537,Can add data sheet upload,135,add_datasheetupload
+538,Can change data sheet upload,135,change_datasheetupload
+539,Can delete data sheet upload,135,delete_datasheetupload
+540,Can view data sheet upload,135,view_datasheetupload
+541,Can add items product,136,add_itemsproduct
+542,Can change items product,136,change_itemsproduct
+543,Can delete items product,136,delete_itemsproduct
+544,Can view items product,136,view_itemsproduct
+545,Can add inspection outcome document,137,add_inspectionoutcomedocument
+546,Can change inspection outcome document,137,change_inspectionoutcomedocument
+547,Can delete inspection outcome document,137,delete_inspectionoutcomedocument
+548,Can view inspection outcome document,137,view_inspectionoutcomedocument
+549,Can add vendor,138,add_vendor
+550,Can change vendor,138,change_vendor
+551,Can delete vendor,138,delete_vendor
+552,Can view vendor,138,view_vendor
+553,Can add specification upload,139,add_specificationupload
+554,Can change specification upload,139,change_specificationupload
+555,Can delete specification upload,139,delete_specificationupload
+556,Can view specification upload,139,view_specificationupload
+557,Can add inspection outcome,140,add_inspectionoutcome
+558,Can change inspection outcome,140,change_inspectionoutcome
+559,Can delete inspection outcome,140,delete_inspectionoutcome
+560,Can view inspection outcome,140,view_inspectionoutcome
+561,Can add quality inspection,141,add_qualityinspection
+562,Can change quality inspection,141,change_qualityinspection
+563,Can delete quality inspection,141,delete_qualityinspection
+564,Can view quality inspection,141,view_qualityinspection
+565,Can add quality dossier upload,142,add_qualitydossierupload
+566,Can change quality dossier upload,142,change_qualitydossierupload
+567,Can delete quality dossier upload,142,delete_qualitydossierupload
+568,Can view quality dossier upload,142,view_qualitydossierupload
+569,Can add mqap upload,143,add_mqapupload
+570,Can change mqap upload,143,change_mqapupload
+571,Can delete mqap upload,143,delete_mqapupload
+572,Can view mqap upload,143,view_mqapupload
+573,Can add observation report document,144,add_observationreportdocument
+574,Can change observation report document,144,change_observationreportdocument
+575,Can delete observation report document,144,delete_observationreportdocument
+576,Can view observation report document,144,view_observationreportdocument
+577,Can add observation report,145,add_observationreport
+578,Can change observation report,145,change_observationreport
+579,Can delete observation report,145,delete_observationreport
+580,Can view observation report,145,view_observationreport
+581,Can add hoto document,146,add_hotodocument
+582,Can change hoto document,146,change_hotodocument
+583,Can delete hoto document,146,delete_hotodocument
+584,Can view hoto document,146,view_hotodocument
+585,Can add documents for hoto,147,add_documentsforhoto
+586,Can change documents for hoto,147,change_documentsforhoto
+587,Can delete documents for hoto,147,delete_documentsforhoto
+588,Can view documents for hoto,147,view_documentsforhoto
+589,Can add user assign,148,add_userassign
+590,Can change user assign,148,change_userassign
+591,Can delete user assign,148,delete_userassign
+592,Can view user assign,148,view_userassign
+593,Can add completed punch file,149,add_completedpunchfile
+594,Can change completed punch file,149,change_completedpunchfile
+595,Can delete completed punch file,149,delete_completedpunchfile
+596,Can view completed punch file,149,view_completedpunchfile
+597,Can add punch file,150,add_punchfile
+598,Can change punch file,150,change_punchfile
+599,Can delete punch file,150,delete_punchfile
+600,Can view punch file,150,view_punchfile
+601,Can add punch points raise,151,add_punchpointsraise
+602,Can change punch points raise,151,change_punchpointsraise
+603,Can delete punch points raise,151,delete_punchpointsraise
+604,Can view punch points raise,151,view_punchpointsraise
+605,Can add completed punch points,152,add_completedpunchpoints
+606,Can change completed punch points,152,change_completedpunchpoints
+607,Can delete completed punch points,152,delete_completedpunchpoints
+608,Can view completed punch points,152,view_completedpunchpoints
+609,Can add verify punch points,153,add_verifypunchpoints
+610,Can change verify punch points,153,change_verifypunchpoints
+611,Can delete verify punch points,153,delete_verifypunchpoints
+612,Can view verify punch points,153,view_verifypunchpoints
+613,Can add vendor file upload,154,add_vendorfileupload
+614,Can change vendor file upload,154,change_vendorfileupload
+615,Can delete vendor file upload,154,delete_vendorfileupload
+616,Can view vendor file upload,154,view_vendorfileupload
+617,Can add project progress,155,add_projectprogress
+618,Can change project progress,155,change_projectprogress
+619,Can delete project progress,155,delete_projectprogress
+620,Can view project progress,155,view_projectprogress
+621,Can add land rejected report attachment,156,add_landrejectedreportattachment
+622,Can change land rejected report attachment,156,change_landrejectedreportattachment
+623,Can delete land rejected report attachment,156,delete_landrejectedreportattachment
+624,Can view land rejected report attachment,156,view_landrejectedreportattachment
+625,Can add document,157,add_document
+626,Can change document,157,change_document
+627,Can delete document,157,delete_document
+628,Can view document,157,view_document
+629,Can add document category,158,add_documentcategory
+630,Can change document category,158,change_documentcategory
+631,Can delete document category,158,delete_documentcategory
+632,Can view document category,158,view_documentcategory
