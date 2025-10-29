@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from project_module.models import Project
-from user_profile.models import CustomUser
+from hoto_module.models import Document
 
 class DocumentsForHotoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -148,3 +147,17 @@ class VerifyPunchPointsSerializer(serializers.ModelSerializer):
         model = VerifyPunchPoints
         fields = ['id', 'completed_punch', 'verify_description', 'status', 'created_by','created_by_name', 'created_at', 'updated_by','updated_by_name', 'updated_at']
 
+
+
+class DocumentStatusSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    is_uploaded = serializers.BooleanField()
+    is_verified = serializers.BooleanField()
+    remarks = serializers.CharField(allow_blank=True, allow_null=True)
+    document = DocumentsForHotoSerializer(many=True, read_only=True)
+
+class CategoryWithDocumentsSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    category = serializers.CharField()
+    documents = DocumentStatusSerializer(many=True)
