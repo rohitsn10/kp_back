@@ -35,6 +35,13 @@ class FetchAllDocumentsNamesView(APIView):
                         'is_uploaded': hoto_doc_exists.is_uploaded if hoto_doc_exists else False,
                         'is_verified': hoto_doc_exists.is_verified if hoto_doc_exists else False,
                         'remarks': hoto_doc_exists.remarks if hoto_doc_exists else "",
+                        'file_ids': [d.id for d in hoto_doc_exists.document.all()] if hoto_doc_exists else [],
+                        'files': [
+                            {
+                                'id': d.id,
+                                'file_url': request.build_absolute_uri(d.file.url)
+                            } for d in hoto_doc_exists.document.all()
+                        ] if hoto_doc_exists else []
                     })
                 data.append({
                     "id": category.id,
