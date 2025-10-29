@@ -15,20 +15,35 @@ from rest_framework.views import APIView
 from hoto_module.models import DocumentCategory, Document
 
 class FetchAllDocumentsNamesView(APIView):
-    def get(self, request, *args, **kwargs):
+
+    def get(self, request, project_id, *args, **kwargs):
         try:
             categories = DocumentCategory.objects.all()
             data = []
 
             for category in categories:
                 documents = category.documents.all()
+                doc_list = []
+                for doc in documents:
+                    hoto_doc_exists = HotoDocument.objects.filter(
+                        document_name_id=doc.id, project_id=project_id
+                    ).first()
+                    
+                    doc_list.append({
+                        'id': doc.id,
+                        'name': doc.name,
+                        'is_uploaded': hoto_doc_exists.is_uploaded if hoto_doc_exists else False,
+                        'is_verified': hoto_doc_exists.is_verified if hoto_doc_exists else False,
+                        'remarks': hoto_doc_exists.remarks if hoto_doc_exists else "",
+                    })
                 data.append({
                     "id": category.id,
                     "category": category.name,
-                    "documents": [{'id': doc.id, 'name': doc.name} for doc in documents]
+                    "documents": doc_list
                 })
 
-            return Response({"status": True, "message": "Documents fetched successfully", "data": data})
+            serializer = CategoryWithDocumentsSerializer(data, many=True)
+            return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 

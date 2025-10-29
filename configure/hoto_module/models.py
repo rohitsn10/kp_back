@@ -38,6 +38,7 @@ class HotoDocument(models.Model):
     remarks = models.TextField(null=True, blank=True)
     status = models.CharField(max_length=255, null=True, blank=True)
     verify_comment = models.TextField(null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name='updated_by')
