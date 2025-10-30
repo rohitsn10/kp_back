@@ -12,37 +12,20 @@ class HotoDocumentSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     document = DocumentsForHotoSerializer(many=True, read_only=True)
-    uploaded_documents = serializers.SerializerMethodField()  # To include uploaded documents
-    not_uploaded_documents = serializers.SerializerMethodField()  # To include not-uploaded documents
+    project = serializers.IntegerField(source='project.id', read_only=True)
+
     punch_point_balance = serializers.SerializerMethodField()
     punch_status = serializers.SerializerMethodField()
 
     class Meta:
         model = HotoDocument
         fields = [
-            'id', 'project', 'document', 'document_name', 'uploaded_documents', 'not_uploaded_documents',
+            'id', 'project', 'document', 'document_name',
             'punch_point_balance', 'punch_status', 'category', 'remarks', 'status', 'verify_comment',
             'created_by', 'created_by_name', 'created_at', 'updated_by', 'updated_by_name', 'updated_at'
         ]
 
-    def get_uploaded_documents(self, obj):
-        """
-        Returns the list of uploaded documents for the HotoDocument.
-        """
-        uploaded_docs = obj.document.all()  # Fetch all linked documents
-        return DocumentsForHotoSerializer(uploaded_docs, many=True).data
-
-    def get_not_uploaded_documents(self, obj):
-        """
-        Returns the list of documents that are not uploaded for the HotoDocument.
-        """
-        # Fetch all documents for the category and project
-        all_documents = Document.objects.filter(category=obj.category)
-        uploaded_document_ids = obj.document.values_list('id', flat=True)
-
-        # Filter documents that are not uploaded
-        not_uploaded_docs = all_documents.exclude(id__in=uploaded_document_ids)
-        return [{'id': doc.id, 'name': doc.name} for doc in not_uploaded_docs]
+    
 
     def get_punch_point_balance(self, obj):
         try:
@@ -150,8 +133,8 @@ class VerifyPunchPointsSerializer(serializers.ModelSerializer):
 
 
 class DocumentStatusSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
+    document_id = serializers.IntegerField()
+    document_name = serializers.CharField()
     is_uploaded = serializers.BooleanField()
     is_verified = serializers.BooleanField()
     remarks = serializers.CharField(allow_blank=True, allow_null=True)

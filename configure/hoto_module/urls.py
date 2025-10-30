@@ -6,10 +6,10 @@ urlpatterns = [
     path('upload_main_document', UploadMainDocumentViewSet.as_view({'post': 'create'}), name='upload_main_document'),
     path('view_document/<int:project_id>', ViewDocumentViewSet.as_view({'get': 'list'}), name='view_document'),
     path('fetch_all_documents_names/<int:project_id>', FetchAllDocumentsNamesView.as_view(), name='fetch_all_documents'),
-    path('add_remarks_to_document/<int:doc_id>', AddRemarksToDocumentViewSet.as_view({'put': 'update'}), name='add_remarks_to_document'),
+    path('add_remarks_to_document/<int:project_id>', AddRemarksToDocumentViewSet.as_view({'put': 'update'}), name='add_remarks_to_document'),
     path('upload_document/<int:project_id>', UploadDocumentViewSet.as_view({ 'put': 'create_or_update'}), name='upload_document'),
-    path('delete_document', DeleteParticularDocumentViewSet.as_view({'delete': 'destroy'}), name='delete_document'),
-    path('verify_document/<int:doc_id>', VerifyDocumentViewSet.as_view({'put': 'update'}), name='verify_document'),
+    path('delete_document/<int:project_id>', DeleteParticularDocumentViewSet.as_view({'delete': 'destroy'}), name='delete_document'),
+    path('verify_document/<int:project_id>', VerifyDocumentViewSet.as_view({'put': 'update'}), name='verify_document'),
 
     path('raise_punch_points', RaisePunchPointsViewSet.as_view({'post': 'create'}), name='raise_punch_points'),
 
