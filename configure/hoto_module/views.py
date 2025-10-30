@@ -15,9 +15,16 @@ from rest_framework.views import APIView
 from hoto_module.models import DocumentCategory, Document
 
 class FetchAllDocumentsNamesView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, project_id, *args, **kwargs):
         try:
+            # Only validate project exists without accessing its attributes
+            try:
+                Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Project not found"})
+
             categories = DocumentCategory.objects.all()
             data = []
 
@@ -25,13 +32,11 @@ class FetchAllDocumentsNamesView(APIView):
                 documents = category.documents.all()
                 doc_list = []
                 for doc in documents:
-                    print(f"Document Query Result: {doc.id}")  # Debug log
                     hoto_doc_exists = HotoDocument.objects.filter(
                         document_name_id=doc.id, project_id=project_id
                     ).first()
-                    print(f"HotoDocument Query Result: {hoto_doc_exists}")  # Debug log
 
-                    # Prepare document data
+                    # Manual data construction - no Project object serialization
                     doc_data = {
                         'id': doc.id,
                         'name': doc.name,
@@ -55,14 +60,13 @@ class FetchAllDocumentsNamesView(APIView):
 
                 data.append({
                     "id": category.id,
-                    "category": category.name,
+                    "name": category.name,
                     "documents": doc_list
                 })
 
             return Response({"status": True, "message": "Documents fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-
 class UploadMainDocumentViewSet(viewsets.ModelViewSet):
     queryset = HotoDocument.objects.all()
     serializer_class = HotoDocumentSerializer
@@ -72,7 +76,7 @@ class UploadMainDocumentViewSet(viewsets.ModelViewSet):
         try:
             user = request.user
             project_id = request.data.get('project_id')
-            document_name_id = request.data.get('document_name_id')  # Updated to use document ID
+            document_name_id = request.data.get('document_id')  # Updated to use document ID
             category_id = request.data.get('category_id')  # Updated to use category ID
             status = request.data.get('status')
             remarks = request.data.get('remarks', None)
@@ -105,15 +109,14 @@ class UploadMainDocumentViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Documents uploaded/created successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
 class ViewDocumentViewSet(viewsets.ModelViewSet):
     queryset = HotoDocument.objects.all()
     serializer_class = HotoDocumentSerializer
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, project_id, *args, **kwargs):
         try:
-            project_id = request.query_params.get('project_id')  # Use query parameters for better flexibility
-
             if not project_id:
                 return Response({"status": False, "message": "Project ID is required"})
 
@@ -135,12 +138,12 @@ class AddRemarksToDocumentViewSet(viewsets.ModelViewSet):
     serializer_class = HotoDocumentSerializer
     permission_classes = [IsAuthenticated]
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, project_id, *args, **kwargs):
         try:
-            doc_id = kwargs.get('doc_id')
+            doc_id = request.data.get('document_id')
             remarks = request.data.get('remarks')
 
-            hoto_doc = HotoDocument.objects.get(id=doc_id)
+            hoto_doc = HotoDocument.objects.get(document_name_id=doc_id,project_id=project_id)
             hoto_doc.remarks = remarks
             hoto_doc.updated_by = request.user
             hoto_doc.save()
@@ -219,9 +222,9 @@ class DeleteParticularDocumentViewSet(viewsets.ModelViewSet):
     serializer_class = HotoDocumentSerializer
     permission_classes = [IsAuthenticated]
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request, project_id, *args, **kwargs):
         try:
-            doc_ids = request.data.get('doc_id', [])
+            doc_ids = request.data.get('document_id', [])
             if not doc_ids:
                 return Response({"status": False, "message": "No document IDs provided"})
 
@@ -229,7 +232,7 @@ class DeleteParticularDocumentViewSet(viewsets.ModelViewSet):
             not_found_docs = []
 
             for doc_id in doc_ids:
-                doc = DocumentsForHoto.objects.filter(id=doc_id).first()
+                doc = DocumentsForHoto.objects.filter(document_name_id=doc_id, project_id=project_id).first()
                 if doc:
                     file_path = os.path.join(settings.MEDIA_ROOT, str(doc.file))
                     if os.path.exists(file_path):
@@ -255,14 +258,14 @@ class VerifyDocumentViewSet(viewsets.ModelViewSet):
     serializer_class = HotoDocumentSerializer
     permission_classes = [IsAuthenticated]
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, project_id, *args, **kwargs):
         try:
-            doc_id = kwargs.get('doc_id')
+            doc_id = request.data.get('document_id')
             status = request.data.get('status')
             verify_comment = request.data.get('verify_comment')
 
             # Validate if the HotoDocument exists
-            hoto_doc = HotoDocument.objects.filter(id=doc_id).first()
+            hoto_doc = HotoDocument.objects.filter(document_name_id=doc_id, project_id=project_id).first()
             if not hoto_doc:
                 return Response({"status": False, "message": "HotoDocument not found"})
 
