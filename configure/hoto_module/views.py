@@ -19,54 +19,20 @@ class FetchAllDocumentsNamesView(APIView):
 
     def get(self, request, project_id, *args, **kwargs):
         try:
-            # Only validate project exists without accessing its attributes
-            try:
-                Project.objects.get(id=project_id)
-            except Project.DoesNotExist:
+            # Validate project existence
+            if not Project.objects.filter(id=project_id).exists():
                 return Response({"status": False, "message": "Project not found"})
 
+            # Fetch all categories
             categories = DocumentCategory.objects.all()
-            data = []
 
-            for category in categories:
-                documents = category.documents.all()
-                doc_list = []
-                for doc in documents:
-                    hoto_doc_exists = HotoDocument.objects.filter(
-                        document_name_id=doc.id, project_id=project_id
-                    ).first()
-
-                    # Manual data construction - no Project object serialization
-                    doc_data = {
-                        'id': doc.id,
-                        'name': doc.name,
-                        'is_uploaded': hoto_doc_exists.is_uploaded if hoto_doc_exists else False,
-                        'is_verified': hoto_doc_exists.is_verified if hoto_doc_exists else False,
-                        'remarks': hoto_doc_exists.remarks if hoto_doc_exists else "",
-                        'file_ids': [],
-                        'files': []
-                    }
-
-                    if hoto_doc_exists and hoto_doc_exists.document.exists():
-                        doc_data['file_ids'] = [d.id for d in hoto_doc_exists.document.all()]
-                        doc_data['files'] = [
-                            {
-                                'id': d.id,
-                                'file_url': request.build_absolute_uri(d.file.url)
-                            } for d in hoto_doc_exists.document.all()
-                        ]
-
-                    doc_list.append(doc_data)
-
-                data.append({
-                    "id": category.id,
-                    "name": category.name,
-                    "documents": doc_list
-                })
-
-            return Response({"status": True, "message": "Documents fetched successfully", "data": data})
+            # Use the serializer to construct the response
+            serializer = HotoDocumentSerializer(
+                categories, many=True, context={'project_id': project_id, 'request': request}
+            )
+            return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
         except Exception as e:
-            return Response({"status": False, "message": str(e), "data": []})
+            return Response({"status": False, "message": str(e)})
 class UploadMainDocumentViewSet(viewsets.ModelViewSet):
     queryset = HotoDocument.objects.all()
     serializer_class = HotoDocumentSerializer
@@ -110,26 +76,22 @@ class UploadMainDocumentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
-class ViewDocumentViewSet(viewsets.ModelViewSet):
-    queryset = HotoDocument.objects.all()
-    serializer_class = HotoDocumentSerializer
+class ViewDocumentViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request, project_id, *args, **kwargs):
         try:
-            if not project_id:
-                return Response({"status": False, "message": "Project ID is required"})
+            if not Project.objects.filter(id=project_id).exists():
+                return Response({"status": False, "message": "Project not found"})
 
-            # Filter documents by project ID
-            documents = HotoDocument.objects.filter(project_id=project_id).order_by('-created_at')
+            # Fetch all categories
+            categories = DocumentCategory.objects.all()
 
-            if not documents.exists():
-                return Response({"status": False, "message": "No documents found for the given project"})
-
-            # Serialize the documents
-            serializer = HotoDocumentSerializer(documents, many=True)
+            # Use the serializer to construct the response
+            serializer = HotoDocumentSerializer(
+                categories, many=True, context={'project_id': project_id, 'request': request}
+            )
             return Response({"status": True, "message": "Documents retrieved successfully", "data": serializer.data})
-
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
@@ -143,12 +105,16 @@ class AddRemarksToDocumentViewSet(viewsets.ModelViewSet):
             doc_id = request.data.get('document_id')
             remarks = request.data.get('remarks')
 
-            hoto_doc = HotoDocument.objects.get(document_name_id=doc_id,project_id=project_id)
+            hoto_doc = HotoDocument.objects.get(document_name_id=doc_id, project_id=project_id)
             hoto_doc.remarks = remarks
             hoto_doc.updated_by = request.user
             hoto_doc.save()
 
-            serializer = HotoDocumentSerializer(hoto_doc)
+            # Fetch updated categories and documents
+            categories = DocumentCategory.objects.all()
+            serializer = HotoDocumentSerializer(
+                categories, many=True, context={'project_id': project_id, 'request': request}
+            )
             return Response({"status": True, "message": "Remarks added successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
@@ -211,8 +177,11 @@ class UploadDocumentViewSet(viewsets.ModelViewSet):
                 hoto_doc.is_uploaded = True
                 hoto_doc.save()
 
-            # Serialize and return the HotoDocument
-            return Response({"status": True, "message": f"{message} and files uploaded successfully"})
+            categories = DocumentCategory.objects.all()
+            serializer = HotoDocumentSerializer(
+                categories, many=True, context={'project_id': project_id, 'request': request}
+            )
+            return Response({"status": True, "message": "Document uploaded successfully", "data": serializer.data})
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
@@ -232,23 +201,46 @@ class DeleteParticularDocumentViewSet(viewsets.ModelViewSet):
             not_found_docs = []
 
             for doc_id in doc_ids:
-                doc = DocumentsForHoto.objects.filter(document_name_id=doc_id, project_id=project_id).first()
-                if doc:
-                    file_path = os.path.join(settings.MEDIA_ROOT, str(doc.file))
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    doc.delete()
+                # Get the HotoDocument for this document_name_id
+                hoto_doc = HotoDocument.objects.filter(document_name_id=doc_id, project_id=project_id).first()
+                if not hoto_doc:
+                    not_found_docs.append(doc_id)
+                    continue
+                
+                # Find the specific DocumentsForHoto entries to delete
+                docs_to_delete = hoto_doc.document.all()
+                if docs_to_delete:
+                    for doc in docs_to_delete:
+                        file_path = os.path.join(settings.MEDIA_ROOT, str(doc.file))
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                        doc.delete()
+                    
+                    # Clear all documents from the HotoDocument
+                    hoto_doc.document.clear()
+                    
+                    # Set is_uploaded to False since no documents remain
+                    hoto_doc.is_uploaded = False
+                    hoto_doc.updated_by = request.user
+                    hoto_doc.save()
+                    
                     deleted_docs.append(doc_id)
                 else:
                     not_found_docs.append(doc_id)
+
+            # Fetch updated categories and documents
+            categories = DocumentCategory.objects.all()
+            serializer = HotoDocumentSerializer(
+                categories, many=True, context={'project_id': project_id, 'request': request}
+            )
 
             if deleted_docs:
                 message = f"Deleted documents: {deleted_docs}"
                 if not_found_docs:
                     message += f". Documents not found: {not_found_docs}"
-                return Response({"status": True, "message": message})
+                return Response({"status": True, "message": message, "data": serializer.data})
             else:
-                return Response({"status": False, "message": "No matching documents found"})
+                return Response({"status": False, "message": "No matching documents found", "data": serializer.data})
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
@@ -279,9 +271,17 @@ class VerifyDocumentViewSet(viewsets.ModelViewSet):
             hoto_doc.updated_by = request.user
             hoto_doc.save()
 
-            # Serialize and return the updated HotoDocument
-            serializer = HotoDocumentSerializer(hoto_doc)
-            return Response({"status": True, "message": "Document verified successfully", "data": serializer.data})
+            # Fetch updated categories and documents
+            categories = DocumentCategory.objects.all()
+            serializer = HotoDocumentSerializer(
+                categories, many=True, context={'project_id': project_id, 'request': request}
+            )
+
+            return Response({
+                "status": True,
+                "message": "Document verified successfully",
+                "data": serializer.data
+            })
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
