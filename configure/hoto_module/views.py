@@ -25,32 +25,41 @@ class FetchAllDocumentsNamesView(APIView):
                 documents = category.documents.all()
                 doc_list = []
                 for doc in documents:
+                    print(f"Document Query Result: {doc.id}")  # Debug log
                     hoto_doc_exists = HotoDocument.objects.filter(
                         document_name_id=doc.id, project_id=project_id
                     ).first()
-                    
-                    doc_list.append({
+                    print(f"HotoDocument Query Result: {hoto_doc_exists}")  # Debug log
+
+                    # Prepare document data
+                    doc_data = {
                         'id': doc.id,
                         'name': doc.name,
                         'is_uploaded': hoto_doc_exists.is_uploaded if hoto_doc_exists else False,
                         'is_verified': hoto_doc_exists.is_verified if hoto_doc_exists else False,
                         'remarks': hoto_doc_exists.remarks if hoto_doc_exists else "",
-                        'file_ids': [d.id for d in hoto_doc_exists.document.all()] if hoto_doc_exists else [],
-                        'files': [
+                        'file_ids': [],
+                        'files': []
+                    }
+
+                    if hoto_doc_exists and hoto_doc_exists.document.exists():
+                        doc_data['file_ids'] = [d.id for d in hoto_doc_exists.document.all()]
+                        doc_data['files'] = [
                             {
                                 'id': d.id,
                                 'file_url': request.build_absolute_uri(d.file.url)
                             } for d in hoto_doc_exists.document.all()
-                        ] if hoto_doc_exists else []
-                    })
+                        ]
+
+                    doc_list.append(doc_data)
+
                 data.append({
                     "id": category.id,
                     "category": category.name,
                     "documents": doc_list
                 })
 
-            serializer = CategoryWithDocumentsSerializer(data, many=True)
-            return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
+            return Response({"status": True, "message": "Documents fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
@@ -147,75 +156,61 @@ class UploadDocumentViewSet(viewsets.ModelViewSet):
     serializer_class = HotoDocumentSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
+
+    def create_or_update(self, request, project_id, *args, **kwargs):
         try:
             user = request.user
-            project_id = request.data.get('project_id')
-            document_name_id = request.data.get('document_id')  # Updated to use document ID
-            category_id = request.data.get('category_id')  # Updated to use category ID
+            document_name_id = request.data.get('document_id')
             status = request.data.get('status')
             remarks = request.data.get('remarks', None)
-            file = request.FILES.getlist('file')
+            files = request.FILES.getlist('file')
 
             # Validate document and category
             document_name = Document.objects.filter(id=document_name_id).first()
-            category = DocumentCategory.objects.filter(id=category_id).first()
+            category = DocumentCategory.objects.filter(id=document_name.category_id).first()
 
             if not document_name or not category:
                 return Response({"status": False, "message": "Invalid document name or category"})
+            project = Project.objects.filter(id=project_id).first()
+            if not project:
+                return Response({"status": False, "message": "Invalid project ID"})
 
-            # Create HotoDocument entry
-            hoto_doc = HotoDocument.objects.create(
-                project_id=project_id,
-                document_name=document_name,
-                category=category,
-                status=status,
-                remarks=remarks,
-                created_by=user,
-                updated_by=user
-            )
+            # Check if HotoDocument exists
+            hoto_doc = HotoDocument.objects.filter(document_name_id=document_name_id, project_id=project_id).first()
+            
+            if not hoto_doc:
+                # Create a new HotoDocument if it doesn't exist
+                hoto_doc = HotoDocument.objects.create(
+                    project=project,
+                    document_name=document_name,
+                    category=category,
+                    status=status,
+                    remarks=remarks,
+                    created_by=user,
+                    updated_by=user
+                )
+                message = "HotoDocument created successfully"
+            else:
+                hoto_doc.document_name = document_name
+                hoto_doc.category = category
+                hoto_doc.status = status
+                hoto_doc.remarks = remarks
+                hoto_doc.updated_by = user
+                hoto_doc.save()
+                message = "HotoDocument updated successfully"
 
             # Add uploaded files to DocumentsForHoto
-            for doc in file:
-                document = DocumentsForHoto.objects.create(file=doc)
-                hoto_doc.document.add(document)
+            if files:
+                for doc in files:
+                    document = DocumentsForHoto.objects.create(file=doc)
+                    hoto_doc.document.add(document)
 
-            serializer = HotoDocumentSerializer(hoto_doc)
-            return Response({"status": True, "message": "Documents uploaded/created successfully", "data": serializer.data})
-        except Exception as e:
-            return Response({"status": False, "message": str(e)})
-        
-    def update(self, request, *args, **kwargs):
-        try:
-            # Get the document id from request data (as per your frontend)
-            project_id = request.data.get('project_id')
+                hoto_doc.is_uploaded = True
+                hoto_doc.save()
 
-            document_id = request.data.get('document_id')
-            files = request.FILES.getlist('file')
-    
-            if not document_id:
-                return Response({"status": False, "message": "Document ID is required"})
-    
-            # Find the HotoDocument by document_name (ForeignKey to Document)
-            hoto_doc = HotoDocument.objects.filter(document_name_id=document_id, project_id=project_id).first()
-            if not hoto_doc:
-                return Response({"status": False, "message": "HotoDocument not found for this document_id"})
-    
-            if not files:
-                return Response({"status": False, "message": "No files provided for upload"})
-    
-            # Upload and link files to the HotoDocument
-            for doc in files:
-                document = DocumentsForHoto.objects.create(file=doc)
-                hoto_doc.document.add(document)
-    
-            hoto_doc.is_uploaded = True
-            hoto_doc.updated_by = request.user
-            hoto_doc.save()
-    
-            serializer = HotoDocumentSerializer(hoto_doc)
-            return Response({"status": True, "message": "Documents uploaded successfully", "data": serializer.data})
-    
+            # Serialize and return the HotoDocument
+            return Response({"status": True, "message": f"{message} and files uploaded successfully"})
+
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
