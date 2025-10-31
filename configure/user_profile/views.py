@@ -1,3 +1,4 @@
+from urllib import request
 from django.shortcuts import render
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -407,6 +408,23 @@ class AdminCanUpdateUser(viewsets.ModelViewSet):
             designation = request.data.get('designation', user_data.designation)
             profile_image = request.data.get('profile_image', user_data.profile_image)
             dob = request.data.get('dob', user_data.dob)
+            group_ids = request.data.get('user_role')  # Use `getlist` for form data lists
+        
+            if isinstance(group_ids, str):
+                import ast
+                try:
+                    group_ids = ast.literal_eval(group_ids)  # Safely parse the string into a Python list
+                except (ValueError, SyntaxError):
+                    return Response({"status": False, "message": "Invalid format for user roles", "data": []})
+
+            if not group_ids or not isinstance(group_ids, list):
+                return Response({"status": False, "message": "User roles must be a list of group IDs", "data": []})
+
+            # Validate the group IDs
+            valid_groups = Group.objects.filter(id__in=group_ids)
+            if not valid_groups.exists():
+                return Response({"status": False, "message": "Invalid group IDs provided", "data": []})
+            
 
             if full_name:
                 user_data.full_name = full_name
@@ -425,6 +443,8 @@ class AdminCanUpdateUser(viewsets.ModelViewSet):
                 user_data.dob = dob
             if profile_image is not None and not isinstance(profile_image, str):
                 user_data.profile_image = profile_image
+            user_data.groups.set(valid_groups)  # This will replace the existing groups with the new ones
+
             user_data.save()
             serializer = self.serializer_class(user_data, context={'request': request})
             data = serializer.data
