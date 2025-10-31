@@ -53,36 +53,43 @@ class LoginUserSerializer(serializers.ModelSerializer):
         group = obj.groups.first() 
         return str(group.id) if group else None
     
-    def get_user_permissions(self, obj):
-        group = obj.groups.first()  # Get the user's first group (or however you determine the relevant group)
+    def get_groups(self, obj):
+        group = obj.groups.all()  # Get the user's first group (or however you determine the relevant group)
         if not group:
             return None
-
-        permissions = group.permissions.select_related('content_type').all()
-
-        permission_list = []
-        for permission in permissions:
-            permission_list.append({
-                "id": permission.id,
-                "name": permission.codename
+        group_list = []
+        for group in group:
+            group_list.append({
+                "id": str(group.id),
+                "name": group.name
             })
+        return group_list
 
-        return {
-            "group": {
+    def get_user_permissions(self, obj):
+        group = obj.groups.all()  # Get the user's first group (or however you determine the relevant group)
+        if not group:
+            return None
+        permission_list = []
+        group_list = []
+        for group in group:
+            permissions = group.permissions.select_related('content_type').all()
+
+            for permission in permissions:
+                permission_list.append({
+                    "id": permission.id,
+                    "name": permission.codename
+                })
+            group_list.append({
                 "id": group.id,
                 "name": group.name,
-            },
+                "permissions": permission_list if permission_list else None
+            })
+        
+
+        return {
+            "groups": group_list,
             "permissions": permission_list if permission_list else None
         }
-    
-    def get_groups(self, obj):
-        assignments = UserAssign.objects.filter(user=obj).select_related('group')
-        return list({
-            a.group.name
-            for a in assignments
-            if a.group  # Ensure group is not None
-        })
-
     def get_department(self, obj):
         assignments = UserAssign.objects.filter(user=obj).select_related('department')
         return list({
@@ -113,10 +120,23 @@ class CustomUserSerializer(serializers.ModelSerializer):
     group_id = serializers.SerializerMethodField()
     department_name = serializers.CharField(source='department.department_name', read_only=True)
     profile_image = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['id','full_name','email','dob','profile_image','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name']
+        fields = ['id','full_name','email','dob','profile_image','phone','address','is_staff','is_active','is_superuser','group_name', 'group_id','designation','department','department_name','groups']
 
+
+    def get_groups(self, obj):
+        group = obj.groups.all()  # Get the user's first group (or however you determine the relevant group)
+        if not group:
+            return None
+        group_list = []
+        for group in group:
+            group_list.append({
+                "id": str(group.id),
+                "name": group.name
+            })
+        return group_list
     def get_group_name(self, obj):
 
         group = obj.groups.first() 
