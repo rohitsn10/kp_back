@@ -799,7 +799,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             spoc_user = request.data.get('spoc_user')
             project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
             project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
-            assigned_users = request.data.get('assigned_users', [])
+            assigned_users = request.data.get('assigned_users', [self.request.user.id])
 
             # Validate individual fields
             if not landbank_id:
@@ -960,79 +960,51 @@ class ProjectViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False,"message": f"Error creating project: {str(e)}","data": []})
         
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.filter_queryset(self.get_queryset())
-        
-    #     try:
-    #         if queryset.exists():
-    #             project_data = []
-    #             for obj in queryset:
-    #                 context = {'request': request}
-    #                 serializer = ProjectSerializer(obj,context=context)
-    #                 project_data.append(serializer.data)
-                    
-    #             count = len(project_data)
-    #             return Response({
-    #                 "status": True,
-    #                 "message": "Project data fetched successfully",
-    #                 'total_page': 1,
-    #                 'total': count,
-    #                 'data': project_data
-    #             })
-    #         else:
-    #             return Response({
-    #                 "status": True,
-    #                 "message": "No milestone found",
-    #                 "total_page": 0,
-    #                 "total": 0,
-    #                 "data": []
-    #             })
-    #     except Exception as e:
-    #         return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
-
     def list(self, request, *args, **kwargs):
         company_id = request.query_params.get('company_id')
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
         user_id = request.query_params.get('user_id')
         project_activity_id = request.query_params.get('project_activity_id')
-
+    
         try:
             projects = Project.objects.all().order_by('-created_at')
-
+    
             if company_id and user_id:
                 projects = projects.filter(company_id=company_id, user_id=user_id)
-
+    
             elif company_id:
                 projects = projects.filter(company_id=company_id)
-
+    
             elif user_id:
                 projects = projects.filter(user_id=user_id)
-
+    
+            # Filter by assigned users
+            if request.user:
+                projects = projects.filter(assigned_users=request.user)
+    
             if start_date and end_date:
                 start_date_obj, end_date_obj, error = validate_dates(start_date, end_date)
                 if error:
                     return Response({"status": False, "message": error, "data": []})
                 if start_date_obj and end_date_obj:
                     projects = projects.filter(created_at__range=[start_date_obj, end_date_obj])
-
+    
             if project_activity_id:
                 projects = projects.filter(project_activity_id=project_activity_id)
-
+    
             if not projects.exists():
                 return Response({"status": True, "message": "No project found", "data": []})
-
+    
             total_count = projects.count()
-
+    
             context = {'request': request}
             serializer = ProjectSerializer(projects, context=context, many=True)
-
-            return Response({"status": True,"message": "Project data fetched successfully","total_count": total_count,"data": serializer.data})
-
+    
+            return Response({"status": True, "message": "Project data fetched successfully", "total_count": total_count, "data": serializer.data})
+    
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong", "error": str(e)})
-
-
 class ProjectUpdateViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Project.objects.all()
