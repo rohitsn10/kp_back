@@ -19,9 +19,16 @@ class FetchAllDocumentsNamesView(APIView):
 
     def get(self, request, project_id, *args, **kwargs):
         try:
+
             # Validate project existence
-            if not Project.objects.filter(id=project_id).exists():
+            project = Project.objects.filter(id=project_id).first()
+            if not project:
                 return Response({"status": False, "message": "Project not found"})
+
+            # Check if the user has any role in the project
+            user = request.user
+            if not (project.assigned_users.filter(id=user.id).exists()):
+                return Response({"status": False, "message": "You do not have any role in this project"})
 
             # Fetch all categories
             categories = DocumentCategory.objects.all()
@@ -33,6 +40,7 @@ class FetchAllDocumentsNamesView(APIView):
             return Response({"status": True, "message": "Documents fetched successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
 class UploadMainDocumentViewSet(viewsets.ModelViewSet):
     queryset = HotoDocument.objects.all()
     serializer_class = HotoDocumentSerializer
