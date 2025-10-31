@@ -16,6 +16,8 @@ from hoto_module.models import DocumentCategory, Document
 
 class FetchAllDocumentsNamesView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = HotoDocumentSerializer
+
 
     def get(self, request, project_id, *args, **kwargs):
         try:
@@ -276,6 +278,7 @@ class VerifyDocumentViewSet(viewsets.ModelViewSet):
             hoto_doc.status = status
             hoto_doc.verify_comment = verify_comment
             hoto_doc.updated_by = request.user
+            hoto_doc.is_verified = True if status == "Verified" else False
             hoto_doc.save()
 
             # Fetch updated categories and documents
