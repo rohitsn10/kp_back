@@ -27,9 +27,8 @@ class FetchAllDocumentsNamesView(APIView):
 
             # Check if the user has any role in the project
             user = request.user
-            if not (project.assigned_users.filter(id=user.id).exists()):
+            if not project.project_assigned_users.filter(user=user).exists():
                 return Response({"status": False, "message": "You do not have any role in this project"})
-
             # Fetch all categories
             categories = DocumentCategory.objects.all()
 

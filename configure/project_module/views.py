@@ -799,8 +799,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
             spoc_user = request.data.get('spoc_user')
             project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
             project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
-            assigned_users = request.data.get('assigned_users', [self.request.user.id])
+            assigned_users_data = request.data.get('assigned_users', [])
 
+
+            # If no assigned users are provided, add the current user with the "Project Manager" role
+            if not assigned_users_data:
+                assigned_users_data = [{"user_id": self.request.user.id, "role": "Project Manager"}]
+
+            # Validate and process assigned users
+            if not isinstance(assigned_users_data, list):
+                return Response({"status": False, "message": "Invalid format for assigned_users. It should be a list of dictionaries."})
+
+           
             # Validate individual fields
             if not landbank_id:
                 return Response({"status": False, "message": "Landbank ID is required."})
@@ -898,10 +908,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             except LandBankMaster.DoesNotExist:
                 return Response({"status": False, "message": "Invalid Landbank ID."})
 
-            try:
-                assigned_users = CustomUser.objects.filter(id__in=assigned_users)
-            except CustomUser.DoesNotExist:
-                return Response({"status": False, "message": "Invalid assigned users."})
             # Create the Project instance
             project = Project.objects.create(
                 user=user,
@@ -947,12 +953,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if sub_sub_activity_names:
                 project.project_sub_sub_activity.set(sub_sub_activity_names)
 
-            if assigned_users:
-                project.assigned_users.set(assigned_users)
-            
             if location_objs:
                 project.location_name_survey.set(location_objs)
             
+
+             # Create ProjectAssignedUser entries
+            for user_data in assigned_users_data:
+                user_id = user_data.get('user_id')
+                role = user_data.get('role')
+
+                if not user_id or not role:
+                    return Response({"status": False, "message": "Each assigned user must have a user_id and a role."})
+
+                try:
+                    user = CustomUser.objects.get(id=user_id)
+                    ProjectAssignedUser.objects.create(project=project, user=user, role=role)
+                except CustomUser.DoesNotExist:
+                    return Response({"status": False, "message": f"User with ID {user_id} does not exist."})
+
             serializer = self.serializer_class(project)
             data = serializer.data
             return Response({"status": True,"message": "Project created successfully","data": data})
@@ -979,10 +997,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
             elif user_id:
                 projects = projects.filter(user_id=user_id)
     
-            # Filter by assigned users
             if request.user:
-                projects = projects.filter(assigned_users=request.user)
-    
+                projects = projects.filter(project_assigned_users__user=request.user)
+
             if start_date and end_date:
                 start_date_obj, end_date_obj, error = validate_dates(start_date, end_date)
                 if error:

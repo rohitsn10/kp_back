@@ -52,9 +52,25 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
-    assigned_users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+     # Use a through model for assigned users to include roles
+    assigned_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through='ProjectAssignedUser',
+        related_name='assigned_projects'
+    )
 
 
+
+class ProjectAssignedUser(models.Model):
+    """Through model to store roles for assigned users in a project."""
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='project_assigned_users')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_assigned_projects')
+    role = models.CharField(max_length=255)  # Field to store the role of the user
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('project', 'user')  # Ensure a user is assigned only once per project
 class ExpenseProjectAttachments(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     expense_project_attachments = models.FileField(upload_to='expense_project_attachments',null=True, blank=True)
