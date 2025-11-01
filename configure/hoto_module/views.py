@@ -301,9 +301,8 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
     serializer_class = PunchPointsRaiseSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request,project_id, *args, **kwargs):
         try:
-            project_id = request.data.get('project_id')
             punch_title = request.data.get('punch_title')
             punch_description = request.data.get('punch_description')
             punch_point_raised = request.data.get('punch_point_raised')
@@ -417,9 +416,8 @@ class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
     serializer_class = PunchPointsRaiseSerializer
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request,project_id, *args, **kwargs):
         try:
-            project_id = request.query_params.get('project_id')
             project = Project.objects.get(id=project_id)
             user = request.user
             if not project.project_assigned_users.filter(user=user).exists():
