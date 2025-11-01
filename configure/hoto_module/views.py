@@ -303,7 +303,7 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            hoto_id = request.data.get('hoto_id')
+            project_id = request.data.get('project_id')
             punch_title = request.data.get('punch_title')
             punch_description = request.data.get('punch_description')
             punch_point_raised = request.data.get('punch_point_raised')
@@ -311,10 +311,13 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
             status = request.data.get('status')
             punch_file = request.FILES.getlist('punch_file')
 
-            hoto_doc = HotoDocument.objects.get(id=hoto_id)
-
+            project = Project.objects.get(id=project_id)
+            user = request.user
+            if not project.project_assigned_users.filter(user=user).exists():
+                return Response({"status": False, "message": "You do not have any role in this project"})
+            
             punch_point_obj = PunchPointsRaise.objects.create(
-                hoto=hoto_doc,
+                project=project,
                 punch_title=punch_title,
                 punch_description=punch_description,
                 punch_point_raised=punch_point_raised,
@@ -339,8 +342,12 @@ class CompletedPunchPointsViewSet(viewsets.ModelViewSet):
     serializer_class = CompletedPunchPointsSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, project_id, *args, **kwargs):
         try:
+            project = Project.objects.get(id=project_id)
+            user = request.user
+            if not project.project_assigned_users.filter(user=user).exists():
+                return Response({"status": False, "message": "You do not have any role in this project"})
             punch_id = request.data.get('punch_id')
             punch_description = request.data.get('punch_description')
             punch_point_completed = request.data.get('punch_point_completed')
@@ -373,9 +380,13 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
     serializer_class = VerifyPunchPointsSerializer
     permission_classes = [IsAuthenticated]
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, project_id, *args, **kwargs):
         try:
-            completed_punch_id = kwargs.get('completed_punch_id')
+            completed_punch_id = request.data.get('completed_punch_id')
+            project = Project.objects.get(id=project_id)
+            user = request.user
+            if not project.project_assigned_users.filter(user=user).exists():
+                return Response({"status": False, "message": "You do not have any role in this project"})
             verify_description = request.data.get('verify_description')
             status = request.data.get('status')
 
@@ -401,18 +412,21 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
         
 
 
-class GetAllObjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
+class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
     queryset = PunchPointsRaise.objects.all()
     serializer_class = PunchPointsRaiseSerializer
     permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         try:
-            hoto_id = request.query_params.get('hoto_id')
-
-            punch_points = PunchPointsRaise.objects.filter(hoto=hoto_id)
-            completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__hoto=hoto_id)
-            verified_punch_points = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__hoto=hoto_id)
+            project_id = request.query_params.get('project_id')
+            project = Project.objects.get(id=project_id)
+            user = request.user
+            if not project.project_assigned_users.filter(user=user).exists():
+                return Response({"status": False, "message": "You do not have any role in this project"})
+            punch_points = PunchPointsRaise.objects.filter(project=project)
+            completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__project=project)
+            verified_punch_points = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__project=project)
 
             punch_points_serializer = PunchPointsRaiseSerializer(punch_points, many=True)
             completed_punch_points_serializer = CompletedPunchPointsSerializer(completed_punch_points, many=True)
