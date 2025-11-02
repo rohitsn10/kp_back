@@ -82,9 +82,6 @@ Raise a new punch point for a specific project.
 **Request Body:**
 - `punch_title` (string): Title of the punch point.
 - `punch_description` (string): Description of the punch point.
-- `punch_point_raised` (integer): Number of punch points raised.
-- `closure_date` (date): Expected closure date.
-- `status` (string): Status of the punch point.
 - `punch_file` (file[]): List of files to attach.
 
 **Response:**
@@ -102,8 +99,8 @@ Mark a punch point as completed for a specific project.
 **Request Body:**
 - `punch_id` (integer): ID of the punch point to mark as completed.
 - `punch_description` (string): Description of the completed punch point.
-- `punch_point_completed` (integer): Number of punch points completed.
-- `status` (string): Status of the punch point.
+- `tentative_timeline` (datetime): Tentative timeline for completion.
+- `comments` (string): Comments from the Project Team.
 - `punch_file` (file[]): List of files to attach.
 
 **Response:**

@@ -94,15 +94,15 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_assigned_users(self, obj):
         """Custom method to retrieve assigned users as a list of dicts"""
-        assigned_users = obj.assigned_users.all()  # Ensure it's a QuerySet
+        assigned_users = obj.project_assigned_users.all()  # Ensure it's a QuerySet
         return [
             {
-                'assigned_user_id': user.id, 
-                'assigned_user_name': user.full_name,
-                'assigned_user_group': user.groups.first().name if user.groups.exists() else None
+                'assigned_user_id': user.user.id,
+                'assigned_user_name': user.user.full_name,
+                'role': user.role
             }
             for user in assigned_users
-        ] if assigned_users else []
+        ] if assigned_users.exists() else []
         
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -138,7 +138,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             {
                 'assigned_user_id': user['assigned_user_id'],
                 'assigned_user_name': user['assigned_user_name'],
-                'assigned_user_group': user['assigned_user_group']
+                'role': user['role']
             }
             for user in assigned_users if user
         ]
