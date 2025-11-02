@@ -92,12 +92,13 @@ Raise a new punch point for a specific project.
 ### 2. Completed Punch Points
 **Endpoint:**
 ```
-POST /completed_punch_points/<int:project_id>
+POST /accepted_rejected_punch_points/<int:project_id>
 ```
 **Description:**
 Mark a punch point as completed for a specific project.
 **Request Body:**
 - `punch_id` (integer): ID of the punch point to mark as completed.
+- `is_accepted` (boolean) : True if accepted otherwise False
 - `punch_description` (string): Description of the completed punch point.
 - `tentative_timeline` (datetime): Tentative timeline for completion.
 - `comments` (string): Comments from the Project Team.
@@ -108,7 +109,25 @@ Mark a punch point as completed for a specific project.
 - `message` (string): Response message.
 - `data` (object): Details of the completed punch point.
 
-### 3. Verify Completed Punch Points
+### 3. Mark Punch Points Completed
+
+**Endpoint:**
+```
+PUT /mark_punch_points_completed/<int:project_id>
+```
+**Description:**
+Mark a punch point as completed for a specific project.
+**Request Body:**
+- `completed_punch_id` (integer): ID of the completed punch point.
+- `remarks` (string): Remarks for the completed punch point.
+- `punch_file` (file[]): List of files to attach.
+
+**Response:**
+- `status` (boolean): Indicates success or failure.
+- `message` (string): Response message.
+- `data` (object): Details of the updated punch point.
+
+### 4. Verify Completed Punch Points
 **Endpoint:**
 ```
 PUT /verify_completed_punch_points/<int:project_id>
@@ -125,7 +144,7 @@ Verify a completed punch point for a specific project.
 - `message` (string): Response message.
 - `data` (object): Details of the verified punch point.
 
-### 4. Get All Project-Wise Punch Points
+### 5. Get All Project-Wise Punch Points
 **Endpoint:**
 ```
 GET /get_all_project_wise_punch_raise_completed_verify/<int:project_id>
@@ -140,7 +159,7 @@ Retrieve all punch points (raised, completed, and verified) for a specific proje
   - `completed_punch_points` (list): List of completed punch points.
   - `verified_punch_points` (list): List of verified punch points.
 
-### 5. Generate HOTO Certificate
+### 6. Generate HOTO Certificate
 **Endpoint:**
 ```
 PUT /hoto_certificate
@@ -165,3 +184,4 @@ Generate a HOTO certificate PDF for a project.
 - `status` (boolean): Indicates success or failure.
 - `message` (string): Response message.
 - `data` (string): URL of the generated PDF.
+

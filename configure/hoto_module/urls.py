@@ -14,7 +14,7 @@ urlpatterns = [
     path('verify_document/<int:project_id>', VerifyDocumentViewSet.as_view({'put': 'update'}), name='verify_document'),
 
     path('raise_punch_points/<int:project_id>', RaisePunchPointsViewSet.as_view({'post': 'create'}), name='raise_punch_points'),
-    path('completed_punch_points/<int:project_id>', CompletedPunchPointsViewSet.as_view({'post': 'create'}), name='completed_punch_points'),
+    path('accepted_rejected_punch_points/<int:project_id>', AcceptedRejectedPunchPointsViewSet.as_view({'post': 'create'}), name='accepted_rejected_punch_points'),
     path('mark_punch_points_completed/<int:project_id>', MarkPunchPointsCompletedViewSet.as_view({'put': 'update'}), name='mark_punch_points_completed'),  # Added URL
     path('verify_completed_punch_points/<int:project_id>', VerifyCompletedPunchPointsViewSet.as_view({'put': 'update'}), name='verify_completed_punch_points'),
     path('get_all_project_wise_punch_raise_completed_verify/<int:project_id>', GetAllProjectWisePunchRaiseCompletedVerifyViewSet.as_view({'get': 'list'}), name='get_all_project_wise_punch_raise_completed_verify'),
