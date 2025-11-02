@@ -333,9 +333,9 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
-class CompletedPunchPointsViewSet(viewsets.ModelViewSet):
-    queryset = CompletedPunchPoints.objects.all()
-    serializer_class = CompletedPunchPointsSerializer
+class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
+    queryset = AcceptedRejectedPunchPoints.objects.all()
+    serializer_class = AcceptedRejectedPunchPointsSerializer
     permission_classes = [IsAuthenticated]
 
     def create(self, request, project_id, *args, **kwargs):
@@ -388,6 +388,7 @@ class CompletedPunchPointsViewSet(viewsets.ModelViewSet):
                 return Response({"status": True, "message": "Punch point rejected successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+        
 class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
     queryset = CompletedPunchPoints.objects.all()
     serializer_class = CompletedPunchPointsSerializer
@@ -408,7 +409,7 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
 
             completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
 
-            completed_punch_obj.comments = remarks
+            completed_punch_obj.remarks = remarks
             completed_punch_obj.status = "Completed"
             completed_punch_obj.updated_by = user
             completed_punch_obj.save()
