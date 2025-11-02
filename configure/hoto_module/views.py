@@ -301,41 +301,38 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
     serializer_class = PunchPointsRaiseSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request,project_id, *args, **kwargs):
+    def create(self, request, project_id, *args, **kwargs):
         try:
             punch_title = request.data.get('punch_title')
             punch_description = request.data.get('punch_description')
-            punch_point_raised = request.data.get('punch_point_raised')
-            closure_date = request.data.get('closure_date')
-            status = request.data.get('status')
             punch_file = request.FILES.getlist('punch_file')
 
             project = Project.objects.get(id=project_id)
             user = request.user
-            if not project.project_assigned_users.filter(user=user).exists():
-                return Response({"status": False, "message": "You do not have any role in this project"})
-            
+
+            # Ensure user has ONDM role
+            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            if not user_role:
+                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+
             punch_point_obj = PunchPointsRaise.objects.create(
                 project=project,
                 punch_title=punch_title,
                 punch_description=punch_description,
-                punch_point_raised=punch_point_raised,
-                closure_date=closure_date,
-                status=status,
-                created_by=request.user,
-                updated_by=request.user
+                status="Open",
+                created_by=user,
+                updated_by=user
             )
 
             for file in punch_file:
                 punch_file_obj = PunchFile.objects.create(file=file)
                 punch_point_obj.punch_file.add(punch_file_obj)
 
-            serializer = PunchPointsRaiseSerializer(punch_point_obj)
+            serializer = self.serializer_class(punch_point_obj)
             return Response({"status": True, "message": "Punch point created successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
-        
-    
+
 class CompletedPunchPointsViewSet(viewsets.ModelViewSet):
     queryset = CompletedPunchPoints.objects.all()
     serializer_class = CompletedPunchPointsSerializer
@@ -345,35 +342,87 @@ class CompletedPunchPointsViewSet(viewsets.ModelViewSet):
         try:
             project = Project.objects.get(id=project_id)
             user = request.user
-            if not project.project_assigned_users.filter(user=user).exists():
-                return Response({"status": False, "message": "You do not have any role in this project"})
+
+            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            if not user_role:
+                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+
             punch_id = request.data.get('punch_id')
+            is_accepted = request.data.get('is_accepted')
             punch_description = request.data.get('punch_description')
-            punch_point_completed = request.data.get('punch_point_completed')
-            status = request.data.get('status')
+            tentative_timeline = request.data.get('tentative_timeline')
+            comments = request.data.get('comments', '')
             punch_file = request.FILES.getlist('punch_file')
 
             punch_point_obj = PunchPointsRaise.objects.get(id=punch_id)
 
-            completed_punch_obj = CompletedPunchPoints.objects.create(
-                raise_punch=punch_point_obj,
-                punch_description=punch_description,
-                punch_point_completed=punch_point_completed,
-                status=status,
-                created_by=request.user,
-                updated_by=request.user
-            )
+            if is_accepted:
+                # If accepted, create a completed punch point
+                completed_punch_obj = CompletedPunchPoints.objects.create(
+                    raise_punch=punch_point_obj,
+                    punch_description=punch_description,
+                    tentative_timeline=tentative_timeline,
+                    comments=comments,
+                    status="Accepted",
+                    created_by=user,
+                    updated_by=user
+                )
+
+                for file in punch_file:
+                    completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
+                    completed_punch_obj.punch_file.add(completed_punch_file_obj)
+
+                serializer = self.serializer_class(completed_punch_obj)
+                return Response({"status": True, "message": "Punch point accepted successfully", "data": serializer.data})
+            else:
+                # If rejected, update the punch point
+                punch_point_obj.status = "Rejected"
+                punch_point_obj.is_verified = False
+                punch_point_obj.save()
+
+                for file in punch_file:
+                    punch_file_obj = PunchFile.objects.create(file=file)
+                    punch_point_obj.punch_file.add(punch_file_obj)
+
+                serializer = PunchPointsRaiseSerializer(punch_point_obj)
+                return Response({"status": True, "message": "Punch point rejected successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e)})
+class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
+    queryset = CompletedPunchPoints.objects.all()
+    serializer_class = CompletedPunchPointsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, project_id, *args, **kwargs):
+        try:
+            completed_punch_id = request.data.get('completed_punch_id')
+            remarks = request.data.get('remarks')
+            punch_file = request.FILES.getlist('punch_file')
+
+            project = Project.objects.get(id=project_id)
+            user = request.user
+
+            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            if not user_role:
+                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+
+            completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
+
+            completed_punch_obj.comments = remarks
+            completed_punch_obj.status = "Completed"
+            completed_punch_obj.updated_by = user
+            completed_punch_obj.save()
 
             for file in punch_file:
                 completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
                 completed_punch_obj.punch_file.add(completed_punch_file_obj)
 
-            serializer = CompletedPunchPointsSerializer(completed_punch_obj)
-            return Response({"status": True, "message": "Completed punch point created successfully", "data": serializer.data})
+            serializer = self.serializer_class(completed_punch_obj)
+            return Response({"status": True, "message": "Punch point marked as completed successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
-    
+
 class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
     queryset = VerifyPunchPoints.objects.all()
     serializer_class = VerifyPunchPointsSerializer
@@ -382,46 +431,44 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
     def update(self, request, project_id, *args, **kwargs):
         try:
             completed_punch_id = request.data.get('completed_punch_id')
-            project = Project.objects.get(id=project_id)
-            user = request.user
-            if not project.project_assigned_users.filter(user=user).exists():
-                return Response({"status": False, "message": "You do not have any role in this project"})
             verify_description = request.data.get('verify_description')
             status = request.data.get('status')
 
+            project = Project.objects.get(id=project_id)
+            user = request.user
+
+            # Ensure user has ONDM role
+            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            if not user_role:
+                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+
             completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
-            if status == "Completed":
-                pass
-            else:
-                completed_punch_obj.punch_point_completed = 0
-                completed_punch_obj.save()
 
             verify_punch_obj = VerifyPunchPoints.objects.create(
                 completed_punch=completed_punch_obj,
                 verify_description=verify_description,
                 status=status,
-                created_by=request.user,
-                updated_by=request.user
+                created_by=user,
+                updated_by=user
             )
 
-            serializer = VerifyPunchPointsSerializer(verify_punch_obj)
-            return Response({"status": True, "message": "Completed punch point verified successfully", "data": serializer.data})
+            serializer = self.serializer_class(verify_punch_obj)
+            return Response({"status": True, "message": "Punch point verified successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
-        
-
 
 class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
     queryset = PunchPointsRaise.objects.all()
     serializer_class = PunchPointsRaiseSerializer
     permission_classes = [IsAuthenticated]
 
-    def list(self, request,project_id, *args, **kwargs):
+    def list(self, request, project_id, *args, **kwargs):
         try:
             project = Project.objects.get(id=project_id)
             user = request.user
             if not project.project_assigned_users.filter(user=user).exists():
                 return Response({"status": False, "message": "You do not have any role in this project"})
+
             punch_points = PunchPointsRaise.objects.filter(project=project)
             completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__project=project)
             verified_punch_points = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__project=project)
@@ -442,7 +489,7 @@ class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
         
-
+    
 
 class HOTOCertificateViewSet(viewsets.ModelViewSet):
 
@@ -482,3 +529,20 @@ class HOTOCertificateViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": ""})
+        
+def get_user_role_for_project(project, user, allowed_roles=None):
+    """
+    Returns the role string if user is assigned to project.
+    If allowed_roles is provided (iterable of substrings), returns None when role not matching.
+    Matching is case-insensitive and checks substring.
+    """
+    role = project.project_assigned_users.filter(user=user).values_list('role', flat=True).first()
+    if not role:
+        return None
+    if allowed_roles:
+        role_l = role.lower()
+        for ar in allowed_roles:
+            if ar.lower() in role_l:
+                return role
+        return None
+    return role

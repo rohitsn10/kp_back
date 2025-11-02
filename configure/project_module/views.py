@@ -800,7 +800,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
             project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
             assigned_users_data = request.data.get('assigned_users', [])
-
+            
 
             # If no assigned users are provided, add the current user with the "Project Manager" role
             if not assigned_users_data:
@@ -1022,6 +1022,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong", "error": str(e)})
+
 class ProjectUpdateViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Project.objects.all()
