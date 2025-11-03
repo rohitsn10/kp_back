@@ -86,9 +86,7 @@ class HotoDocumentSerializer(serializers.Serializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     project = serializers.IntegerField(source='project.id', read_only=True)
-
-    punch_status = serializers.SerializerMethodField()
-
+    
     class Meta:
         model = HotoDocument
         fields = [
