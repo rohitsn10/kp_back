@@ -11,6 +11,8 @@ from django.template.loader import get_template
 from weasyprint import HTML
 import os
 import time
+from django.shortcuts import get_object_or_404
+
 from rest_framework.views import APIView
 from hoto_module.models import DocumentCategory, Document
 
@@ -310,8 +312,8 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(id=project_id)
             user = request.user
 
-            # Ensure user has ONDM role
-            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            # Ensure user has ONM role
+            user_role = get_user_role_for_project(project, user, allowed_roles=['on₹m'])
             if not user_role:
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
@@ -403,7 +405,7 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(id=project_id)
             user = request.user
 
-            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
             if not user_role:
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
@@ -438,8 +440,8 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(id=project_id)
             user = request.user
 
-            # Ensure user has ONDM role
-            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            # Ensure user has ONM role
+            user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
             if not user_role:
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
@@ -458,37 +460,56 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
-class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ModelViewSet):
-    queryset = PunchPointsRaise.objects.all()
-    serializer_class = PunchPointsRaiseSerializer
+class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request, project_id, *args, **kwargs):
         try:
-            project = Project.objects.get(id=project_id)
+            # Fetch the project and validate user access
+            project = get_object_or_404(Project, id=project_id)
             user = request.user
             if not project.project_assigned_users.filter(user=user).exists():
-                return Response({"status": False, "message": "You do not have any role in this project"})
+                return Response(
+                    {"status": False, "message": "You do not have any role in this project"},
+                    status=403,
+                )
 
+            # Fetch data for the project
             punch_points = PunchPointsRaise.objects.filter(project=project)
-            completed_punch_points = CompletedPunchPoints.objects.filter(raise_punch__project=project)
-            verified_punch_points = VerifyPunchPoints.objects.filter(completed_punch__raise_punch__project=project)
+            completed_punch_points = CompletedPunchPoints.objects.filter(
+                accepted_rejected_punch__raise_punch__project=project
+            )
+            verified_punch_points = VerifyPunchPoints.objects.filter(
+                completed_punch__accepted_rejected_punch__raise_punch__project=project
+            )
 
+            # Serialize the data
             punch_points_serializer = PunchPointsRaiseSerializer(punch_points, many=True)
-            completed_punch_points_serializer = CompletedPunchPointsSerializer(completed_punch_points, many=True)
-            verified_punch_points_serializer = VerifyPunchPointsSerializer(verified_punch_points, many=True)
+            completed_punch_points_serializer = CompletedPunchPointsSerializer(
+                completed_punch_points, many=True
+            )
+            verified_punch_points_serializer = VerifyPunchPointsSerializer(
+                verified_punch_points, many=True
+            )
 
-            return Response({
-                "status": True,
-                "message": "All object-wise punch points retrieved successfully",
-                "data": {
-                    "punch_points": punch_points_serializer.data,
-                    "completed_punch_points": completed_punch_points_serializer.data,
-                    "verified_punch_points": verified_punch_points_serializer.data
+            # Return the response
+            return Response(
+                {
+                    "status": True,
+                    "message": "All object-wise punch points retrieved successfully",
+                    "data": {
+                        "punch_points": punch_points_serializer.data,
+                        "completed_punch_points": completed_punch_points_serializer.data,
+                        "verified_punch_points": verified_punch_points_serializer.data,
+                    },
                 }
-            })
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {"status": False, "message": "Project not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": False, "message": str(e)})
+            return Response({"status": False, "message": str(e)}, status=500)
         
     
 
