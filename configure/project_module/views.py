@@ -2332,7 +2332,26 @@ class ProjectProgressListView(APIView):
         progress_qs = ProjectProgress.objects.filter(project=project)
         serializer = ProjectProgressSerializer(progress_qs, many=True)
         return Response(serializer.data)
+    
+class ProjectProgressUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def put(self, request, project_id, *args, **kwargs):
+        try:
+            progress_id = request.data.get('progress_id')
+            if not progress_id:
+                return Response({"status": False, "message": "Progress ID is required"}, status=400)
+            progress = ProjectProgress.objects.get(id=progress_id, project_id=project_id)
+        except ProjectProgress.DoesNotExist:
+            return Response({"status": False, "message": "Progress entry not found"}, status=404)
+
+        serializer = ProjectProgressSerializer(progress, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": True, "message": "Progress entry updated successfully", "data": serializer.data})
+        else:
+            return Response({"status": False, "message": "Invalid data", "errors": serializer.errors}, status=400)
+        
 class ApprovedLandBankByProjectHODDataViewSet(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LandBankSerializer

@@ -57,3 +57,39 @@ curl -X GET "http://127.0.0.1:8000/project_module/get_progress/?project_id=<proj
 -H "Authorization: Bearer <your_access_token>" \
 -H "Content-Type: application/json"
 ```
+
+---
+
+### 3. Update Project Progress
+**Endpoint:** `/project_module/update_progress/<project_id>/`
+
+**Method:** `PUT`
+
+**Description:** Updates the details of a specific progress entry for a project.
+
+**Headers:**
+- `Authorization: Bearer <your_access_token>`
+- `Content-Type: application/json`
+
+**Body Parameters:**
+- `progress_id` (required): The ID of the progress entry to update.
+- Other fields to update (e.g., `particulars`, `status`, `days_to_complete`, etc.).
+
+**Response:**
+- `200 OK`: Progress entry updated successfully.
+- `400 Bad Request`: Missing or invalid parameters.
+- `403 Forbidden`: Authentication required.
+- `404 Not Found`: Progress entry not found.
+
+**Example cURL Command:**
+```bash
+curl -X PUT "http://127.0.0.1:8000/project_module/update_progress/<project_id>/" \
+-H "Authorization: Bearer <your_access_token>" \
+-H "Content-Type: application/json" \
+-d '{
+    "progress_id": 123,
+    "particulars": "Updated Task",
+    "status": "In Progress",
+    "days_to_complete": 5
+}'
+```
