@@ -2198,6 +2198,14 @@ class UploadExcelProgressView(APIView):
             xls = pd.ExcelFile(default_storage.path(file_path))
             sheet_name = xls.sheet_names[0]
             df = pd.read_excel(xls, sheet_name=sheet_name)
+            df_cleaned = df.iloc[2:].copy()
+            column_names = df.iloc[1].tolist()
+            column_names[1] = column_names[0]
+            df_cleaned = df_cleaned.drop(columns=[df_cleaned.columns[0]])
+
+            df = df_cleaned
+
+
 
             expected_headers = [
                 'Particulars', 'Status', 'Category', 'UOM', 'Qty.', 'Days to Complete',
@@ -2268,7 +2276,8 @@ class UploadExcelProgressView(APIView):
                     actual_completion_date=row.get('actual_completion_date'),
                     days_to_deadline=row.get('days_to_deadline'),
                     percent_completion=row.get('percent_completion'),
-                    remarks=row.get('remarks')
+                    remarks=row.get('remarks'),
+                    activity_excel_file=file 
                 )
                 progress_entries.append(progress)
 

@@ -9,6 +9,9 @@ class Company(models.Model):
     company_name = models.CharField(max_length=255,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
+class ActivityExcelFile(models.Model):  
+    excel_file = models.FileField(upload_to='activity_excel_files/', null=True, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class Electricity(models.Model):
     electricity_line = models.CharField(max_length=255,null=True, blank=True)
@@ -357,6 +360,6 @@ class ProjectProgress(models.Model):
     days_to_deadline = models.IntegerField(null=True, blank=True)
     percent_completion = models.FloatField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
-
+    activity_excel_file = models.ForeignKey(ActivityExcelFile, on_delete=models.CASCADE, null=True, blank=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
