@@ -2173,7 +2173,6 @@ class DrawingDashboardCountViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Drawing dashboard count fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
 
 class UploadExcelProgressView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -2198,16 +2197,30 @@ class UploadExcelProgressView(APIView):
             xls = pd.ExcelFile(default_storage.path(file_path))
             sheet_name = xls.sheet_names[0]
             df = pd.read_excel(xls, sheet_name=sheet_name)
+            df_cleaned = df.iloc[2:].copy()
 
+            # Get the column names from the original DataFrame's row 1
+            column_names = df.iloc[1].tolist()
+            column_names[1] = column_names[0]
+            
+            # Drop the first column from the cleaned DataFrame before renaming
+            df_cleaned = df_cleaned.drop(columns=[df_cleaned.columns[0]])
+
+            # Set the column names using the modified list (excluding the first original column name)
+            # Convert all column names to strings and strip whitespace
+            cleaned_column_names = [str(col).strip() if pd.notna(col) else '' for col in column_names[1:]]
+            df_cleaned.columns = cleaned_column_names
+            
             expected_headers = [
                 'Particulars', 'Status', 'Category', 'UOM', 'Qty.', 'Days to Complete',
                 'Scheduled Start Date', 'Targeted End Date', 'Actual Start Date',
                 'Today QTY', 'Cumulative Task Completed as on date',
                 'Balance Task to be Completed', 'Actual Completion Date',
-                'Days to deadline', '% Completion', 'Remarks'
+                'Days to deadline', '% Completion', 'Project Remarks'
             ]
 
-            actual_headers = [col.strip() for col in df.columns]
+            # Already cleaned during column assignment
+            actual_headers = df_cleaned.columns.tolist()
 
             missing_headers = [h for h in expected_headers if h not in actual_headers]
             if missing_headers:
@@ -2218,8 +2231,8 @@ class UploadExcelProgressView(APIView):
                     "found": actual_headers
                 })
 
-            # Rename columns to match model fields
-            df = df.rename(columns={
+            # Rename columns on df_cleaned
+            df_cleaned = df_cleaned.rename(columns={
                 'Particulars': 'particulars',
                 'Status': 'status',
                 'Category': 'category',
@@ -2235,21 +2248,37 @@ class UploadExcelProgressView(APIView):
                 'Actual Completion Date': 'actual_completion_date',
                 'Days to deadline': 'days_to_deadline',
                 '% Completion': 'percent_completion',
-                'Remarks': 'remarks'
+                'Project Remarks': 'project_remarks'
             })
 
-            # Keep only required columns
-            df = df[['particulars', 'status', 'category', 'uom', 'qty', 'days_to_complete',
-                     'scheduled_start_date', 'targeted_end_date', 'actual_start_date',
-                     'today_qty', 'cumulative_completed', 'balance_task',
-                     'actual_completion_date', 'days_to_deadline',
-                     'percent_completion', 'remarks']]
+            date_columns = [
+                'scheduled_start_date',
+                'targeted_end_date',
+                'actual_start_date',
+                'actual_completion_date'
+            ]
+            for col in date_columns:
+                if col in df_cleaned.columns:
+                    df_cleaned[col] = pd.to_datetime(df_cleaned[col], errors='coerce')
 
-            df = df.dropna(subset=['particulars']).reset_index(drop=True)
+              # Handle NaN values for numeric fields
+            numeric_fields = ['qty', 'days_to_complete', 'today_qty', 'cumulative_completed', 'balance_task', 'percent_completion']
+            for field in numeric_fields:
+                if field in df_cleaned.columns:
+                    df_cleaned[field] = df_cleaned[field].fillna(0)  # Replace NaN with 0
+
+            # Keep only required columns
+            df_cleaned = df_cleaned[['particulars', 'status', 'category', 'uom', 'qty', 'days_to_complete',
+                                     'scheduled_start_date', 'targeted_end_date', 'actual_start_date',
+                                     'today_qty', 'cumulative_completed', 'balance_task',
+                                     'actual_completion_date', 'days_to_deadline',
+                                     'percent_completion', 'project_remarks']]
+
+            df_cleaned = df_cleaned.dropna(subset=['particulars']).reset_index(drop=True)
 
             # Save to database
             progress_entries = []
-            for _, row in df.iterrows():
+            for _, row in df_cleaned.iterrows():
                 progress = ProjectProgress(
                     project=project,
                     user=request.user,
@@ -2258,21 +2287,24 @@ class UploadExcelProgressView(APIView):
                     category=row.get('category'),
                     uom=row.get('uom'),
                     qty=row.get('qty'),
-                    days_to_complete=row.get('days_to_complete'),
-                    scheduled_start_date=row.get('scheduled_start_date'),
-                    targeted_end_date=row.get('targeted_end_date'),
-                    actual_start_date=row.get('actual_start_date'),
+                    days_to_complete=row.get('days_to_complete',0),
+                    scheduled_start_date=row.get('scheduled_start_date') if pd.notna(row.get('scheduled_start_date')) else None,
+                    targeted_end_date=row.get('targeted_end_date') if pd.notna(row.get('targeted_end_date')) else None,
+                    actual_start_date=row.get('actual_start_date') if pd.notna(row.get('actual_start_date')) else None,
                     today_qty=row.get('today_qty'),
                     cumulative_completed=row.get('cumulative_completed'),
                     balance_task=row.get('balance_task'),
-                    actual_completion_date=row.get('actual_completion_date'),
-                    days_to_deadline=row.get('days_to_deadline'),
+                    actual_completion_date=row.get('actual_completion_date') if pd.notna(row.get('actual_completion_date')) else None,
+                    days_to_deadline=row.get('days_to_deadline'),  # Store as-is
                     percent_completion=row.get('percent_completion'),
-                    remarks=row.get('remarks')
+                    remarks=row.get('project_remarks')
                 )
                 progress_entries.append(progress)
 
             ProjectProgress.objects.bulk_create(progress_entries)
+
+            # Clean up temporary file
+            default_storage.delete(file_path)
 
             return Response({
                 "status": True,
@@ -2300,7 +2332,26 @@ class ProjectProgressListView(APIView):
         progress_qs = ProjectProgress.objects.filter(project=project)
         serializer = ProjectProgressSerializer(progress_qs, many=True)
         return Response(serializer.data)
+    
+class ProjectProgressUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def put(self, request, project_id, *args, **kwargs):
+        try:
+            progress_id = request.data.get('progress_id')
+            if not progress_id:
+                return Response({"status": False, "message": "Progress ID is required"}, status=400)
+            progress = ProjectProgress.objects.get(id=progress_id, project_id=project_id)
+        except ProjectProgress.DoesNotExist:
+            return Response({"status": False, "message": "Progress entry not found"}, status=404)
+
+        serializer = ProjectProgressSerializer(progress, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": True, "message": "Progress entry updated successfully", "data": serializer.data})
+        else:
+            return Response({"status": False, "message": "Invalid data", "errors": serializer.errors}, status=400)
+        
 class ApprovedLandBankByProjectHODDataViewSet(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LandBankSerializer
