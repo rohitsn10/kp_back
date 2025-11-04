@@ -3,7 +3,7 @@ __pycache__/
 requirementslocal.txt
 db.sqlite3
 smenv/
-# migrations/
+migrations/
 env/
 prodenv/
 venv/
