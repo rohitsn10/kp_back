@@ -22,7 +22,9 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.views.decorators.cache import never_cache
 from django.urls import re_path
+from configure.views import index
 urlpatterns = [
+    path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('user_profile/',include('user_profile.urls')),
     path('land_module/',include('land_module.urls')),

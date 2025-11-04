@@ -354,7 +354,7 @@ class ProjectProgress(models.Model):
     cumulative_completed = models.FloatField(null=True, blank=True)
     balance_task = models.FloatField(null=True, blank=True)
     actual_completion_date = models.DateField(null=True, blank=True)
-    days_to_deadline = models.IntegerField(null=True, blank=True)
+    days_to_deadline = models.CharField(max_length=255, null=True, blank=True)
     percent_completion = models.FloatField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
 
