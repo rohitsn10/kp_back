@@ -501,23 +501,15 @@ class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
 
 
 class ProjectProgressSerializer(serializers.ModelSerializer):
-    taskName = serializers.CharField(source='particulars')
-    totalQuantity = serializers.FloatField(source='qty')
-    completedQuantity = serializers.FloatField(source='cumulative_completed')
-    plannedStartDate = serializers.DateField(source='scheduled_start_date', format="%Y-%m-%d")
-    plannedEndDate = serializers.DateField(source='targeted_end_date', format="%Y-%m-%d")
-    actualStartDate = serializers.DateField(source='actual_start_date', format="%Y-%m-%d", allow_null=True)
-    actualEndDate = serializers.DateField(source='actual_completion_date', format="%Y-%m-%d", allow_null=True)
-    completionPercentage = serializers.FloatField(source='percent_completion')
-
+  
     class Meta:
         model = ProjectProgress
         fields = [
-            'id', 'taskName', 'status', 'category', 'uom',
-            'totalQuantity', 'completedQuantity',
-            'plannedStartDate', 'plannedEndDate',
-            'actualStartDate', 'actualEndDate',
-            'completionPercentage', 'days_to_complete', 'remarks'
+            'id', 'particulars', 'status', 'category', 'uom',
+            'qty', 'cumulative_completed',
+            'scheduled_start_date', 'targeted_end_date',
+            'actual_start_date', 'actual_completion_date','today_qty',
+            'percent_completion', 'days_to_complete', 'remarks','days_to_deadline'
         ]
         extra_kwargs = {
             'status': {'required': False},
@@ -526,5 +518,5 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['daysToComplete'] = data.pop('days_to_complete')
+        data['days_to_complete'] = data.pop('days_to_complete')
         return data
