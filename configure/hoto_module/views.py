@@ -313,7 +313,7 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
             user = request.user
 
             # Ensure user has ONM role
-            user_role = get_user_role_for_project(project, user, allowed_roles=['on₹m'])
+            user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
             if not user_role:
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
@@ -345,7 +345,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(id=project_id)
             user = request.user
 
-            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
+            user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
             if not user_role:
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
