@@ -383,7 +383,9 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
                 for file in punch_file:
                     completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
                     completed_punch_obj.punch_file.add(completed_punch_file_obj)
-
+                punch_point_obj.status = "Accepted"
+                punch_point_obj.is_verified = True
+                punch_point_obj.save()
                 serializer = self.serializer_class(accepted_punch_obj)
                 return Response({"status": True, "message": "Punch point accepted successfully", "data": serializer.data})
             else:
