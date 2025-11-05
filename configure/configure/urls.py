@@ -35,6 +35,7 @@ urlpatterns = [
     path('annexures_module/',include('annexures_module.urls')),
     path('quality_inspection/',include('quality_inspection.urls')),
     path('hoto_module/',include('hoto_module.urls')),
+    path('report_module/',include('report_module.urls')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

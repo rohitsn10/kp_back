@@ -70,7 +70,7 @@ class ProjectAssignedUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('project', 'user')  # Ensure a user is assigned only once per project
+        unique_together = ('project', 'user','role')  # Ensure a user is assigned only once per project
 class ExpenseProjectAttachments(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     expense_project_attachments = models.FileField(upload_to='expense_project_attachments',null=True, blank=True)

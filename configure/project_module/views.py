@@ -2192,129 +2192,136 @@ class UploadExcelProgressView(APIView):
             except Project.DoesNotExist:
                 return Response({"status": False, "message": "Invalid project ID"})
 
-            # Save file temporarily
+            # Save uploaded file temporarily
             file_path = default_storage.save(file.name, file)
-            xls = pd.ExcelFile(default_storage.path(file_path))
-            sheet_name = xls.sheet_names[0]
-            df = pd.read_excel(xls, sheet_name=sheet_name)
-            df_cleaned = df.iloc[2:].copy()
+            file_full_path = default_storage.path(file_path)
 
-            # Get the column names from the original DataFrame's row 1
-            column_names = df.iloc[1].tolist()
-            column_names[1] = column_names[0]
-            
-            # Drop the first column from the cleaned DataFrame before renaming
-            df_cleaned = df_cleaned.drop(columns=[df_cleaned.columns[0]])
+            try:
+                # ✅ Read Excel safely — no file lock issues
+                df = pd.read_excel(file_full_path, sheet_name=0)
 
-            # Set the column names using the modified list (excluding the first original column name)
-            # Convert all column names to strings and strip whitespace
-            cleaned_column_names = [str(col).strip() if pd.notna(col) else '' for col in column_names[1:]]
-            df_cleaned.columns = cleaned_column_names
-            
-            expected_headers = [
-                'Particulars', 'Status', 'Category', 'UOM', 'Qty.', 'Days to Complete',
-                'Scheduled Start Date', 'Targeted End Date', 'Actual Start Date',
-                'Today QTY', 'Cumulative Task Completed as on date',
-                'Balance Task to be Completed', 'Actual Completion Date',
-                'Days to deadline', '% Completion', 'Project Remarks'
-            ]
+                # Clean the dataframe
+                df_cleaned = df.iloc[2:].copy()
+                column_names = df.iloc[1].tolist()
+                column_names[1] = column_names[0]
 
-            # Already cleaned during column assignment
-            actual_headers = df_cleaned.columns.tolist()
+                # Drop first column and rename
+                df_cleaned = df_cleaned.drop(columns=[df_cleaned.columns[0]])
+                cleaned_column_names = [
+                    str(col).strip() if pd.notna(col) else '' for col in column_names[1:]
+                ]
+                df_cleaned.columns = cleaned_column_names
 
-            missing_headers = [h for h in expected_headers if h not in actual_headers]
-            if missing_headers:
-                return Response({
-                    "status": False,
-                    "message": "Missing headers in Excel file",
-                    "missing": missing_headers,
-                    "found": actual_headers
+                expected_headers = [
+                    'Particulars', 'Status', 'Category', 'UOM', 'Qty.', 'Days to Complete',
+                    'Scheduled Start Date', 'Targeted End Date', 'Actual Start Date',
+                    'Today QTY', 'Cumulative Task Completed as on date',
+                    'Balance Task to be Completed', 'Actual Completion Date',
+                    'Days to deadline', '% Completion', 'Project Remarks'
+                ]
+
+                actual_headers = df_cleaned.columns.tolist()
+                missing_headers = [h for h in expected_headers if h not in actual_headers]
+
+                if missing_headers:
+                    return Response({
+                        "status": False,
+                        "message": "Missing headers in Excel file",
+                        "missing": missing_headers,
+                        "found": actual_headers
+                    })
+
+                # Rename columns
+                df_cleaned = df_cleaned.rename(columns={
+                    'Particulars': 'particulars',
+                    'Status': 'status',
+                    'Category': 'category',
+                    'UOM': 'uom',
+                    'Qty.': 'qty',
+                    'Days to Complete': 'days_to_complete',
+                    'Scheduled Start Date': 'scheduled_start_date',
+                    'Targeted End Date': 'targeted_end_date',
+                    'Actual Start Date': 'actual_start_date',
+                    'Today QTY': 'today_qty',
+                    'Cumulative Task Completed as on date': 'cumulative_completed',
+                    'Balance Task to be Completed': 'balance_task',
+                    'Actual Completion Date': 'actual_completion_date',
+                    'Days to deadline': 'days_to_deadline',
+                    '% Completion': 'percent_completion',
+                    'Project Remarks': 'project_remarks'
                 })
 
-            # Rename columns on df_cleaned
-            df_cleaned = df_cleaned.rename(columns={
-                'Particulars': 'particulars',
-                'Status': 'status',
-                'Category': 'category',
-                'UOM': 'uom',
-                'Qty.': 'qty',
-                'Days to Complete': 'days_to_complete',
-                'Scheduled Start Date': 'scheduled_start_date',
-                'Targeted End Date': 'targeted_end_date',
-                'Actual Start Date': 'actual_start_date',
-                'Today QTY': 'today_qty',
-                'Cumulative Task Completed as on date': 'cumulative_completed',
-                'Balance Task to be Completed': 'balance_task',
-                'Actual Completion Date': 'actual_completion_date',
-                'Days to deadline': 'days_to_deadline',
-                '% Completion': 'percent_completion',
-                'Project Remarks': 'project_remarks'
-            })
+                # Convert date columns safely
+                date_columns = [
+                    'scheduled_start_date', 'targeted_end_date',
+                    'actual_start_date', 'actual_completion_date'
+                ]
+                for col in date_columns:
+                    if col in df_cleaned.columns:
+                        df_cleaned[col] = pd.to_datetime(df_cleaned[col], errors='coerce')
 
-            date_columns = [
-                'scheduled_start_date',
-                'targeted_end_date',
-                'actual_start_date',
-                'actual_completion_date'
-            ]
-            for col in date_columns:
-                if col in df_cleaned.columns:
-                    df_cleaned[col] = pd.to_datetime(df_cleaned[col], errors='coerce')
+                # Fill NaN for numeric fields
+                numeric_fields = [
+                    'qty', 'days_to_complete', 'today_qty', 'cumulative_completed',
+                    'balance_task', 'percent_completion'
+                ]
+                for field in numeric_fields:
+                    if field in df_cleaned.columns:
+                        df_cleaned[field] = df_cleaned[field].fillna(0)
 
-              # Handle NaN values for numeric fields
-            numeric_fields = ['qty', 'days_to_complete', 'today_qty', 'cumulative_completed', 'balance_task', 'percent_completion']
-            for field in numeric_fields:
-                if field in df_cleaned.columns:
-                    df_cleaned[field] = df_cleaned[field].fillna(0)  # Replace NaN with 0
+                # Keep only required columns
+                df_cleaned = df_cleaned[
+                    ['particulars', 'status', 'category', 'uom', 'qty', 'days_to_complete',
+                     'scheduled_start_date', 'targeted_end_date', 'actual_start_date',
+                     'today_qty', 'cumulative_completed', 'balance_task',
+                     'actual_completion_date', 'days_to_deadline',
+                     'percent_completion', 'project_remarks']
+                ]
 
-            # Keep only required columns
-            df_cleaned = df_cleaned[['particulars', 'status', 'category', 'uom', 'qty', 'days_to_complete',
-                                     'scheduled_start_date', 'targeted_end_date', 'actual_start_date',
-                                     'today_qty', 'cumulative_completed', 'balance_task',
-                                     'actual_completion_date', 'days_to_deadline',
-                                     'percent_completion', 'project_remarks']]
+                # Drop empty rows and reset index
+                df_cleaned = df_cleaned.dropna(subset=['particulars']).reset_index(drop=True)
 
-            df_cleaned = df_cleaned.dropna(subset=['particulars']).reset_index(drop=True)
+                # Prepare database entries
+                progress_entries = [
+                    ProjectProgress(
+                        project=project,
+                        user=request.user,
+                        particulars=row.get('particulars'),
+                        status=row.get('status'),
+                        category=row.get('category'),
+                        uom=row.get('uom'),
+                        qty=row.get('qty'),
+                        days_to_complete=row.get('days_to_complete', 0),
+                        scheduled_start_date=row.get('scheduled_start_date') if pd.notna(row.get('scheduled_start_date')) else None,
+                        targeted_end_date=row.get('targeted_end_date') if pd.notna(row.get('targeted_end_date')) else None,
+                        actual_start_date=row.get('actual_start_date') if pd.notna(row.get('actual_start_date')) else None,
+                        today_qty=row.get('today_qty'),
+                        cumulative_completed=row.get('cumulative_completed'),
+                        balance_task=row.get('balance_task'),
+                        actual_completion_date=row.get('actual_completion_date') if pd.notna(row.get('actual_completion_date')) else None,
+                        days_to_deadline=row.get('days_to_deadline'),
+                        percent_completion=row.get('percent_completion'),
+                        remarks=row.get('project_remarks')
+                    )
+                    for _, row in df_cleaned.iterrows()
+                ]
 
-            # Save to database
-            progress_entries = []
-            for _, row in df_cleaned.iterrows():
-                progress = ProjectProgress(
-                    project=project,
-                    user=request.user,
-                    particulars=row.get('particulars'),
-                    status=row.get('status'),
-                    category=row.get('category'),
-                    uom=row.get('uom'),
-                    qty=row.get('qty'),
-                    days_to_complete=row.get('days_to_complete',0),
-                    scheduled_start_date=row.get('scheduled_start_date') if pd.notna(row.get('scheduled_start_date')) else None,
-                    targeted_end_date=row.get('targeted_end_date') if pd.notna(row.get('targeted_end_date')) else None,
-                    actual_start_date=row.get('actual_start_date') if pd.notna(row.get('actual_start_date')) else None,
-                    today_qty=row.get('today_qty'),
-                    cumulative_completed=row.get('cumulative_completed'),
-                    balance_task=row.get('balance_task'),
-                    actual_completion_date=row.get('actual_completion_date') if pd.notna(row.get('actual_completion_date')) else None,
-                    days_to_deadline=row.get('days_to_deadline'),  # Store as-is
-                    percent_completion=row.get('percent_completion'),
-                    remarks=row.get('project_remarks')
-                )
-                progress_entries.append(progress)
+                # Bulk insert
+                ProjectProgress.objects.bulk_create(progress_entries)
 
-            ProjectProgress.objects.bulk_create(progress_entries)
+                return Response({
+                    "status": True,
+                    "message": "Progress data uploaded successfully",
+                    "total_records": len(progress_entries)
+                })
 
-            # Clean up temporary file
-            default_storage.delete(file_path)
-
-            return Response({
-                "status": True,
-                "message": "Progress data uploaded successfully",
-                "total_records": len(progress_entries)
-            })
+            finally:
+                # ✅ Always delete the file safely after processing
+                if default_storage.exists(file_path):
+                    default_storage.delete(file_path)
 
         except Exception as e:
-            return Response({"status": False, "message": str(e)})    
-
+            return Response({"status": False, "message": str(e)})
 
 class ProjectProgressListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -2364,3 +2371,51 @@ class ApprovedLandBankByProjectHODDataViewSet(APIView):
             return Response({"status": True, "message": "Approved Land Bank data fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+        
+
+
+class AssignRolesToProjectAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, project_id, *args, **kwargs):
+        try:
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required."})
+
+            # Fetch the project
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Project not found."})
+
+            # Get assigned users data from the request
+            assigned_users_data = request.data.get('assigned_users', [])
+            if not isinstance(assigned_users_data, list):
+                return Response({"status": False, "message": "Invalid format for assigned_users. It should be a list of dictionaries."})
+
+            # Process each role and its associated user IDs
+            for user_data in assigned_users_data:
+                role = user_data.get('role')
+                user_ids = user_data.get('user_ids', [])
+
+                if not role or not isinstance(user_ids, list):
+                    return Response({"status": False, "message": "Each role must have a valid role name and a list of user IDs."})
+
+                for user_id in user_ids:
+                    try:
+                        # Fetch the user
+                        user = CustomUser.objects.get(id=user_id)
+
+                        # Create or update the role for the user in the project
+                        ProjectAssignedUser.objects.update_or_create(
+                            project=project,
+                            user=user,
+                            role=role
+                        )
+                    except CustomUser.DoesNotExist:
+                        return Response({"status": False, "message": f"User with ID {user_id} does not exist."})
+
+            return Response({"status": True, "message": "Roles assigned to the project successfully."})
+
+        except Exception as e:
+            return Response({"status": False, "message": f"Error assigning roles: {str(e)}"})

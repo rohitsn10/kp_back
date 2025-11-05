@@ -66,5 +66,6 @@ urlpatterns = [
 
     ## Approved Land Bank Data
     path('land_bank_data_approved_by_project_hod', ApprovedLandBankByProjectHODDataViewSet.as_view(), name='approved_land_bank_data'),
+    path('assign_project_roles/<int:project_id>', AssignRolesToProjectAPIView.as_view(), name='assign_roles_to_project'),
 
 ]
