@@ -416,7 +416,7 @@ class PaginatedUserListViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
 
-class GetUserByGroupViewSet(viewsets.ModelViewSet):
+class GetUserByNamesViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -424,12 +424,15 @@ class GetUserByGroupViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            group_id = request.query_params.get('group_id')
-            if not group_id:
-                return Response({"status": False, "message": "Group ID is required", "data": []})
+            name = request.query_params.get('name', '').strip()
 
-            # Filter users by group
-            users = CustomUser.objects.filter(groups__id=group_id).exclude(is_superuser=True)
+            if not name:
+                return Response({"status": False, "message": "Name is required", "data": []})
+
+            # Filter users by name
+            users = CustomUser.objects.all().exclude(is_superuser=True)
+            if name:
+                users = users.filter(full_name__icontains=name)  
 
             # Apply pagination
             page = self.paginate_queryset(users)
@@ -442,8 +445,7 @@ class GetUserByGroupViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "User List Successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
-        
+
 class AdminCanUpdateUser(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
     serializer_class = CustomUserSerializer
