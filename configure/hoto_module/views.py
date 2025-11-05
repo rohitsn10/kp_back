@@ -360,7 +360,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
 
             if is_accepted:
                 # If accepted, create a completed punch point
-                completed_punch_obj = CompletedPunchPoints.objects.create(
+                accepted_punch_obj = AcceptedRejectedPunchPoints.objects.create(
                     raise_punch=punch_point_obj,
                     punch_description=punch_description,
                     tentative_timeline=tentative_timeline,
@@ -371,10 +371,20 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
                 )
 
                 for file in punch_file:
+                    accepted_punch_file_obj = AcceptedRejectedPunchFile.objects.create(file=file)
+                    accepted_punch_obj.punch_file.add(accepted_punch_file_obj)
+                completed_punch_obj= CompletedPunchPoints.objects.create(
+                    accepted_rejected_punch=accepted_punch_obj,  # Use the correct field name
+                    remarks=comments,  # Map comments to remarks
+                    status="Accepted",
+                    created_by=user,
+                    updated_by=user
+                )
+                for file in punch_file:
                     completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
                     completed_punch_obj.punch_file.add(completed_punch_file_obj)
 
-                serializer = self.serializer_class(completed_punch_obj)
+                serializer = self.serializer_class(accepted_punch_obj)
                 return Response({"status": True, "message": "Punch point accepted successfully", "data": serializer.data})
             else:
                 # If rejected, update the punch point

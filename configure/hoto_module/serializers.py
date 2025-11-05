@@ -41,11 +41,10 @@ class AcceptedRejectedPunchPointsSerializer(serializers.ModelSerializer):
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_file = AcceptedRejectedPunchFileSerializer(many=True, read_only=True)
     verify_points = VerifyPunchPointsSerializer(source='verifypunchpoints_set', many=True, read_only=True)
-
     class Meta:
         model = AcceptedRejectedPunchPoints
         fields = [
-            'id', 'raise_punch', 'comments', 'tentative_timeline', 'comments', 'status', 'punch_file',
+            'id', 'tentative_timeline', 'comments', 'status', 'punch_description','punch_file',
             'created_by', 'created_by_name', 'created_at',
             'updated_by', 'updated_by_name', 'updated_at',
             'verify_points'
@@ -71,7 +70,7 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     class Meta:
         model = PunchPointsRaise
         fields = [
-            'id', 'project', 'punch_title', 'comments', 'status', 'is_verified', 'is_accepted', 'punch_file',
+            'id', 'project', 'punch_title', 'punch_description', 'status', 'is_verified', 'is_accepted', 'punch_file',
             'created_by', 'created_by_name', 'created_at',
             'updated_by', 'updated_by_name', 'updated_at',
             'accepted_rejected_points'
