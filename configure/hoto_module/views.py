@@ -373,16 +373,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
                 for file in punch_file:
                     accepted_punch_file_obj = AcceptedRejectedPunchFile.objects.create(file=file)
                     accepted_punch_obj.punch_file.add(accepted_punch_file_obj)
-                completed_punch_obj= CompletedPunchPoints.objects.create(
-                    accepted_rejected_punch=accepted_punch_obj,  # Use the correct field name
-                    remarks=comments,  # Map comments to remarks
-                    status="Accepted",
-                    created_by=user,
-                    updated_by=user
-                )
-                for file in punch_file:
-                    completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
-                    completed_punch_obj.punch_file.add(completed_punch_file_obj)
+               
                 punch_point_obj.status = "Accepted"
                 punch_point_obj.is_accepted = True
                 punch_point_obj.save()
@@ -391,7 +382,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
             else:
                 # If rejected, update the punch point
                 punch_point_obj.status = "Rejected"
-                punch_point_obj.is_verified = False
+                punch_point_obj.is_accepted = False
                 punch_point_obj.save()
 
                 for file in punch_file:
@@ -422,13 +413,13 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
             punch_point_obj = PunchPointsRaise.objects.get(id=completed_punch_id)
 
-            completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
-
-            completed_punch_obj.remarks = remarks
-            completed_punch_obj.status = "Completed"
-            completed_punch_obj.updated_by = user
-            completed_punch_obj.save()
-
+            completed_punch_obj = CompletedPunchPoints.objects.create(
+                accepted_rejected_punch=punch_point_obj,  # Use the correct field name
+                remarks=remarks,  # Map comments to remarks
+                status="Completed",
+                created_by=user,
+                updated_by=user
+            )
             for file in punch_file:
                 completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
                 completed_punch_obj.punch_file.add(completed_punch_file_obj)
@@ -468,8 +459,12 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
                 created_by=user,
                 updated_by=user
             )
-            punch_point_obj.status = "Verified" if status == "Verified" else "Rework"
-            punch_point_obj.is_verified = True if status == "Verified" else False
+            if status == "Verified":
+                punch_point_obj.status = "Verified"
+                punch_point_obj.is_verified = True 
+            else:
+                punch_point_obj.status = "Rejected"
+                punch_point_obj.is_verified = False
             punch_point_obj.save()
             serializer = self.serializer_class(verify_punch_obj)
             return Response({"status": True, "message": "Punch point verified successfully", "data": serializer.data})
