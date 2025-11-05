@@ -69,26 +69,26 @@ class LoginUserSerializer(serializers.ModelSerializer):
         group = obj.groups.all()  # Get the user's first group (or however you determine the relevant group)
         if not group:
             return None
-        permission_list = []
+        # permission_list = []
         group_list = []
         for group in group:
-            permissions = group.permissions.select_related('content_type').all()
+            # permissions = group.permissions.select_related('content_type').all()
 
-            for permission in permissions:
-                permission_list.append({
-                    "id": permission.id,
-                    "name": permission.codename
-                })
+            # for permission in permissions:
+            #     permission_list.append({
+            #         "id": permission.id,
+            #         "name": permission.codename
+            #     })
             group_list.append({
                 "id": group.id,
                 "name": group.name,
-                "permissions": permission_list if permission_list else None
+                # "permissions": permission_list if permission_list else None
             })
         
 
         return {
             "groups": group_list,
-            "permissions": permission_list if permission_list else None
+            # "permissions": permission_list if permission_list else None
         }
     def get_department(self, obj):
         assignments = UserAssign.objects.filter(user=obj).select_related('department')

@@ -23,6 +23,10 @@ import random
 from django.core.mail import send_mail
 
 
+class UserPagination(PageNumberPagination):
+    page_size = 10  # Default number of items per page
+    page_size_query_param = 'page_size'  # Allow the client to set the page size
+    max_page_size = 100  # Maximum number of items per page
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -388,6 +392,57 @@ class CreateUserViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "User List Successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
+
+
+
+class PaginatedUserListViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = UserPagination
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)  # Paginate the queryset
+            if page is not None:
+                serializer = self.get_serializer(page, many=True, context={'request': request})
+                return self.get_paginated_response(serializer.data)  # Return paginated response
+    
+            # If pagination is not applied, return the full queryset
+            serializer = self.get_serializer(queryset, many=True, context={'request': request})
+            return Response({"status": True, "message": "User List Successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+
+
+class GetUserByGroupViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all().exclude(is_superuser=True)
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = UserPagination  # Add pagination class
+
+    def list(self, request, *args, **kwargs):
+        try:
+            group_id = request.query_params.get('group_id')
+            if not group_id:
+                return Response({"status": False, "message": "Group ID is required", "data": []})
+
+            # Filter users by group
+            users = CustomUser.objects.filter(groups__id=group_id).exclude(is_superuser=True)
+
+            # Apply pagination
+            page = self.paginate_queryset(users)
+            if page is not None:
+                serializer = self.serializer_class(page, many=True, context={'request': request})
+                return self.get_paginated_response(serializer.data)
+
+            # If pagination is not applied, return all users
+            serializer = self.serializer_class(users, many=True, context={'request': request})
+            return Response({"status": True, "message": "User List Successfully", "data": serializer.data})
+        except Exception as e:
+            return Response({"status": False, "message": str(e), "data": []})
+        
         
 class AdminCanUpdateUser(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().exclude(is_superuser=True)
