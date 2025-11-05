@@ -27,7 +27,7 @@ urlpatterns = [
 
     path('assign_user_all_things', AssignUserAllThingsViewSet.as_view({'post': 'create', 'get': 'list'}), name='assign_user_all_things'),
 
-    path('get_user_by_group', GetUserByGroupViewSet.as_view({'get': 'list'}), name='get_user_by_group'),
+    path('get_user_by_names/', GetUserByNamesViewSet.as_view({'get': 'list'}), name='get_user_by_names'),
     path('get_users_with_pagination/', PaginatedUserListViewSet.as_view({'get': 'list'}), name='get_users_with_pagination'),
 
 ]

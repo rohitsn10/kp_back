@@ -49,7 +49,7 @@ curl -X GET "http://127.0.0.1:8000/user_profile/get_users_with_pagination/?page=
 
 **Curl Command:**
 ```bash
-curl -X GET "http://127.0.0.1:8000/user_profile/get_user_by_group/?group_id=1&page=2&page_size=5" \
+curl -X GET "http://127.0.0.1:8000/user_profile/get_user_by_names/?name=hasmukh&page=2&page_size=5" \
 -H "Authorization: Bearer <your-auth-token>"
 ```
 
@@ -57,7 +57,7 @@ curl -X GET "http://127.0.0.1:8000/user_profile/get_user_by_group/?group_id=1&pa
 ```json
 {
     "count": 25,
-    "next": "http://127.0.0.1:8000/user_profile/get_user_by_group/?group_id=1&page=2&page_size=5",
+    "next": "http://127.0.0.1:8000/user_profile/get_user_by_names/?name=hasmukh&page=2&page_size=5",
     "previous": null,
     "results": [
         {
