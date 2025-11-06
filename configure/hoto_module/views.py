@@ -415,22 +415,30 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
             user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
             if not user_role:
                 return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+
+            # Retrieve the related PunchPointsRaise object
             punch_point_obj = PunchPointsRaise.objects.get(id=completed_punch_id)
 
+            # Create a new CompletedPunchPoints object
             completed_punch_obj = CompletedPunchPoints.objects.create(
-                accepted_rejected_punch=punch_point_obj,  # Use the correct field name
-                remarks=remarks,  # Map comments to remarks
+                accepted_rejected_punch=punch_point_obj,
+                remarks=remarks,
                 status="Completed",
                 created_by=user,
                 updated_by=user
             )
+
+            # Add files to the new CompletedPunchPoints object
             for file in punch_file:
                 completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
                 completed_punch_file_obj.file_status = "Completed"
                 completed_punch_file_obj.save()
                 completed_punch_obj.punch_file.add(completed_punch_file_obj)
+
+            # Update the status of the PunchPointsRaise object
             punch_point_obj.status = "Completed"
             punch_point_obj.save()
+
             serializer = self.serializer_class(completed_punch_obj)
             return Response({"status": True, "message": "Punch point marked as completed successfully", "data": serializer.data})
         except Exception as e:
