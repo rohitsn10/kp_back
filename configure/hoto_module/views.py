@@ -313,9 +313,9 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
             user = request.user
 
             # Ensure user has ONM role
-            user_role = get_user_role_for_project(project, user, allowed_roles=['on₹m'])
-            if not user_role:
-                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+            # user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
+            # if not user_role:
+            #     return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
             punch_point_obj = PunchPointsRaise.objects.create(
                 project=project,
@@ -328,6 +328,8 @@ class RaisePunchPointsViewSet(viewsets.ModelViewSet):
 
             for file in punch_file:
                 punch_file_obj = PunchFile.objects.create(file=file)
+                punch_file_obj.file_status = "Raised"
+                punch_file_obj.save()
                 punch_point_obj.punch_file.add(punch_file_obj)
 
             serializer = self.serializer_class(punch_point_obj)
@@ -345,9 +347,9 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(id=project_id)
             user = request.user
 
-            user_role = get_user_role_for_project(project, user, allowed_roles=['ondm'])
-            if not user_role:
-                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+            # user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
+            # if not user_role:
+            #     return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
             punch_id = request.data.get('punch_id')
             is_accepted = request.data.get('is_accepted')
@@ -357,31 +359,34 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
             punch_file = request.FILES.getlist('punch_file')
 
             punch_point_obj = PunchPointsRaise.objects.get(id=punch_id)
+             # If accepted, create a completed punch point
+            accepted_punch_obj = AcceptedRejectedPunchPoints.objects.create(
+                raise_punch=punch_point_obj,
+                punch_description=punch_description,
+                tentative_timeline=tentative_timeline,
+                comments=comments,
+                created_by=user,
+                updated_by=user
+            )
 
             if is_accepted == 'true':
-                # If accepted, create a completed punch point
-                accepted_punch_obj = AcceptedRejectedPunchPoints.objects.create(
-                    raise_punch=punch_point_obj,
-                    punch_description=punch_description,
-                    tentative_timeline=tentative_timeline,
-                    comments=comments,
-                    status="Accepted",
-                    created_by=user,
-                    updated_by=user
-                )
-
+               
                 for file in punch_file:
                     accepted_punch_file_obj = AcceptedRejectedPunchFile.objects.create(file=file)
                     accepted_punch_file_obj.file_status = "Accepted"
                     accepted_punch_file_obj.save()
                     accepted_punch_obj.punch_file.add(accepted_punch_file_obj)
-               
+                accepted_punch_obj.status = "Accepted"
+                accepted_punch_obj.save()
+                # If accepted, update the punch point
                 punch_point_obj.status = "Accepted"
                 punch_point_obj.is_accepted = True
                 punch_point_obj.save()
                 serializer = self.serializer_class(accepted_punch_obj)
                 return Response({"status": True, "message": "Punch point accepted successfully", "data": serializer.data})
             else:
+                accepted_punch_obj.status = "Rejected"
+                accepted_punch_obj.save()
                 # If rejected, update the punch point
                 punch_point_obj.status = "Rejected"
                 punch_point_obj.is_accepted = False
@@ -391,7 +396,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
                     rejected_punch_file_obj = AcceptedRejectedPunchFile.objects.create(file=file)
                     rejected_punch_file_obj.file_status = "Rejected"
                     rejected_punch_file_obj.save()
-                    punch_point_obj.punch_file.add(rejected_punch_file_obj)
+                    accepted_punch_obj.punch_file.add(rejected_punch_file_obj)
 
                 serializer = PunchPointsRaiseSerializer(punch_point_obj)
                 return Response({"status": True, "message": "Punch point rejected successfully", "data": serializer.data})
@@ -412,16 +417,18 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(id=project_id)
             user = request.user
 
-            user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
-            if not user_role:
-                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+            # user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
+            # if not user_role:
+            #     return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
 
             # Retrieve the related PunchPointsRaise object
-            punch_point_obj = PunchPointsRaise.objects.get(id=completed_punch_id)
-
+            try:
+                accepted_rejected_punch_obj = AcceptedRejectedPunchPoints.objects.get(raise_punch_id=completed_punch_id)
+            except AcceptedRejectedPunchPoints.DoesNotExist:
+                return Response({"status": False, "message": "Accepted/Rejected Punch Points not found"})
             # Create a new CompletedPunchPoints object
             completed_punch_obj = CompletedPunchPoints.objects.create(
-                accepted_rejected_punch=punch_point_obj,
+                accepted_rejected_punch=accepted_rejected_punch_obj,
                 remarks=remarks,
                 status="Completed",
                 created_by=user,
@@ -436,6 +443,7 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
                 completed_punch_obj.punch_file.add(completed_punch_file_obj)
 
             # Update the status of the PunchPointsRaise object
+            punch_point_obj = accepted_rejected_punch_obj.raise_punch
             punch_point_obj.status = "Completed"
             punch_point_obj.save()
 
@@ -460,12 +468,18 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
             user = request.user
 
             # Ensure user has ONM role
-            user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
-            if not user_role:
-                return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
+            # user_role = get_user_role_for_project(project, user, allowed_roles=['onm'])
+            # if not user_role:
+            #     return Response({"status": False, "message": "You do not have permission to raise punch points for this project"})
             punch_point_obj = PunchPointsRaise.objects.get(id=completed_punch_id)
-            completed_punch_obj = CompletedPunchPoints.objects.get(id=completed_punch_id)
-
+            try:
+                accept_reject_obj = AcceptedRejectedPunchPoints.objects.get(raise_punch=punch_point_obj)
+            except AcceptedRejectedPunchPoints.DoesNotExist:
+                return Response({"status": False, "message": "Accepted/Rejected Punch Points not found"})
+            try:
+                completed_punch_obj = CompletedPunchPoints.objects.get(accepted_rejected_punch=accept_reject_obj)
+            except CompletedPunchPoints.DoesNotExist:
+                return Response({"status": False, "message": "Completed Punch Points not found"})
             verify_punch_obj = VerifyPunchPoints.objects.create(
                 completed_punch=completed_punch_obj,
                 verify_description=verify_description,
@@ -510,7 +524,7 @@ class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ViewSet):
             return Response(
                 {
                     "status": True,
-                    "message": "All object-wise punch points retrieved successfully",
+                    "message": "All project wise punch points retrieved successfully",
                     "data": {
                         "punch_points": punch_points_serializer.data
                     },

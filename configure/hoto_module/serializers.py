@@ -10,7 +10,7 @@ class DocumentsForHotoSerializer(serializers.ModelSerializer):
 class PunchFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PunchFile
-        fields = ['id', 'file', 'created_at', 'updated_at']
+        fields = ['id', 'file', 'created_at', 'file_status','updated_at']
 
 class AcceptedRejectedPunchFileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -65,16 +65,31 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_file = PunchFileSerializer(many=True, read_only=True)
-
+    accepted_rejected_point_files = serializers.SerializerMethodField()
+    completed_point_files = serializers.SerializerMethodField()
     class Meta:
         model = PunchPointsRaise
         fields = [
             'id', 'project', 'punch_title', 'punch_description', 'status', 'is_verified', 'is_accepted', 'punch_file',
-            'created_by', 'created_by_name', 'created_at',
+            'created_by', 'created_by_name', 'created_at','accepted_rejected_point_files','completed_point_files',
             'updated_by', 'updated_by_name', 'updated_at',        ]
         
+    def get_accepted_rejected_point_files(self, obj):
+        files = []
+        ar_qs = AcceptedRejectedPunchPoints.objects.filter(raise_punch=obj)
+        for ar in ar_qs:
+            for f in ar.punch_file.all():
+                files.append(f)
+        return AcceptedRejectedPunchFileSerializer(files, many=True, context=self.context).data
 
-
+    def get_completed_point_files(self, obj):
+        files = []
+        cp_qs = CompletedPunchPoints.objects.filter(accepted_rejected_punch__raise_punch=obj)
+        for cp in cp_qs:
+            for f in cp.punch_file.all():
+                files.append(f)
+        return CompletedPunchFileSerializer(files, many=True, context=self.context).data
+    
 class HotoDocumentSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
