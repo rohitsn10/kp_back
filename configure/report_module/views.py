@@ -9,6 +9,10 @@ from .excel_operations.land.generate_land_report import generate_land_report
 from .excel_operations.hse_mis.generate_hse_mis_report import generate_hse_mis_report
 from .excel_operations.quality.generate_quality_report import generate_quality_report
 from .excel_operations.scm.generate_scm_material_tracking_report import generate_scm_material_tracking_report
+from .excel_operations.project.generate_ear_report import generate_ear_report
+from .excel_operations.project.generate_dpr_project_execution_report import generate_dpr_project_execution_report
+from .excel_operations.project.project_status_management_report import generate_project_status_management_report
+from .excel_operations.project.project_hoto_summary_report import generate_hoto_summary_report
 class LandReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -61,3 +65,59 @@ class CheckQualityReportAPIView(APIView):
             logger.error(f"Error generating Quality report: {e}", exc_info=True)
             return Response({"error": str(e)}, status=500)
         
+
+class EARFormatReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+
+        try:
+            response = generate_ear_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating EAR report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+
+        
+
+class DPRProjectExecutionReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_dpr_project_execution_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating DPR Project Execution report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+
+
+class ProjectStatusManagementReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_project_status_management_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating Project Status Management report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+        
+class ProjectHotoSummaryReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_hoto_summary_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating HOTO Summary report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)

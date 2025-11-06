@@ -49,11 +49,13 @@ class HotoDocument(models.Model):
 
 class PunchFile(models.Model):
     file = models.FileField(upload_to='punch_files/', null=True, blank=True)
+    file_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 class AcceptedRejectedPunchFile(models.Model):
     file = models.FileField(upload_to='accepted_rejected_punch_files/', null=True, blank=True)
+    file_status = models.CharField(max_length=255, null=True, blank=True)   
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -74,6 +76,7 @@ class PunchPointsRaise(models.Model):
 
 class CompletedPunchFile(models.Model):
     file = models.FileField(upload_to='completed_punch_files/', null=True, blank=True)
+    file_status = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

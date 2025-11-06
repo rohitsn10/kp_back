@@ -49,3 +49,29 @@
        -H "Authorization: Bearer <your_token>" \
        http://127.0.0.1:8000/report_module/check_quality_report/
   ```
+
+
+### 5. Project EAR Report API
+- **URL**: `/report_module/project_ear_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/project_ear_report/
+  ```
+
+
+### 6. Project DPR Project Execution API
+- **URL**: `/report_module/project_dpr_project_execution_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/project_dpr_project_execution_report/
+  ```
