@@ -15,12 +15,12 @@ class PunchFileSerializer(serializers.ModelSerializer):
 class AcceptedRejectedPunchFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcceptedRejectedPunchFile
-        fields = ['id', 'file', 'created_at', 'updated_at']
+        fields = ['id', 'file', 'created_at', 'file_status', 'updated_at']
 
 class CompletedPunchFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompletedPunchFile
-        fields = ['id', 'file', 'created_at', 'updated_at']
+        fields = ['id', 'file', 'created_at','file_status', 'updated_at']
 
 
 class VerifyPunchPointsSerializer(serializers.ModelSerializer):
@@ -40,14 +40,12 @@ class AcceptedRejectedPunchPointsSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_file = AcceptedRejectedPunchFileSerializer(many=True, read_only=True)
-    verify_points = VerifyPunchPointsSerializer(source='verifypunchpoints_set', many=True, read_only=True)
     class Meta:
         model = AcceptedRejectedPunchPoints
         fields = [
             'id', 'tentative_timeline', 'comments', 'status', 'punch_description','punch_file',
             'created_by', 'created_by_name', 'created_at',
             'updated_by', 'updated_by_name', 'updated_at',
-            'verify_points'
         ]
 class CompletedPunchPointsSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
@@ -57,7 +55,7 @@ class CompletedPunchPointsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompletedPunchPoints
         fields = [
-            'id', 'accepted_rejected_punch', 'remarks', 'status', 'punch_file',
+            'id', 'remarks', 'status', 'punch_file',
             'created_by', 'created_by_name', 'created_at',
             'updated_by', 'updated_by_name', 'updated_at'
         ]
@@ -65,16 +63,14 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.full_name', read_only=True)
     punch_file = PunchFileSerializer(many=True, read_only=True)
-    accepted_rejected_points = AcceptedRejectedPunchPointsSerializer(source='acceptedrejectedpunchpoints_set', many=True, read_only=True)
 
     class Meta:
         model = PunchPointsRaise
         fields = [
             'id', 'project', 'punch_title', 'punch_description', 'status', 'is_verified', 'is_accepted', 'punch_file',
             'created_by', 'created_by_name', 'created_at',
-            'updated_by', 'updated_by_name', 'updated_at',
-            'accepted_rejected_points'
-        ]
+            'updated_by', 'updated_by_name', 'updated_at',        ]
+        
 
 
 class HotoDocumentSerializer(serializers.Serializer):

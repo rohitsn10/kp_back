@@ -358,7 +358,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
 
             punch_point_obj = PunchPointsRaise.objects.get(id=punch_id)
 
-            if is_accepted:
+            if is_accepted == 'true':
                 # If accepted, create a completed punch point
                 accepted_punch_obj = AcceptedRejectedPunchPoints.objects.create(
                     raise_punch=punch_point_obj,
@@ -372,6 +372,8 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
 
                 for file in punch_file:
                     accepted_punch_file_obj = AcceptedRejectedPunchFile.objects.create(file=file)
+                    accepted_punch_file_obj.file_status = "Accepted"
+                    accepted_punch_file_obj.save()
                     accepted_punch_obj.punch_file.add(accepted_punch_file_obj)
                
                 punch_point_obj.status = "Accepted"
@@ -386,8 +388,10 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
                 punch_point_obj.save()
 
                 for file in punch_file:
-                    punch_file_obj = PunchFile.objects.create(file=file)
-                    punch_point_obj.punch_file.add(punch_file_obj)
+                    rejected_punch_file_obj = AcceptedRejectedPunchFile.objects.create(file=file)
+                    rejected_punch_file_obj.file_status = "Rejected"
+                    rejected_punch_file_obj.save()
+                    punch_point_obj.punch_file.add(rejected_punch_file_obj)
 
                 serializer = PunchPointsRaiseSerializer(punch_point_obj)
                 return Response({"status": True, "message": "Punch point rejected successfully", "data": serializer.data})
@@ -422,6 +426,8 @@ class MarkPunchPointsCompletedViewSet(viewsets.ModelViewSet):
             )
             for file in punch_file:
                 completed_punch_file_obj = CompletedPunchFile.objects.create(file=file)
+                completed_punch_file_obj.file_status = "Completed"
+                completed_punch_file_obj.save()
                 completed_punch_obj.punch_file.add(completed_punch_file_obj)
             punch_point_obj.status = "Completed"
             punch_point_obj.save()
@@ -487,21 +493,10 @@ class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ViewSet):
 
             # Fetch data for the project
             punch_points = PunchPointsRaise.objects.filter(project=project)
-            completed_punch_points = CompletedPunchPoints.objects.filter(
-                accepted_rejected_punch__raise_punch__project=project
-            )
-            verified_punch_points = VerifyPunchPoints.objects.filter(
-                completed_punch__accepted_rejected_punch__raise_punch__project=project
-            )
 
             # Serialize the data
             punch_points_serializer = PunchPointsRaiseSerializer(punch_points, many=True)
-            completed_punch_points_serializer = CompletedPunchPointsSerializer(
-                completed_punch_points, many=True
-            )
-            verified_punch_points_serializer = VerifyPunchPointsSerializer(
-                verified_punch_points, many=True
-            )
+
 
             # Return the response
             return Response(
@@ -509,9 +504,7 @@ class GetAllProjectWisePunchRaiseCompletedVerifyViewSet(viewsets.ViewSet):
                     "status": True,
                     "message": "All object-wise punch points retrieved successfully",
                     "data": {
-                        "punch_points": punch_points_serializer.data,
-                        "completed_punch_points": completed_punch_points_serializer.data,
-                        "verified_punch_points": verified_punch_points_serializer.data,
+                        "punch_points": punch_points_serializer.data
                     },
                 }
             )
