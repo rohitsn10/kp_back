@@ -1009,7 +1009,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     
             if project_activity_id:
                 projects = projects.filter(project_activity_id=project_activity_id)
-    
+            projects = projects.distinct()
             if not projects.exists():
                 return Response({"status": True, "message": "No project found", "data": []})
     
@@ -2419,3 +2419,30 @@ class AssignRolesToProjectAPIView(APIView):
 
         except Exception as e:
             return Response({"status": False, "message": f"Error assigning roles: {str(e)}"})
+        
+class GetAssignedRolesToProjectAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, project_id, *args, **kwargs):
+        try:
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required."})
+
+            # Fetch the project
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Project not found."})
+
+            # Fetch assigned roles for the authenticated user in the project
+            assigned_roles = ProjectAssignedUser.objects.filter(project=project, user=request.user)
+
+            # Organize roles data
+            roles_data = []
+            for assigned_role in assigned_roles:
+                roles_data.append(assigned_role.role)
+
+            return Response({"status": True, "message": "Assigned roles fetched successfully.", "data": roles_data})
+
+        except Exception as e:
+            return Response({"status": False, "message": f"Error fetching assigned roles: {str(e)}"})
