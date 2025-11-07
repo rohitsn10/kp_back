@@ -480,22 +480,32 @@ class VerifyCompletedPunchPointsViewSet(viewsets.ModelViewSet):
                 completed_punch_obj = CompletedPunchPoints.objects.get(accepted_rejected_punch=accept_reject_obj)
             except CompletedPunchPoints.DoesNotExist:
                 return Response({"status": False, "message": "Completed Punch Points not found"})
-            verify_punch_obj = VerifyPunchPoints.objects.create(
+            
+            if status == "Verified":
+                verify_punch_obj = VerifyPunchPoints.objects.create(
                 completed_punch=completed_punch_obj,
                 verify_description=verify_description,
                 status=status,
                 created_by=user,
                 updated_by=user
-            )
-            if status == "Verified":
+                )
                 punch_point_obj.status = "Verified"
                 punch_point_obj.is_verified = True 
+                
+                serializer = self.serializer_class(verify_punch_obj)
+                return Response({"status": True, "message": "Punch point verified successfully", "data": serializer.data})
             else:
-                punch_point_obj.status = "Rejected"
+                punch_point_obj.status = "Rework"
                 punch_point_obj.is_verified = False
-            punch_point_obj.save()
-            serializer = self.serializer_class(verify_punch_obj)
-            return Response({"status": True, "message": "Punch point verified successfully", "data": serializer.data})
+                completed_punch_obj.status = "Rework"
+                completed_punch_obj.save()
+                punch_point_obj.save()
+
+                return Response({"status": True, "message": "Punch point marked for rework successfully"})
+
+
+
+           
         except Exception as e:
             return Response({"status": False, "message": str(e)})
 
