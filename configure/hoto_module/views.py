@@ -398,7 +398,7 @@ class AcceptedRejectedPunchPointsViewSet(viewsets.ModelViewSet):
                     rejected_punch_file_obj.save()
                     accepted_punch_obj.punch_file.add(rejected_punch_file_obj)
 
-                serializer = PunchPointsRaiseSerializer(punch_point_obj)
+                serializer = self.serializer_class(accepted_punch_obj)
                 return Response({"status": True, "message": "Punch point rejected successfully", "data": serializer.data})
         except Exception as e:
             return Response({"status": False, "message": str(e)})
