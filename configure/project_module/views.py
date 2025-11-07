@@ -2434,6 +2434,14 @@ class GetAssignedRolesToProjectAPIView(APIView):
             except Project.DoesNotExist:
                 return Response({"status": False, "message": "Project not found."})
 
+            try:
+                user_data = CustomUser.objects.get(id=request.user.id)
+            except CustomUser.DoesNotExist:
+                return Response({"status": False, "message": "Authenticated user not found."})
+
+            user_groups=user_data.groups.all()
+            if not user_groups.exists():
+                return Response({"status": False, "message": "User does not belong to any group."})
             # Fetch assigned roles for the authenticated user in the project
             assigned_roles = ProjectAssignedUser.objects.filter(project=project, user=request.user)
 
@@ -2442,7 +2450,7 @@ class GetAssignedRolesToProjectAPIView(APIView):
             for assigned_role in assigned_roles:
                 roles_data.append(assigned_role.role)
 
-            return Response({"status": True, "message": "Assigned roles fetched successfully.", "data": roles_data})
+            return Response({"status": True, "message": "Assigned roles fetched successfully.", "user_roles": roles_data,'user_groups':[group.name for group in user_groups]})
 
         except Exception as e:
             return Response({"status": False, "message": f"Error fetching assigned roles: {str(e)}"})
