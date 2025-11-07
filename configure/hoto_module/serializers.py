@@ -67,11 +67,17 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
     punch_file = PunchFileSerializer(many=True, read_only=True)
     accepted_rejected_point_files = serializers.SerializerMethodField()
     completed_point_files = serializers.SerializerMethodField()
+    accepted_rejected_point_descriptions = serializers.SerializerMethodField()
+    completed_point_remarks = serializers.SerializerMethodField()
+    verify_point_descriptions = serializers.SerializerMethodField()
+    accepted_rejected_point_comments = serializers.SerializerMethodField()
     class Meta:
         model = PunchPointsRaise
         fields = [
             'id', 'project', 'punch_title', 'punch_description', 'status', 'is_verified', 'is_accepted', 'punch_file',
             'created_by', 'created_by_name', 'created_at','accepted_rejected_point_files','completed_point_files',
+            'accepted_rejected_point_descriptions', 'completed_point_remarks', 'verify_point_descriptions',
+            'accepted_rejected_point_comments',
             'updated_by', 'updated_by_name', 'updated_at',        ]
         
     def get_accepted_rejected_point_files(self, obj):
@@ -89,7 +95,38 @@ class PunchPointsRaiseSerializer(serializers.ModelSerializer):
             for f in cp.punch_file.all():
                 files.append(f)
         return CompletedPunchFileSerializer(files, many=True, context=self.context).data
+
+
+    def get_accepted_rejected_point_descriptions(self, obj):
+        descriptions = []
+        ar_qs = AcceptedRejectedPunchPoints.objects.filter(raise_punch=obj)
+        for ar in ar_qs:
+            descriptions.append(ar.punch_description)
+        return descriptions
+
+    def get_completed_point_remarks(self, obj):
+        remarks = []
+        cp_qs = CompletedPunchPoints.objects.filter(accepted_rejected_punch__raise_punch=obj)
+        for cp in cp_qs:
+            remarks.append(cp.remarks)
+        return remarks
     
+    def get_verify_point_descriptions(self, obj):
+        descriptions = []
+        cp_qs = CompletedPunchPoints.objects.filter(accepted_rejected_punch__raise_punch=obj)
+        for cp in cp_qs:
+            vp_qs = VerifyPunchPoints.objects.filter(completed_punch=cp)
+            for vp in vp_qs:
+                descriptions.append(vp.verify_description)
+        return descriptions
+
+    def get_accepted_rejected_point_comments(self, obj):
+        comments = []
+        ar_qs = AcceptedRejectedPunchPoints.objects.filter(raise_punch=obj)
+        for ar in ar_qs:
+            comments.append(ar.comments)
+        return comments
+
 class HotoDocumentSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
