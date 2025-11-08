@@ -2,7 +2,8 @@ from django.urls import path
 
 from .views import (EARFormatReportAPIView, LandReportAPIView,
                     HSEMISReportAPIView, ProcurementTrackerReportAPIView, CheckQualityReportAPIView, DPRProjectExecutionReportAPIView,
-                    ProjectStatusManagementReportAPIView, ProjectHotoSummaryReportAPIView)
+                    ProjectStatusManagementReportAPIView, ProjectHotoSummaryReportAPIView,ProjectIARReportAPIView,
+                    ProjectDelayAnalysisReportAPIView)
 
 urlpatterns = [
     path("land_report/", LandReportAPIView.as_view(), name="land-report"),
@@ -15,5 +16,7 @@ urlpatterns = [
     path("project_dpr_project_execution_report/", DPRProjectExecutionReportAPIView.as_view(), name="dpr-project-execution-report"),
     path("project_status_management_report/", ProjectStatusManagementReportAPIView.as_view(), name="project-status-management-report"),
     path("project_hoto_summary_report/", ProjectHotoSummaryReportAPIView.as_view(), name="project-hoto-summary-report"),
+    path("project_iar_report/", ProjectIARReportAPIView.as_view(), name="project-iar-report"),
+    path("project_delay_analysis_report/", ProjectDelayAnalysisReportAPIView.as_view(), name="project-delay-analysis-report"),
 
 ]

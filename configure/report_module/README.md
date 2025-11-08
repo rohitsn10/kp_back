@@ -75,3 +75,54 @@
        -H "Authorization: Bearer <your_token>" \
        http://127.0.0.1:8000/report_module/project_dpr_project_execution_report/
   ```
+
+### 7. Project Hoto Summary Report API
+- **URL**: `/report_module/project_hoto_summary_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/project_hoto_summary_report/
+  ```
+
+
+### 8. Project Status Management Report API
+- **URL**: `/report_module/project_status_management_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/project_status_management_report/
+  ```
+
+
+### 9. Project IAR Report API
+- **URL**: `/report_module/project_iar_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/project_iar_report/
+  ```
+
+### 10. Project Delay Analysis Report API
+- **URL**: `/report_module/project_delay_analysis_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/project_delay_analysis_report/
+  ```
+
