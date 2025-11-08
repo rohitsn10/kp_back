@@ -68,6 +68,6 @@ urlpatterns = [
     path('land_bank_data_approved_by_project_hod', ApprovedLandBankByProjectHODDataViewSet.as_view(), name='approved_land_bank_data'),
     path('assign_project_roles/<int:project_id>', AssignRolesToProjectAPIView.as_view(), name='assign_roles_to_project'),
     path('get_assigned_project_roles/<int:project_id>', GetAssignedRolesToProjectAPIView.as_view(), name='get_assigned_project_roles'),
-    path('get_project_task_history/<int:project_progress_id>', ProjectProgressHistoryView.as_view(), name='get_project_task_history'),
+    path('get_project_task_history/<int:project_task_id>', ProjectProgressHistoryView.as_view(), name='get_project_task_history'),
 
 ]
