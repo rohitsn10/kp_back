@@ -3,6 +3,8 @@ from land_module.models import *
 from django.conf import settings
 from activity_module.models import *
 from land_module.models import *
+from django.forms.models import model_to_dict
+from django.db.models import JSONField
 
 class Company(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
@@ -360,3 +362,38 @@ class ProjectProgress(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+    
+    def save(self, *args, **kwargs):
+            if self.pk:  # Check if the object already exists (update scenario)
+                old_instance = ProjectProgress.objects.get(pk=self.pk)
+                old_data = model_to_dict(old_instance)
+                new_data = model_to_dict(self)
+
+                # Collect all changes in a single JSON object
+                changes = {}
+                for field, old_value in old_data.items():
+                    new_value = new_data.get(field)
+                    if old_value != new_value:  # If the value has changed
+                        changes[field] = {
+                            "old_value": old_value,
+                            "new_value": new_value
+                        }
+
+                # If there are changes, create a history entry
+                if changes:
+                    ProjectProgressHistory.objects.create(
+                        project_progress=self,
+                        changes=changes,
+                        changed_by=kwargs.pop('changed_by', None)  # Pass the user making the change
+                    )
+
+            super().save(*args, **kwargs)  # Call the original save method
+
+
+class ProjectProgressHistory(models.Model):
+    project_progress = models.ForeignKey(ProjectProgress, on_delete=models.CASCADE, related_name="history")
+    changes = JSONField()  # Store all changes as a JSON object
+    changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    changed_at = models.DateTimeField(auto_now_add=True)

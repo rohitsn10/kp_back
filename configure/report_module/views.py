@@ -13,6 +13,8 @@ from .excel_operations.project.generate_ear_report import generate_ear_report
 from .excel_operations.project.generate_dpr_project_execution_report import generate_dpr_project_execution_report
 from .excel_operations.project.project_status_management_report import generate_project_status_management_report
 from .excel_operations.project.project_hoto_summary_report import generate_hoto_summary_report
+from .excel_operations.project.project_iar_report import generate_iar_report
+from .excel_operations.project.project_delay_analysis_report import generate_project_delay_analysis_report
 class LandReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -120,4 +122,31 @@ class ProjectHotoSummaryReportAPIView(APIView):
 
         except Exception as e:
             logger.error(f"Error generating HOTO Summary report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+        
+class ProjectIARReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_iar_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating IAR report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+        
+
+class ProjectDelayAnalysisReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_project_delay_analysis_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating Project Delay Analysis report: {e}", exc_info=True)
             return Response({"error": str(e)}, status=500)

@@ -140,3 +140,56 @@ curl -X PUT "http://127.0.0.1:8000/project_module/assign_project_roles/123" \
     ]
 }'
 ```
+
+### 5. Get Project task History
+
+**Endpoint:** /project_module/get_project_task_history/<progress_id>/
+
+**Method:** GET
+
+**Description:** Retrieves the history of changes for a specific project task.
+
+**Headers:**
+
+- Authorization: Bearer <your_access_token>
+- Content-Type: application/json
+
+**Path Parameters:**
+
+- progress_id: The ID of the project progress entry.
+
+**Response:**
+
+- 200 OK: Returns the history of changes as a JSON array.
+- 403 Forbidden: Authentication required.
+- 404 Not Found: Progress entry not found.
+
+**Example Response:**
+```json
+{
+    "status": true,
+    "data": [
+        {
+            "field_name": "status",
+            "old_value": "not_started",
+            "new_value": "in_progress",
+            "changed_by": "user1",
+            "changed_at": "2025-11-08T12:00:00Z"
+        },
+        {
+            "field_name": "remarks",
+            "old_value": "Initial remarks",
+            "new_value": "Updated remarks",
+            "changed_by": "user2",
+            "changed_at": "2025-11-08T12:01:00Z"
+        }
+    ]
+}
+```
+
+**Example cURL Command:**
+```bash
+curl -X GET "http://127.0.0.1:8000/project_module/get_project_task_history/<progress_id>/" \
+-H "Authorization: Bearer <your_access_token>" \
+-H "Content-Type: application/json"
+```
