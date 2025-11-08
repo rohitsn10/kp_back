@@ -2362,9 +2362,9 @@ class ProjectProgressUpdateView(APIView):
 class ProjectProgressHistoryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, project_progress_id, *args, **kwargs):
+    def get(self, request, project_task_id, *args, **kwargs):
         try:
-            progress = ProjectProgress.objects.get(id=project_progress_id)
+            progress = ProjectProgress.objects.get(id=project_task_id)
             history = progress.history.all().order_by('-changed_at')  # Order by most recent changes
 
             # Format the history data

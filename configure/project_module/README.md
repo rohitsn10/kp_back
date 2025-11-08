@@ -143,7 +143,7 @@ curl -X PUT "http://127.0.0.1:8000/project_module/assign_project_roles/123" \
 
 ### 5. Get Project task History
 
-**Endpoint:** /project_module/get_project_task_history/<progress_id>/
+**Endpoint:** /project_module/get_project_task_history/<project_task_id>/
 
 **Method:** GET
 
@@ -189,7 +189,7 @@ curl -X PUT "http://127.0.0.1:8000/project_module/assign_project_roles/123" \
 
 **Example cURL Command:**
 ```bash
-curl -X GET "http://127.0.0.1:8000/project_module/get_project_task_history/<progress_id>/" \
+curl -X GET "http://127.0.0.1:8000/project_module/get_project_task_history/<project_task_id>/" \
 -H "Authorization: Bearer <your_access_token>" \
 -H "Content-Type: application/json"
 ```
