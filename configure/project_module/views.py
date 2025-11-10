@@ -2348,17 +2348,22 @@ class ProjectProgressUpdateView(APIView):
             progress_id = request.data.get('progress_id')
             if not progress_id:
                 return Response({"status": False, "message": "Progress ID is required"}, status=400)
-            progress = ProjectProgress.objects.get(id=progress_id, project_id=project_id)
-        except ProjectProgress.DoesNotExist:
-            return Response({"status": False, "message": "Progress entry not found"}, status=404)
 
-        serializer = ProjectProgressSerializer(progress, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": True, "message": "Progress entry updated successfully", "data": serializer.data})
-        else:
-            return Response({"status": False, "message": "Invalid data", "errors": serializer.errors}, status=400)
+            try:
+                progress = ProjectProgress.objects.get(id=progress_id, project_id=project_id)
+            except ProjectProgress.DoesNotExist:
+                return Response({"status": False, "message": "Progress entry not found"}, status=404)
 
+            serializer = ProjectProgressSerializer(progress, data=request.data, partial=True)
+            if serializer.is_valid():
+                # Pass the user making the change to the save method
+                serializer.save(changed_by=request.user)
+                return Response({"status": True, "message": "Progress entry updated successfully", "data": serializer.data})
+            else:
+                return Response({"status": False, "message": "Invalid data", "errors": serializer.errors}, status=400)
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)}, status=500)
 class ProjectProgressHistoryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

@@ -5,6 +5,7 @@ from activity_module.models import *
 from land_module.models import *
 from django.forms.models import model_to_dict
 from django.db.models import JSONField
+from datetime import date
 
 class Company(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
@@ -366,31 +367,39 @@ class ProjectProgress(models.Model):
 
     
     def save(self, *args, **kwargs):
-            if self.pk:  # Check if the object already exists (update scenario)
-                old_instance = ProjectProgress.objects.get(pk=self.pk)
-                old_data = model_to_dict(old_instance)
-                new_data = model_to_dict(self)
+        changed_by = kwargs.pop('changed_by', None)
 
-                # Collect all changes in a single JSON object
-                changes = {}
-                for field, old_value in old_data.items():
-                    new_value = new_data.get(field)
-                    if old_value != new_value:  # If the value has changed
-                        changes[field] = {
-                            "old_value": old_value,
-                            "new_value": new_value
-                        }
+        if self.pk:  # Check if the object already exists (update scenario)
+            old_instance = ProjectProgress.objects.get(pk=self.pk)
+            old_data = model_to_dict(old_instance)
+            new_data = model_to_dict(self)
 
-                # If there are changes, create a history entry
-                if changes:
-                    ProjectProgressHistory.objects.create(
-                        project_progress=self,
-                        changes=changes,
-                        changed_by=kwargs.pop('changed_by', None)  # Pass the user making the change
-                    )
+            # Collect all changes in a single JSON object
+            changes = {}
+            for field, old_value in old_data.items():
+                new_value = new_data.get(field)
 
-            super().save(*args, **kwargs)  # Call the original save method
+                # Convert date objects to strings for JSON serialization
+                if isinstance(old_value, date):
+                    old_value = old_value.strftime("%Y-%m-%d") if old_value else None
+                if isinstance(new_value, date):
+                    new_value = new_value.strftime("%Y-%m-%d") if new_value else None
 
+                if old_value != new_value:  # If the value has changed
+                    changes[field] = {
+                        "old_value": old_value,
+                        "new_value": new_value
+                    }
+
+            # If there are changes, create a history entry
+            if changes:
+                ProjectProgressHistory.objects.create(
+                    project_progress=self,
+                    changes=changes,
+                    changed_by=changed_by  # Pass the user making the change
+                )
+
+        super().save(*args, **kwargs) 
 
 class ProjectProgressHistory(models.Model):
     project_progress = models.ForeignKey(ProjectProgress, on_delete=models.CASCADE, related_name="history")

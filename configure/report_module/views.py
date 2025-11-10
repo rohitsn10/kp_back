@@ -15,6 +15,7 @@ from .excel_operations.project.project_status_management_report import generate_
 from .excel_operations.project.project_hoto_summary_report import generate_hoto_summary_report
 from .excel_operations.project.project_iar_report import generate_iar_report
 from .excel_operations.project.project_delay_analysis_report import generate_project_delay_analysis_report
+from .excel_operations.design.generate_design_mdl_report import generate_design_mdl_report
 class LandReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -149,4 +150,18 @@ class ProjectDelayAnalysisReportAPIView(APIView):
 
         except Exception as e:
             logger.error(f"Error generating Project Delay Analysis report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+
+
+class DesignMDLReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_design_mdl_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating Design MDL report: {e}", exc_info=True)
             return Response({"error": str(e)}, status=500)
