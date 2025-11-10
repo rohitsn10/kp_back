@@ -516,6 +516,17 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
             'remarks': {'required': False}
         }
 
+    def update(self, instance, validated_data):
+        # Get the changed_by from context (passed from the view)
+        changed_by = self.context.get('changed_by')
+        
+        # Update the instance fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        # Save with changed_by parameter
+        instance.save(changed_by=changed_by)
+        return instance
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['days_to_complete'] = data.pop('days_to_complete')

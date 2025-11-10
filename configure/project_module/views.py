@@ -2339,7 +2339,6 @@ class ProjectProgressListView(APIView):
         progress_qs = ProjectProgress.objects.filter(project=project)
         serializer = ProjectProgressSerializer(progress_qs, many=True)
         return Response(serializer.data)
-    
 class ProjectProgressUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -2354,13 +2353,27 @@ class ProjectProgressUpdateView(APIView):
             except ProjectProgress.DoesNotExist:
                 return Response({"status": False, "message": "Progress entry not found"}, status=404)
 
-            serializer = ProjectProgressSerializer(progress, data=request.data, partial=True)
+            # Pass changed_by through context
+            serializer = ProjectProgressSerializer(
+                progress, 
+                data=request.data, 
+                partial=True,
+                context={'changed_by': request.user}
+            )
+            
             if serializer.is_valid():
-                # Pass the user making the change to the save method
-                serializer.save(changed_by=request.user)
-                return Response({"status": True, "message": "Progress entry updated successfully", "data": serializer.data})
+                serializer.save()
+                return Response({
+                    "status": True, 
+                    "message": "Progress entry updated successfully", 
+                    "data": serializer.data
+                })
             else:
-                return Response({"status": False, "message": "Invalid data", "errors": serializer.errors}, status=400)
+                return Response({
+                    "status": False, 
+                    "message": "Invalid data", 
+                    "errors": serializer.errors
+                }, status=400)
 
         except Exception as e:
             return Response({"status": False, "message": str(e)}, status=500)
@@ -2387,6 +2400,7 @@ class ProjectProgressHistoryView(APIView):
             return Response({"status": True, "data": data})
         except ProjectProgress.DoesNotExist:
             return Response({"status": False, "message": "Progress entry not found"}, status=404)
+
 class ApprovedLandBankByProjectHODDataViewSet(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LandBankSerializer
