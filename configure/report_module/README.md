@@ -126,3 +126,16 @@
        http://127.0.0.1:8000/report_module/project_delay_analysis_report/
   ```
 
+
+### 11. Design MDL Report API
+- **URL**: `/report_module/design_mdl_report/`
+- **Method**: GET
+- **Description**: Checks and generates a quality report.
+- **Permission**: `IsAuthenticated`
+- **Curl Command**:
+  ```bash
+  curl -X GET \
+       -H "Authorization: Bearer <your_token>" \
+       http://127.0.0.1:8000/report_module/design_mdl_report/
+  ```
+
