@@ -215,11 +215,25 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = ['user','company_name', 'id', 'created_at', 'updated_at']
         
+
 class ProjectMilestoneSerializer(serializers.ModelSerializer):
+    project_progress_details = serializers.SerializerMethodField()
+
     class Meta:
         model = ProjectMilestone
-        fields = ['id','project','start_date','end_date','project_task_list','milestone_name','milestone_description','completed_at', 'is_active', 'is_depended','milestone_status']
+        fields = [
+            'id', 'project', 'start_date', 'end_date', 'project_progress_list',
+            'project_progress_details', 'milestone_name', 'milestone_description',
+            'completed_at', 'is_active', 'is_depended', 'milestone_status'
+        ]
 
+    def get_project_progress_details(self, obj):
+        # Fetch all ProjectProgress objects based on the IDs in project_progress_list
+        if obj.project_progress_list:
+            progress_ids = obj.project_progress_list
+            progress_objects = ProjectProgress.objects.filter(id__in=progress_ids)
+            return ProjectProgressSerializer(progress_objects, many=True).data
+        return []
 
 class CommentedActionsSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
