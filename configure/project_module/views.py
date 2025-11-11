@@ -1242,9 +1242,7 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
             user = self.request.user
             milestone_name = request.data.get('milestone_name')
             project_id = request.data.get('project')
-            project_main_activity = request.data.get('project_main_activity')
-            project_sub_activity = request.data.get('project_sub_activity', [])
-            project_sub_sub_activity = request.data.get('project_sub_sub_activity', [])
+            project_progress_list = request.data.get('project_progress_list', [])
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
             milestone_description = request.data.get('milestone_description')
@@ -1270,47 +1268,41 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
             if is_depended is None:
                 return Response({"status": False, "message": "Is Depended is required."})
             
-            if is_depended == "true":
-                if project_sub_sub_activity:
-                    if project_main_activity is None:
-                        return Response({"status": False, "message": "Project Main Activity is required when Project Sub Sub Activity is provided."})
-                    if project_sub_activity is None:
-                        return Response({"status": False, "message": "Project Sub Activity is required when Project Sub Sub Activity is provided."})
-                elif project_sub_activity:
-                    if not project_main_activity is None:
-                        return Response({"status": False, "message": "Project Main Activity is required when Project Sub Activity is provided."})
-                
-            else:
-                if not (project_sub_sub_activity or project_sub_activity or project_main_activity):
-                    return Response({"status": False, "message": "Project Main Activity, Project Sub Activity, or Project Sub Sub Activity is required."})
+            if project_progress_list is None:
+                return Response({"status": False, "message": "Project Tasks List is required."})
+          
 
             try:
                 project = Project.objects.get(id=project_id)
             except Project.DoesNotExist:
                 return Response({"status": False, "message": "Invalid project."})
             
-            if project_main_activity:
+            if project_progress_list:
                 try:
-                    project_main_activity = ProjectActivity.objects.get(id=project_main_activity)
-                except ProjectActivity.DoesNotExist:
-                    return Response({"status": False, "message": "Invalid Project Main Activity."})
+                    # Verify all IDs in project_tasks_list exist in ProjectProgress
+                    invalid_ids = [
+                        task_id for task_id in project_progress_list
+                        if not ProjectProgress.objects.filter(id=task_id).exists()
+                    ]
+                    if invalid_ids:
+                        return Response({
+                            "status": False,
+                            "message": f"Invalid Project Progress IDs: {', '.join(map(str, invalid_ids))}"
+                        })
+                except Exception as e:
+                    return Response({"status": False, "message": str(e)})
 
             milestone = ProjectMilestone.objects.create(
                 user=user,
                 project=project,
-                project_main_activity=project_main_activity,
+                project_progress_list=project_progress_list,
                 start_date=start_date,
                 end_date=end_date,
                 milestone_name = milestone_name,
                 milestone_description=milestone_description,
                 is_depended=is_depended,
             )
-            if project_sub_activity:
-                milestone.project_sub_activity.set(project_sub_activity)
-
-            if project_sub_sub_activity:
-                milestone.project_sub_sub_activity.set(project_sub_sub_activity)
-
+           
             if project.project_predicted_date is None or end_date > project.project_predicted_date:
                 project.project_predicted_date = end_date
                 project.save()
@@ -2393,7 +2385,7 @@ class ProjectProgressHistoryView(APIView):
                         "field_name": field,
                         "old_value": change.get("old_value"),
                         "new_value": change.get("new_value"),
-                        "changed_by": record.changed_by.username if record.changed_by else None,
+                        "changed_by": record.changed_by.full_name if record.changed_by else None,
                         "changed_at": record.changed_at
                     })
 

@@ -199,9 +199,7 @@ class ProjectMilestone(models.Model):
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
-    project_main_activity = models.ForeignKey(ProjectActivity, on_delete=models.CASCADE,null=True, blank=True)
-    project_sub_activity = models.ManyToManyField(SubActivityName, blank=True)
-    project_sub_sub_activity = models.ManyToManyField(SubSubActivityName, blank=True)
+    project_progress_list= models.JSONField(null=True, blank=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     milestone_name = models.TextField(null=True, blank=True)
