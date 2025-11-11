@@ -228,27 +228,9 @@ class ProjectMilestoneSerializer(serializers.ModelSerializer):
         ]
 
     def get_project_progress_details(self, obj):
-        # Fetch all ProjectProgress objects based on the IDs in project_progress_list
         if obj.project_progress_list:
             progress_ids = obj.project_progress_list
             progress_objects = ProjectProgress.objects.filter(id__in=progress_ids)
-
-            # Check if all progress statuses are "Completed"
-            all_completed = all(progress.status == "Completed" for progress in progress_objects)
-
-            if all_completed:
-                # Find the latest actual_completion_date among the completed progress
-                latest_completion_date = progress_objects.filter(
-                    status="Completed"
-                ).order_by('-actual_completion_date').first().actual_completion_date
-
-                # Update the milestone's completed_at field if not already set
-                if obj.completed_at != latest_completion_date:
-                    obj.completed_at = latest_completion_date
-                    obj.milestone_status = "completed"
-                    obj.save(update_fields=["completed_at", "milestone_status"])
-
-            # Serialize the progress objects
             return ProjectProgressSerializer(progress_objects, many=True).data
         return []
 
