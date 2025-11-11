@@ -1345,22 +1345,23 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
                     queryset = queryset.filter(created_at__lte=end_date)
                 except ValueError:
                     return Response({"status": False, "message": "Invalid end_date format. Please use YYYY-MM-DD."})
-
+    
             if queryset.exists():
                 projectmilstone_data = []
                 for obj in queryset:
+                    # Update milestone status dynamically
+                    obj.update_status_based_on_progress()  # Ensure milestone status is updated
                     context = {'request': request}
                     serializer = ProjectMilestoneSerializer(obj, context=context)
                     projectmilstone_data.append(serializer.data)
-
+    
                 count = len(projectmilstone_data)
-                return Response({"status": True,"message": "milestones fetched successfully.",'total': count,'data': projectmilstone_data})
+                return Response({"status": True, "message": "milestones fetched successfully.", 'total': count, 'data': projectmilstone_data})
             else:
                 return Response({"status": True, "message": "No milestones found."})
-
+    
         except Exception as e:
-            return Response({"status": False,'message': 'Something went wrong','error': str(e)})
- 
+            return Response({"status": False, 'message': 'Something went wrong', 'error': str(e)})
 
 class ActiveDeactiveMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]

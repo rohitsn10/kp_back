@@ -215,6 +215,25 @@ class ProjectMilestone(models.Model):
     is_depended = models.BooleanField(default=False, null=True, blank=True)
     milestone_starting_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
 
+    def update_status_based_on_progress(self):
+        if self.project_progress_list:
+            progress_ids = self.project_progress_list
+            progress_objects = ProjectProgress.objects.filter(id__in=progress_ids)
+
+            # Check if all progress statuses are "Completed"
+            all_completed = all(progress.status == "Completed" for progress in progress_objects)
+
+            if all_completed:
+                # Find the latest actual_completion_date among the completed progress
+                latest_completion_date = progress_objects.filter(
+                    status="Completed"
+                ).order_by('-actual_completion_date').first().actual_completion_date
+
+                # Update the milestone's completed_at and milestone_status fields
+                self.completed_at = latest_completion_date
+                self.milestone_status = "completed"
+                self.save(update_fields=["completed_at", "milestone_status"])
+                
 class InFlowPaymentOnMilestone(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     milestone = models.ForeignKey(ProjectMilestone, on_delete=models.CASCADE,null=True, blank=True)
