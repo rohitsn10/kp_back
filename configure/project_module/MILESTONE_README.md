@@ -125,3 +125,94 @@ curl -X GET \
   http://<your-domain>/milestones?project_id=1&start_date=2025-11-01&end_date=2025-11-30 \
   -H "Authorization: Bearer <JWT_TOKEN>"
 ```
+
+## Update Milestone API
+
+### URL
+`PUT /update_milestone/<milestone_id>`
+
+### Description
+This API is used to update an existing milestone.
+
+### Request Headers
+- `Authorization`: Bearer <JWT_TOKEN>
+
+### Request Body
+```json
+{
+    "milestone_name": "Updated Milestone Name",
+    "milestone_description": "Updated description of the milestone",
+    "start_date": "2025-11-01T00:00:00Z",
+    "end_date": "2025-11-30T23:59:59Z",
+    "project_progress_list": [1, 2, 3]
+}
+```
+
+### Response
+#### Success Response
+```json
+{
+    "status": true,
+    "message": "Milestone updated successfully"
+}
+```
+
+#### Error Response
+```json
+{
+    "status": false,
+    "message": "<Error message>",
+    "error": "<Detailed error message>"
+}
+```
+
+### CURL Command
+```bash
+curl -X PUT \
+  http://<your-domain>/update_milestone/1 \
+  -H "Authorization: Bearer <JWT_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "milestone_name": "Updated Milestone Name",
+    "milestone_description": "Updated description of the milestone",
+    "start_date": "2025-11-01T00:00:00Z",
+    "end_date": "2025-11-30T23:59:59Z",
+    "project_progress_list": [1, 2, 3]
+  }'
+```
+
+## Delete Milestone API
+
+### URL
+`DELETE /delete_milestone/<milestone_id>`
+
+### Description
+This API is used to delete an existing milestone.
+
+### Request Headers
+- `Authorization`: Bearer <JWT_TOKEN>
+
+### Response
+#### Success Response
+```json
+{
+    "status": true,
+    "message": "Milestone deleted successfully."
+}
+```
+
+#### Error Response
+```json
+{
+    "status": false,
+    "message": "<Error message>",
+    "data": []
+}
+```
+
+### CURL Command
+```bash
+curl -X DELETE \
+  http://<your-domain>/delete_milestone/1 \
+  -H "Authorization: Bearer <JWT_TOKEN>"
+```

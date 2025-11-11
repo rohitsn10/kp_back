@@ -1360,32 +1360,7 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": False,'message': 'Something went wrong','error': str(e)})
-        
-class IdWiseProjectMilestoneViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = ProjectMilestoneSerializer
-
-    def list(self, request, *args, **kwargs):
-        try:
-            milestone_id = self.kwargs.get("milestone_id")
-            if not milestone_id:
-                return Response({"status": False, "message": "milestone_id ID is required."})
-            
-            queryset = ProjectMilestone.objects.filter(id=milestone_id)
-            
-            if queryset.exists():
-                projectmilstone_data = []
-                for obj in queryset:
-                    context = {'request': request}
-                    serializer = MilestonedataActivitySerializer(obj, context=context)
-                    projectmilstone_data.append(serializer.data)
-                    count = len(projectmilstone_data)
-                return Response({"status": True,"message": "milestone data fetched successfully",'total': count,'data': projectmilstone_data})
-            else:
-                return Response({"status": True, "message": "No milestone found."})
-        except Exception as e:
-            return Response({"status": False,'message': 'Something went wrong','error': str(e)})
-
+ 
 
 class ActiveDeactiveMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -1447,6 +1422,9 @@ class ProjectMilestoneUpdateViewSet(viewsets.ModelViewSet):
             start_date = parse_date(request.data.get('start_date'))
             end_date = parse_date(request.data.get('end_date'))
             milestone_name = request.data.get('milestone_name')
+            project_progress_list = request.data.get('project_progress_list', [])
+
+            
 
             if not ProjectMilestone.objects.filter(id=milestone_id).exists():
                 return Response({"status": False, "message": "Milestone id not found"})
@@ -1462,13 +1440,51 @@ class ProjectMilestoneUpdateViewSet(viewsets.ModelViewSet):
             if end_date:
                 milestone_object.end_date = end_date
 
+            if project_progress_list:
+                try:
+                    # Verify all IDs in project_tasks_list exist in ProjectProgress
+                    invalid_ids = [
+                        task_id for task_id in project_progress_list
+                        if not ProjectProgress.objects.filter(id=task_id).exists()
+                    ]
+                    if invalid_ids:
+                        return Response({
+                            "status": False,
+                            "message": f"Invalid Project Progress IDs: {', '.join(map(str, invalid_ids))}"
+                        })
+                    milestone_object.project_progress_list = project_progress_list
+                except Exception as e:
+                    return Response({"status": False, "message": str(e)})
+
             milestone_object.save()
 
             return Response({"status": True, "message": "Milestone updated successfully"})
 
         except Exception as e:
             return Response({"status": False, "message": "Something went wrong", "error": str(e)})
-        
+
+class ProjectMilestoneDeleteViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'milestone_id'
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            milestone_id = self.kwargs.get("milestone_id")
+            if not milestone_id:
+                return Response({"status": False, "message": "Milestone ID is required."})
+            
+            milestone_data = ProjectMilestone.objects.get(id=milestone_id)
+            
+            if not milestone_data:
+                return Response({"status": False, "message": "Milestone not found."})
+            
+            milestone_data.delete()
+
+            return Response({"status": True, "message": "Milestone deleted successfully."})
+
+        except Exception as e:
+            return Response({"status": False, "message": f"Error deleting milestone: {str(e)}", "data": []})
+
 class ProjectMilestoneCompletedViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectMilestoneSerializer
