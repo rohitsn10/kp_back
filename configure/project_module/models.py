@@ -5,7 +5,7 @@ from activity_module.models import *
 from land_module.models import *
 from django.forms.models import model_to_dict
 from django.db.models import JSONField
-from datetime import date
+from datetime import date,datetime
 
 class Company(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="companies",verbose_name="User")
@@ -215,25 +215,33 @@ class ProjectMilestone(models.Model):
     is_depended = models.BooleanField(default=False, null=True, blank=True)
     milestone_starting_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='milestone_starting_user',null=True, blank=True)
 
+
     def update_status_based_on_progress(self):
         if self.project_progress_list:
             progress_ids = self.project_progress_list
+            # Fetch all progress objects related to this milestone
             progress_objects = ProjectProgress.objects.filter(id__in=progress_ids)
 
-            # Check if all progress statuses are "Completed"
-            all_completed = all(progress.status == "Completed" for progress in progress_objects)
+            # Check if all progress items are completed
+            all_completed = progress_objects.filter(status="completed").count() == progress_objects.count()
 
             if all_completed:
-                # Find the latest actual_completion_date among the completed progress
-                latest_completion_date = progress_objects.filter(
-                    status="Completed"
-                ).order_by('-actual_completion_date').first().actual_completion_date
+                # Filter out progress items with null actual_completion_date
+                valid_progress_objects = progress_objects.exclude(actual_completion_date__isnull=True)
 
-                # Update the milestone's completed_at and milestone_status fields
-                self.completed_at = latest_completion_date
-                self.milestone_status = "completed"
-                self.save(update_fields=["completed_at", "milestone_status"])
-                
+                if valid_progress_objects.exists():
+                    # Find the latest actual_completion_date among the valid progress
+                    latest_completion_date = valid_progress_objects.order_by('-actual_completion_date').first().actual_completion_date
+
+                    # Convert to datetime if it's a date object
+                    if isinstance(latest_completion_date, date) and not isinstance(latest_completion_date, datetime):
+                        latest_completion_date = datetime.combine(latest_completion_date, datetime.min.time())
+
+                    # Update the milestone's completed_at and milestone_status fields
+                    self.completed_at = latest_completion_date
+                    self.milestone_status = "completed"
+                    self.save(update_fields=["completed_at", "milestone_status"])
+
 class InFlowPaymentOnMilestone(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     milestone = models.ForeignKey(ProjectMilestone, on_delete=models.CASCADE,null=True, blank=True)

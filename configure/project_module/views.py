@@ -2296,7 +2296,7 @@ class UploadExcelProgressView(APIView):
                         project=project,
                         user=request.user,
                         particulars=row.get('particulars'),
-                        status=row.get('status'),
+                        status=row.get('status').lower() if pd.notna(row.get('status')) else '',
                         category=row.get('category'),
                         uom=row.get('uom'),
                         qty=row.get('qty'),
