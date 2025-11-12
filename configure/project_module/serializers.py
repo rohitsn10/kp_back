@@ -407,6 +407,7 @@ class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
 
 
 class ProjectProgressSerializer(serializers.ModelSerializer):
+    from django.utils import timezone
   
     class Meta:
         model = ProjectProgress
@@ -423,8 +424,24 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
         }
 
     def update(self, instance, validated_data):
+        from django.utils import timezone
+        
         # Get the changed_by from context (passed from the view)
         changed_by = self.context.get('changed_by')
+        
+        # Check if status is being changed to 'completed'
+        new_status = validated_data.get('status')
+        old_status = instance.status
+        
+        # Automatically set actual_completion_date when status changes to completed
+        if new_status == 'completed' and old_status != 'completed':
+            if not validated_data.get('actual_completion_date'):
+                validated_data['actual_completion_date'] = timezone.now().date()  # Changed to .date()
+        
+        # Automatically set actual_start_date when status changes from pending to in_progress
+        if new_status in ['in_progress', 'completed'] and old_status == 'pending':
+            if not instance.actual_start_date and not validated_data.get('actual_start_date'):
+                validated_data['actual_start_date'] = timezone.now().date()  # Changed to .date()
         
         # Update the instance fields
         for attr, value in validated_data.items():
@@ -433,6 +450,7 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
         # Save with changed_by parameter
         instance.save(changed_by=changed_by)
         return instance
+    
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['days_to_complete'] = data.pop('days_to_complete')
