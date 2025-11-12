@@ -29,40 +29,7 @@ class ExpenseTrackingSerializer(serializers.ModelSerializer):
 
         return representation
 
-class ProjectSubActivityNameSerializer(serializers.ModelSerializer):
-    sub_activity_id = serializers.SerializerMethodField()
-    sub_activity_name = serializers.SerializerMethodField()
 
-    class Meta:
-        model = SubActivityName
-        fields = ['sub_activity_id', 'sub_activity_name']
-
-    def get_sub_activity_id(self, obj):
-        # Return the ID of the first associated sub_activity
-        # If there's more than one, you might want to decide which one to return.
-        # Here, we return the first one.
-        return str(obj.sub_activity.first().id) if obj.sub_activity.exists() else None
-
-    def get_sub_activity_name(self, obj):
-        # Return the name of the first associated sub_activity
-        return obj.sub_activity.first().name if obj.sub_activity.exists() else None
-
-
-class ProjectSubSubActivityNameSerializer(serializers.ModelSerializer):
-    sub_sub_activity_id = serializers.SerializerMethodField()
-    sub_sub_activity_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = SubSubActivityName
-        fields = ['sub_sub_activity_id', 'sub_sub_activity_name']
-
-    def get_sub_sub_activity_id(self, obj):
-        # Return the ID of the first associated sub_sub_activity
-        return str(obj.sub_sub_activity.first().id) if obj.sub_sub_activity.exists() else None
-
-    def get_sub_sub_activity_name(self, obj):
-        # Return the name of the first associated sub_sub_activity
-        return obj.sub_sub_activity.first().name if obj.sub_sub_activity.exists() else None
 
 class ElectricitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,9 +40,6 @@ class ElectricitySerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     user_full_name = serializers.CharField(source='user.full_name', read_only=True)
     company_name = serializers.CharField(source='company.company_name', read_only=True)
-    project_activity_name = serializers.CharField(source='project_activity.activity_name', read_only=True)
-    project_sub_activity = ProjectSubActivityNameSerializer(many=True, read_only=True)
-    project_sub_sub_activity = ProjectSubSubActivityNameSerializer(many=True, read_only=True)
     landbank_name = serializers.CharField(source='landbank.land_name', read_only=True)
     electricity_name = serializers.CharField(source='electricity_line.electricity_line', read_only=True)
     assigned_users = serializers.SerializerMethodField()
@@ -88,8 +52,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_full_name', 'company', 'company_name', 'start_date', 'end_date', 'project_predicted_date',
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
             'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'created_at',
-            'available_land_area', 'alloted_land_area', 'project_activity', 'project_activity_name',
-            'project_sub_activity', 'project_sub_sub_activity', 'landbank', 'landbank_name','assigned_users','location_name','land_location_name', 'location_name_survey'
+            'available_land_area', 'alloted_land_area', 'landbank', 'landbank_name','assigned_users','location_name','land_location_name', 'location_name_survey'
         ]
 
     def get_assigned_users(self, obj):
@@ -109,28 +72,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         representation['id'] = int(representation['id'])  # Convert ID to int
         representation['user'] = int(representation['user'])  # Convert user ID to int
         representation['company'] = int(representation['company'])  # Convert company ID to int
-        representation['project_activity'] = int(representation['project_activity'])  # Convert activity ID to int
-        
-
-        # Format project_sub_activity properly
-        project_sub_activity = representation.pop('project_sub_activity', [])
-        formatted_sub_activities = []
-        for sub_activity in project_sub_activity:
-            formatted_sub_activities.append({
-                'sub_activity_id': sub_activity['sub_activity_id'],  # Just one ID and name
-                'sub_activity_name': sub_activity['sub_activity_name']
-            })
-        representation['project_sub_activity'] = formatted_sub_activities
-
-        # Format project_sub_sub_activity properly
-        project_sub_sub_activity = representation.pop('project_sub_sub_activity', [])
-        formatted_sub_sub_activities = []
-        for sub_sub_activity in project_sub_sub_activity:
-            formatted_sub_sub_activities.append({
-                'sub_sub_activity_id': sub_sub_activity['sub_sub_activity_id'],  # Just one ID and name
-                'sub_sub_activity_name': sub_sub_activity['sub_sub_activity_name']
-            })
-        representation['project_sub_sub_activity'] = formatted_sub_sub_activities
         
         # Format assigned_users properly
         assigned_users = representation.pop('assigned_users', [])
