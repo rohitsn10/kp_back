@@ -795,10 +795,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             capacity = request.data.get('capacity')
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
-            project_activity_id = request.data.get('project_activity_id')
             spoc_user = request.data.get('spoc_user')
-            project_sub_activity_ids = request.data.get('project_sub_activity_ids', [])
-            project_sub_sub_activity_ids = request.data.get('project_sub_sub_activity_ids', [])
             assigned_users_data = request.data.get('assigned_users', [])
             
 
@@ -867,9 +864,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if not cpp_or_ipp:
                 return Response({"status": False, "message": "CPP or IPP is required."})
 
-            if not project_activity_id:
-                return Response({"status": False, "message": "Project choice activity is required."})
-
+ 
             if not spoc_user:
                 return Response({"status": False, "message": "SPOC user is required."})
 
@@ -888,21 +883,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             except CustomUser.DoesNotExist:
                 return Response({"status":False,"message":"User not found"})
 
-            # Fetch the related ProjectActivity, SubActivityName, and SubSubActivityName
-            try:
-                project_activity = ProjectActivity.objects.get(id=project_activity_id)
-            except ProjectActivity.DoesNotExist:
-                return Response({"status": False, "message": "Invalid Project Activity."})
-
-            try:
-                sub_activity_names = SubActivityName.objects.filter(id__in=project_sub_activity_ids)
-            except SubActivityName.DoesNotExist:
-                return Response({"status": False, "message": "Invalid SubActivity names."})
-
-            try:
-                sub_sub_activity_names = SubSubActivityName.objects.filter(id__in = project_sub_sub_activity_ids)
-            except SubSubActivityName.DoesNotExist:
-                return Response({"status": False, "message": "Invalid SubSubActivity names."})
+ 
             try:
                 landbank_ins = LandBankMaster.objects.get(id=landbank_id)
             except LandBankMaster.DoesNotExist:
@@ -924,7 +905,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 capacity=capacity,
                 ci_or_utility=ci_or_utility,
                 cpp_or_ipp=cpp_or_ipp,
-                project_activity=project_activity,
                 spoc_user_id=by_spoc_user.id,
                 alloted_land_area=alloted_land_area,
                 available_land_area=available_land_area
@@ -940,19 +920,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 alloted_land_area_float = float(alloted_land_area)
             except (TypeError, ValueError):
                 return Response({"status": False, "message": "Invalid alloted land area."})
-
+            if alloted_land_area_float > land_remaining_area:
+                return Response({"status": False, "message": "Alloted land area exceeds remaining land area in the landbank."})
             landbank_ins.remaining_land_area = land_remaining_area - alloted_land_area_float
             # Add ManyToMany relationships
             # if location_survey:
             #     project.location_survey.set(location_survey)
 
-            # Set the Many-to-Many relationships for sub-activities and sub-sub-activities
-            if sub_activity_names:
-                project.project_sub_activity.set(sub_activity_names)
-
-            if sub_sub_activity_names:
-                project.project_sub_sub_activity.set(sub_sub_activity_names)
-
+        
             if location_objs:
                 project.location_name_survey.set(location_objs)
             
@@ -973,6 +948,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             serializer = self.serializer_class(project)
             data = serializer.data
+            landbank_ins.save()
             return Response({"status": True,"message": "Project created successfully","data": data})
 
         except Exception as e:
@@ -983,7 +959,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
         user_id = request.query_params.get('user_id')
-        project_activity_id = request.query_params.get('project_activity_id')
     
         try:
             projects = Project.objects.all().order_by('-created_at')
@@ -1007,8 +982,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 if start_date_obj and end_date_obj:
                     projects = projects.filter(created_at__range=[start_date_obj, end_date_obj])
     
-            if project_activity_id:
-                projects = projects.filter(project_activity_id=project_activity_id)
             projects = projects.distinct()
             if not projects.exists():
                 return Response({"status": True, "message": "No project found", "data": []})
@@ -1047,7 +1020,6 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
             capacity = request.data.get('capacity')
             ci_or_utility = request.data.get('ci_or_utility')
             cpp_or_ipp = request.data.get('cpp_or_ipp')
-            project_choice_activity = request.data.get('project_choice_activity')
             electricity_line_id = request.data.get('electricity_line_id')
             spoc_user = request.data.get('spoc_user')
 
@@ -1084,8 +1056,6 @@ class ProjectUpdateViewSet(viewsets.ModelViewSet):
                 project_object.ci_or_utility = ci_or_utility
             if cpp_or_ipp:
                 project_object.cpp_or_ipp = cpp_or_ipp
-            if project_choice_activity:
-                project_object.project_choice_activity = project_choice_activity
             if electricity_line_id:
                 try:
                     electricity_line = Electricity.objects.get(id=electricity_line_id)
