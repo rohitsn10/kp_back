@@ -12,6 +12,8 @@ from django.core.files.storage import default_storage
 from openpyxl import load_workbook
 from rest_framework.views import APIView
 from land_module.models import LandBankMaster
+from rest_framework import status
+
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
     serializer_class = ExpenseTrackingSerializer
@@ -1989,9 +1991,6 @@ class InFlowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
             invoice_number = request.data.get('invoice_number')
             total_amount = request.data.get('total_amount')
             gst_amount = request.data.get('gst_amount')
-            paid_amount = request.data.get('paid_amount')
-            pending_amount = request.data.get('pending_amount')
-            payment_date = parse_date(request.data.get('payment_date'))
             notes = request.data.get('notes')
             
             if not milestone_id:
@@ -2004,12 +2003,7 @@ class InFlowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
                 return Response({"status": False, "message": "Total Amount is required", "data": []})
             if not gst_amount:
                 return Response({"status": False, "message": "GST Amount is required", "data": []})
-            if not paid_amount:
-                return Response({"status": False, "message": "Paid Amount is required", "data": []})
-            if not pending_amount:
-                return Response({"status": False, "message": "Pending Amount is required", "data": []})
-            if not payment_date:
-                return Response({"status": False, "message": "Payment Date is required", "data": []})
+           
             milestone = ProjectMilestone.objects.get(id=milestone_id)
             if not milestone:
                 return Response({"status": False, "message": "Milestone not found", "data": []})
@@ -2022,9 +2016,6 @@ class InFlowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
                 invoice_number=invoice_number,
                 total_amount=total_amount,
                 gst_amount=gst_amount,
-                paid_amount=paid_amount,
-                pending_amount=pending_amount,
-                payment_date=payment_date,
                 notes=notes
             )
             in_flow_payment.save()
@@ -2060,9 +2051,7 @@ class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
             invoice_number = request.data.get('invoice_number')
             total_amount = request.data.get('total_amount')
             gst_amount = request.data.get('gst_amount')
-            paid_amount = request.data.get('paid_amount')
-            pending_amount = request.data.get('pending_amount')
-            payment_date = parse_date(request.data.get('payment_date'))
+
             notes = request.data.get('notes')
             
             if party_name:
@@ -2075,12 +2064,7 @@ class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
                 payment.total_amount = total_amount
             if gst_amount:
                 payment.gst_amount = gst_amount
-            if paid_amount:
-                payment.paid_amount = paid_amount
-            if pending_amount:
-                payment.pending_amount = pending_amount
-            if payment_date:
-                payment.payment_date = payment_date
+      
             if notes:
                 payment.notes = notes
             payment.save()
@@ -2088,7 +2072,15 @@ class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
             return Response({"status": True, "message": "Payment data updated successfully", "data": []})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
+
+class AddPaymentOnMilestoneView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = AddPaymentOnMilestoneSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Payment added successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
 class MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = InFlowPaymentOnMilestoneSerializer

@@ -16,6 +16,7 @@ from .excel_operations.project.project_hoto_summary_report import generate_hoto_
 from .excel_operations.project.project_iar_report import generate_iar_report
 from .excel_operations.project.project_delay_analysis_report import generate_project_delay_analysis_report
 from .excel_operations.design.generate_design_mdl_report import generate_design_mdl_report
+from .excel_operations.satutory_approval.generate_satutory_approval_report import generate_66kv_satutory_status_report
 class LandReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -164,4 +165,18 @@ class DesignMDLReportAPIView(APIView):
 
         except Exception as e:
             logger.error(f"Error generating Design MDL report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+
+
+class Generate66kvSatutoryStatus(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_66kv_satutory_status_report(request=request)
+            if isinstance(response, Response):
+                return response
+            return response
+        except Exception as e:
+            logger.error(f"Error generating 66kV Statutory Approval report: {e}", exc_info=True)
             return Response({"error": str(e)}, status=500)

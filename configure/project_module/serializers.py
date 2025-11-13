@@ -331,15 +331,55 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
         if approved_actions.exists():
             return ApprovedActionsSerializer(approved_actions, many=True, context=self.context).data
         return []
-    
+class PaymentOnMilestoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentOnMilestone
+        fields = ['id', 'amount_paid', 'payment_date', 'pending_amount','notes', 'created_at', 'updated_at']
+
 class InFlowPaymentOnMilestoneSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     milestone_name = serializers.CharField(source='milestone.milestone_name', read_only=True)
+    payment_history=serializers.SerializerMethodField()
     class Meta:
         model = InFlowPaymentOnMilestone
-        fields = ['id','project','project_name','milestone','milestone_name','party_name','invoice_number','total_amount','gst_amount','paid_amount','pending_amount','payment_date','notes','created_at','updated_at']
-        
-        
+        fields = ['id','project','project_name','milestone','milestone_name','party_name','invoice_number','total_amount','gst_amount','notes','created_at','updated_at']
+    def get_payment_history(self, obj):
+        payment_history = obj.payment_history.all()
+        return PaymentOnMilestoneSerializer(payment_history, many=True, context=self.context).data
+    
+class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentOnMilestone
+        fields = ['inflow_payment', 'amount_paid', 'payment_date', 'pending_amount', 'notes']
+
+    def validate(self, data):
+        # Ensure the payment amount does not exceed the total amount of the inflow payment
+        inflow_payment = data['inflow_payment']
+        total_amount = float(inflow_payment.total_amount or 0)
+        existing_payments = PaymentOnMilestone.objects.filter(inflow_payment=inflow_payment).aggregate(
+            total_paid=models.Sum('amount_paid')
+        )['total_paid'] or 0
+        new_total = existing_payments + float(data['amount_paid'])
+
+        if new_total > total_amount:
+            raise serializers.ValidationError("The total paid amount exceeds the total amount of the inflow payment.")
+
+        return data       
+    
+    def create(self, validated_data):
+        # Calculate the pending amount
+        inflow_payment = validated_data['inflow_payment']
+        total_amount = float(inflow_payment.total_amount or 0)
+        existing_payments = PaymentOnMilestone.objects.filter(inflow_payment=inflow_payment).aggregate(
+            total_paid=models.Sum('amount_paid')
+        )['total_paid'] or 0
+
+        # Update the pending amount
+        validated_data['pending_amount'] = total_amount - (existing_payments + float(validated_data['amount_paid']))
+
+        # Create the payment record
+        return super().create(validated_data)
+    
 class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
     land_bank_location_name = serializers.CharField(source='location_name.land_bank_location_name', read_only=True)
     class Meta:

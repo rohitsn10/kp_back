@@ -59,7 +59,7 @@ curl -X POST \
 ## Get Milestones API
 
 ### URL
-`GET /milestones`
+`GET /get_milestone`
 
 ### Description
 This API is used to fetch milestones based on optional filters such as project ID, start date, and end date.
@@ -122,7 +122,7 @@ This API is used to fetch milestones based on optional filters such as project I
 ### CURL Command
 ```bash
 curl -X GET \
-  http://<your-domain>/milestones?project_id=1&start_date=2025-11-01&end_date=2025-11-30 \
+  http://<your-domain>/get_milestone?project_id=1&start_date=2025-11-01&end_date=2025-11-30 \
   -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 
@@ -215,4 +215,63 @@ This API is used to delete an existing milestone.
 curl -X DELETE \
   http://<your-domain>/delete_milestone/1 \
   -H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+## Add Payment on Milestone API
+
+### Endpoint
+**POST** `/add_payment_on_milestone`
+
+### Description
+This API allows you to add a payment for a specific milestone. It validates the payment amount to ensure it does not exceed the total amount of the inflow payment and dynamically updates the pending amount.
+
+### Request Body
+```json
+{
+    "inflow_payment": 1,
+    "amount_paid": 5000.00,
+    "payment_date": "2025-11-13T10:00:00Z",
+    "notes": "First installment payment"
+}
+```
+
+### Response
+#### Success Response:
+**Status Code:** 201 Created
+```json
+{
+    "message": "Payment added successfully",
+    "data": {
+        "inflow_payment": 1,
+        "amount_paid": "5000.00",
+        "payment_date": "2025-11-13T10:00:00Z",
+        "pending_amount": "3000.00",
+        "notes": "First installment payment"
+    }
+}
+```
+
+#### Error Response:
+**Status Code:** 400 Bad Request
+```json
+{
+    "errors": {
+        "non_field_errors": [
+            "The total paid amount exceeds the total amount of the inflow payment."
+        ]
+    }
+}
+```
+
+### Example cURL Command
+```bash
+curl -X POST \
+  http://127.0.0.1:8000/project_module/add_payment_on_milestone \
+  -H "Content-Type: application/json" \
+  -d '{
+    "inflow_payment": 1,
+    "amount_paid": 5000.00,
+    "payment_date": "2025-11-13T10:00:00Z",
+    "notes": "First installment payment"
+  }'
 ```
