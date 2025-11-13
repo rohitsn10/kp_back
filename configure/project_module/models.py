@@ -248,9 +248,15 @@ class InFlowPaymentOnMilestone(models.Model):
     invoice_number = models.CharField(max_length=500,null=True, blank=True)
     total_amount = models.CharField(max_length=500,null=True, blank=True)
     gst_amount = models.CharField(max_length=500,null=True, blank=True)
-    paid_amount = models.CharField(max_length=500,null=True, blank=True)
-    pending_amount = models.CharField(max_length=500,null=True, blank=True)
-    payment_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class PaymentOnMilestone(models.Model):
+    inflow_payment = models.ForeignKey(InFlowPaymentOnMilestone, on_delete=models.CASCADE, related_name="payment_history")
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField()
+    pending_amount= models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,18 +1,19 @@
+import os
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from django.http import HttpResponse
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 import logging
-
+from .guvnl_sheet import add_guvnl_sheet
+from .project_status_66kv import add_66kv_project_status
+from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
-class RECurrentConnectivity66kVReportAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
+def generate_66kv_satutory_status_report(request):
         try:
             # Create workbook and sheet
             workbook = openpyxl.Workbook()
@@ -206,15 +207,22 @@ class RECurrentConnectivity66kVReportAPIView(APIView):
 
             # Freeze panes at row 3, column C
             sheet.freeze_panes = 'C3'
+            add_guvnl_sheet(workbook)  # Add GUVNL sheet
+            add_66kv_project_status(workbook)
+            # Prepare HTTP response
+                 # Define the file path to save the report
+            reports_dir = os.path.join(settings.MEDIA_ROOT, "reports/satutory_approval/")
+            os.makedirs(reports_dir, exist_ok=True)  # Ensure the directory exists
+            datetime_str= datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_path = os.path.join(reports_dir, f"66kv_satutory_status_report_{datetime_str}.xlsx")
 
-            # Save to response
-            response = HttpResponse(
-                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-            response["Content-Disposition"] = 'attachment; filename="RE_Current_Connectivity_66kV.xlsx"'
-            workbook.save(response)
+            # Save the workbook to the file path
+            workbook.save(file_path)
 
-            return response
+
+            file_url = request.build_absolute_uri(settings.MEDIA_URL + f"reports/satutory_approval/66kv_satutory_status_report_{datetime_str}.xlsx")
+
+            return Response({"file_url": file_url,"status":True,"message":"Satutory Approval 66KV report generated successfully"},status=200)
 
         except Exception as e:
             logger.error(f"Error generating RE Current Connectivity 66kV report: {e}", exc_info=True)

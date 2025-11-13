@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (EARFormatReportAPIView, LandReportAPIView,
                     HSEMISReportAPIView, ProcurementTrackerReportAPIView, CheckQualityReportAPIView, DPRProjectExecutionReportAPIView,
                     ProjectStatusManagementReportAPIView, ProjectHotoSummaryReportAPIView,ProjectIARReportAPIView,
-                    ProjectDelayAnalysisReportAPIView,DesignMDLReportAPIView)
+                    ProjectDelayAnalysisReportAPIView,DesignMDLReportAPIView,Generate66kvSatutoryStatus)
 
 urlpatterns = [
     path("land_report/", LandReportAPIView.as_view(), name="land-report"),
@@ -19,5 +19,6 @@ urlpatterns = [
     path("project_hoto_summary_report/", ProjectHotoSummaryReportAPIView.as_view(), name="project-hoto-summary-report"),
     path("project_iar_report/", ProjectIARReportAPIView.as_view(), name="project-iar-report"),
     path("project_delay_analysis_report/", ProjectDelayAnalysisReportAPIView.as_view(), name="project-delay-analysis-report"),
+    path("satutory_approval_66kv_report/",Generate66kvSatutoryStatus.as_view(),name="satutory-approval-66kv-report"),
 
 ]

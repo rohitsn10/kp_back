@@ -9,16 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class GUVNLConnectivityReportAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        try:
-            # Create workbook
-            workbook = openpyxl.Workbook()
-            workbook.remove(workbook.active)  # Remove default sheet
-            
-            # Create GUVNL sheet
+def add_guvnl_sheet(workbook):
             sheet = workbook.create_sheet("GUVNL")
 
             # Define styles
@@ -283,8 +274,5 @@ class GUVNLConnectivityReportAPIView(APIView):
             response["Content-Disposition"] = 'attachment; filename="GUVNL_Connectivity_Report.xlsx"'
             workbook.save(response)
 
-            return response
 
-        except Exception as e:
-            logger.error(f"Error generating GUVNL Connectivity report: {e}", exc_info=True)
-            return Response({"error": str(e)}, status=500)
+ 
