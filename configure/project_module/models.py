@@ -256,10 +256,15 @@ class PaymentOnMilestone(models.Model):
     inflow_payment = models.ForeignKey(InFlowPaymentOnMilestone, on_delete=models.CASCADE, related_name="payment_history")
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField()
-    pending_amount= models.DecimalField(max_digits=10, decimal_places=2)
+    pending_amount = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    attachments = models.ManyToManyField('PaymentAttachment', blank=True, related_name='payment_attachments')  # New field
+
+class PaymentAttachment(models.Model):
+    file = models.FileField(upload_to='payment_attachments/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
     
 class DrawingAndDesignAttachments(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
