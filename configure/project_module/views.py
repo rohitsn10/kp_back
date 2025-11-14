@@ -2088,19 +2088,22 @@ class MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = InFlowPaymentOnMilestoneSerializer
     queryset = InFlowPaymentOnMilestone.objects.all()
-    
-    def list(self, request, *args, **kwargs):
+
+    def list(self, request, milestone_id, *args, **kwargs):
         try:
-            milestone_id = self.kwargs.get('milestone_id')
             if not milestone_id:
                 return Response({"status": False, "message": "Milestone Id is required", "data": []})
+            
+            # Filter queryset by milestone ID
             queryset = self.filter_queryset(self.get_queryset()).filter(milestone=milestone_id)
-            serializer = InFlowPaymentOnMilestoneSerializer(queryset, many=True)
+            
+            # Serialize the filtered data
+            serializer = self.serializer_class(queryset, many=True, context={'request': request})
             data = serializer.data
+            
             return Response({"status": True, "message": "Payment data fetched successfully", "data": data})
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
-        
         
 class ProjectIdwiseGetLandBankLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
