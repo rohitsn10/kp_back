@@ -223,7 +223,7 @@ curl -X DELETE \
 **POST** `/add_payment_on_milestone`
 
 ### Description
-This API allows you to add a payment for a specific milestone. It validates the payment amount to ensure it does not exceed the total amount of the inflow payment and dynamically updates the pending amount.
+This API allows you to add a payment for a specific milestone. It validates the payment amount to ensure it does not exceed the total amount of the inflow payment and dynamically updates the pending amount. Additionally, users can upload files as attachments with the payment.
 
 ### Request Body
 ```json
@@ -231,7 +231,11 @@ This API allows you to add a payment for a specific milestone. It validates the 
     "inflow_payment": 1,
     "amount_paid": 5000.00,
     "payment_date": "2025-11-13T10:00:00Z",
-    "notes": "First installment payment"
+    "notes": "First installment payment",
+    "attachments": [
+        "file1.pdf",
+        "file2.jpg"
+    ]
 }
 ```
 
@@ -246,7 +250,19 @@ This API allows you to add a payment for a specific milestone. It validates the 
         "amount_paid": "5000.00",
         "payment_date": "2025-11-13T10:00:00Z",
         "pending_amount": "3000.00",
-        "notes": "First installment payment"
+        "notes": "First installment payment",
+        "attachment_details": [
+            {
+                "id": 1,
+                "file": "/media/payment_attachments/file1.pdf",
+                "uploaded_at": "2025-11-13T10:00:00Z"
+            },
+            {
+                "id": 2,
+                "file": "/media/payment_attachments/file2.jpg",
+                "uploaded_at": "2025-11-13T10:00:00Z"
+            }
+        ]
     }
 }
 ```
@@ -266,12 +282,12 @@ This API allows you to add a payment for a specific milestone. It validates the 
 ### Example cURL Command
 ```bash
 curl -X POST \
-  http://127.0.0.1:8000/project_module/add_payment_on_milestone \
-  -H "Content-Type: application/json" \
-  -d '{
-    "inflow_payment": 1,
-    "amount_paid": 5000.00,
-    "payment_date": "2025-11-13T10:00:00Z",
-    "notes": "First installment payment"
-  }'
+  http://127.0.0.1:8000/add_payment_on_milestone/ \
+  -H "Content-Type: multipart/form-data" \
+  -F "inflow_payment=1" \
+  -F "amount_paid=5000.00" \
+  -F "payment_date=2025-11-13T10:00:00Z" \
+  -F "notes=First installment payment" \
+  -F "attachments=@/path/to/file1.pdf" \
+  -F "attachments=@/path/to/file2.jpg"
 ```

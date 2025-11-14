@@ -13,6 +13,7 @@ from openpyxl import load_workbook
 from rest_framework.views import APIView
 from land_module.models import LandBankMaster
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
@@ -2073,14 +2074,16 @@ class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": False, "message": str(e), "data": []})
 
+
 class AddPaymentOnMilestoneView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
     def post(self, request, *args, **kwargs):
         serializer = AddPaymentOnMilestoneSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Payment added successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    
 class MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = InFlowPaymentOnMilestoneSerializer

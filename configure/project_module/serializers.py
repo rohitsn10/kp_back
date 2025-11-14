@@ -331,29 +331,48 @@ class DrawingandDesignSerializer(serializers.ModelSerializer):
         if approved_actions.exists():
             return ApprovedActionsSerializer(approved_actions, many=True, context=self.context).data
         return []
+class PaymentAttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentAttachment
+        fields = ['id', 'file', 'uploaded_at']
+
 class PaymentOnMilestoneSerializer(serializers.ModelSerializer):
+    attachments = PaymentAttachmentSerializer(source='attachments', many=True, read_only=True)  # Include attachments
+
     class Meta:
         model = PaymentOnMilestone
-        fields = ['id', 'amount_paid', 'payment_date', 'pending_amount','notes', 'created_at', 'updated_at']
+        fields = ['id', 'amount_paid', 'payment_date', 'pending_amount', 'notes', 'created_at', 'updated_at', 'attachments']
 
 class InFlowPaymentOnMilestoneSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     milestone_name = serializers.CharField(source='milestone.milestone_name', read_only=True)
-    payment_history=serializers.SerializerMethodField()
+    payment_history = serializers.SerializerMethodField()
+
     class Meta:
         model = InFlowPaymentOnMilestone
-        fields = ['id','project','project_name','milestone','milestone_name','party_name','invoice_number','total_amount','gst_amount','notes','created_at','updated_at']
+        fields = [
+            'id', 'project', 'project_name', 'milestone', 'milestone_name',
+            'party_name', 'invoice_number', 'total_amount', 'gst_amount',
+            'notes', 'created_at', 'updated_at', 'payment_history'
+        ]
+
     def get_payment_history(self, obj):
         payment_history = obj.payment_history.all()
         return PaymentOnMilestoneSerializer(payment_history, many=True, context=self.context).data
-    
+
 class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
+    attachments = serializers.ListField(
+        child=serializers.FileField(max_length=100000, allow_empty_file=False, use_url=True),
+        write_only=True,
+        required=False
+    )
+    attachment_details = PaymentAttachmentSerializer(source='attachments', many=True, read_only=True)
+
     class Meta:
         model = PaymentOnMilestone
-        fields = ['inflow_payment', 'amount_paid', 'payment_date', 'pending_amount', 'notes']
+        fields = ['inflow_payment', 'amount_paid', 'payment_date', 'pending_amount', 'notes', 'attachments', 'attachment_details']
 
     def validate(self, data):
-        # Ensure the payment amount does not exceed the total amount of the inflow payment
         inflow_payment = data['inflow_payment']
         total_amount = float(inflow_payment.total_amount or 0)
         existing_payments = PaymentOnMilestone.objects.filter(inflow_payment=inflow_payment).aggregate(
@@ -364,21 +383,18 @@ class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
         if new_total > total_amount:
             raise serializers.ValidationError("The total paid amount exceeds the total amount of the inflow payment.")
 
-        return data       
-    
+        return data
+
     def create(self, validated_data):
-        # Calculate the pending amount
-        inflow_payment = validated_data['inflow_payment']
-        total_amount = float(inflow_payment.total_amount or 0)
-        existing_payments = PaymentOnMilestone.objects.filter(inflow_payment=inflow_payment).aggregate(
-            total_paid=models.Sum('amount_paid')
-        )['total_paid'] or 0
+        attachments = validated_data.pop('attachments', [])
+        payment = super().create(validated_data)
 
-        # Update the pending amount
-        validated_data['pending_amount'] = total_amount - (existing_payments + float(validated_data['amount_paid']))
+        # Save attachments
+        for attachment in attachments:
+            payment_attachment = PaymentAttachment.objects.create(file=attachment)
+            payment.attachments.add(payment_attachment)
 
-        # Create the payment record
-        return super().create(validated_data)
+        return payment
     
 class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
     land_bank_location_name = serializers.CharField(source='location_name.land_bank_location_name', read_only=True)
