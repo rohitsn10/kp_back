@@ -2081,7 +2081,7 @@ class AddPaymentOnMilestoneView(viewsets.ModelViewSet):
     serializer_class = AddPaymentOnMilestoneSerializer
     queryset = PaymentOnMilestone.objects.all()
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
