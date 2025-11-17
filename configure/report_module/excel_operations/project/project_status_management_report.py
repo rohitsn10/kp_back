@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 def generate_project_status_management_report(request):
     try:
-        pass
         # Create workbook and sheet
         workbook = openpyxl.Workbook()
         sheet = workbook.active

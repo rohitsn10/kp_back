@@ -19,6 +19,10 @@ urlpatterns = [
     path("project_hoto_summary_report/", ProjectHotoSummaryReportAPIView.as_view(), name="project-hoto-summary-report"),
     path("project_iar_report/", ProjectIARReportAPIView.as_view(), name="project-iar-report"),
     path("project_delay_analysis_report/", ProjectDelayAnalysisReportAPIView.as_view(), name="project-delay-analysis-report"),
+    path("project_payment_status_report/",Generate66kvSatutoryStatus.as_view(),name="project-payment-status-report"),
+    path("project_budget_vs_actual_cost_tracking_report/",Generate66kvSatutoryStatus.as_view(),name="project-budget-vs-actual-cost-tracking-report"),
+
+    #Satutory Approval Reports
     path("satutory_approval_66kv_report/",Generate66kvSatutoryStatus.as_view(),name="satutory-approval-66kv-report"),
 
 ]

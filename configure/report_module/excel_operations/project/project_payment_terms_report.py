@@ -4,15 +4,14 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.conf import settings
+import os
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-
-class CashflowReportAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
+def generate_project_payment_terms_report(request):
         try:
             # Create workbook and sheet
             workbook = openpyxl.Workbook()
@@ -159,14 +158,19 @@ class CashflowReportAPIView(APIView):
             # Freeze panes at row 4, column B
             sheet.freeze_panes = 'B4'
 
-            # Save to response
-            response = HttpResponse(
-                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-            response["Content-Disposition"] = 'attachment; filename="Cashflow_Report.xlsx"'
-            workbook.save(response)
+            # Define the file path to save the report
+            reports_dir = os.path.join(settings.MEDIA_ROOT, "reports/project/")
+            os.makedirs(reports_dir, exist_ok=True)  # Ensure the directory exists
+            datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_path = os.path.join(reports_dir, f"project_payment_terms_{datetime_str}.xlsx")
 
-            return response
+            # Save the workbook to the file path
+            workbook.save(file_path)
+
+            # Construct the file URL
+            file_url = request.build_absolute_uri(settings.MEDIA_URL + f"reports/project/project_payment_terms_{datetime_str}.xlsx")
+            return Response({"status": True, "message": "Project Payment Terms report generated successfully", "file_url": file_url}, status=200)
+
 
         except Exception as e:
             logger.error(f"Error generating Cashflow report: {e}", exc_info=True)

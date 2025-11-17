@@ -8,7 +8,7 @@ import logging
 import os
 from django.conf import settings
 from datetime import datetime
-
+from .safty_doc import generate_safty_doc_report
 logger = logging.getLogger(__name__)
 
 
@@ -17,7 +17,7 @@ def generate_quality_report(request):
             # Create workbook and sheet
             workbook = openpyxl.Workbook()
             sheet = workbook.active
-            sheet.title = "Checklist Master"
+            sheet.title = "Quality Doc"
 
             # Define styles
             header_fill = PatternFill(start_color="B4C7E7", end_color="B4C7E7", fill_type="solid")  # Light blue
@@ -145,7 +145,9 @@ def generate_quality_report(request):
                 sheet.row_dimensions[current_row].height = 20
 
                 current_row += 1
-
+    
+        
+            generate_safty_doc_report(workbook)
             # Define the file path to save the report
             reports_dir = os.path.join(settings.MEDIA_ROOT, "reports")
             os.makedirs(reports_dir, exist_ok=True)  # Ensure the directory exists

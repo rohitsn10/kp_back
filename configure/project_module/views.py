@@ -2076,6 +2076,8 @@ class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
 
 
 class AddPaymentOnMilestoneView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = AddPaymentOnMilestoneSerializer
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
@@ -2084,6 +2086,8 @@ class AddPaymentOnMilestoneView(APIView):
             serializer.save()
             return Response({"message": "Payment added successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class MilestoneIdWiseGetInflowPaymentOnMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = InFlowPaymentOnMilestoneSerializer
