@@ -337,7 +337,7 @@ class PaymentAttachmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'file', 'uploaded_at']
 
 class PaymentOnMilestoneSerializer(serializers.ModelSerializer):
-    attachments = PaymentAttachmentSerializer(source='attachments', many=True, read_only=True)  # Include attachments
+    attachments = PaymentAttachmentSerializer(many=True, read_only=True)  # Include attachments
 
     class Meta:
         model = PaymentOnMilestone
@@ -367,7 +367,7 @@ class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
-    attachment_details = PaymentAttachmentSerializer(source='attachments', many=True, read_only=True)
+    attachment_details = PaymentAttachmentSerializer(many=True, read_only=True)
     pending_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)  # Read-only field
 
     class Meta:
