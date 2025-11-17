@@ -17,6 +17,8 @@ from .excel_operations.project.project_iar_report import generate_iar_report
 from .excel_operations.project.project_delay_analysis_report import generate_project_delay_analysis_report
 from .excel_operations.design.generate_design_mdl_report import generate_design_mdl_report
 from .excel_operations.satutory_approval.generate_satutory_approval_report import generate_66kv_satutory_status_report
+from .excel_operations.project.project_payment_terms_report import generate_project_payment_terms_report
+from .excel_operations.project.project_budget_vs_actual_cost_tracking import generate_budget_vs_actual_cost_tracking_report
 class LandReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -179,4 +181,30 @@ class Generate66kvSatutoryStatus(APIView):
             return response
         except Exception as e:
             logger.error(f"Error generating 66kV Statutory Approval report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+
+class GenerateProjectPaymentStatusReport(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_project_payment_terms_report(request=request)
+            if isinstance(response, Response):
+                return response
+            return response
+        except Exception as e:
+            logger.error(f"Error generating Project Payment Status report: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=500)
+
+class GenerateProjectBudgetVsActualCostTrackingReport(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            response = generate_budget_vs_actual_cost_tracking_report(request=request)
+            if isinstance(response, Response):
+                return response
+
+        except Exception as e:
+            logger.error(f"Error generating Project Budget vs Actual Cost Tracking report: {e}", exc_info=True)
             return Response({"error": str(e)}, status=500)

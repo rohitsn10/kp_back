@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from django.conf import settings
 from rest_framework.response import Response
-
+from .project_iar.inverter_sheet import generate_inverter_sheet
 def generate_iar_report(request):
     """
     Generate an Excel sheet matching the IAR document format.
@@ -18,6 +18,7 @@ def generate_iar_report(request):
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Insurance Document"
+        generate_inverter_sheet(wb)  # Call the function to generate the inverter sheet
         
         # Define styles
         header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
