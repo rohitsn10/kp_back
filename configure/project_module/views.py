@@ -2075,9 +2075,8 @@ class UpdateInflowPaymentMiletoneViewSet(viewsets.ModelViewSet):
             return Response({"status": False, "message": str(e), "data": []})
 
 
-class AddPaymentOnMilestoneView(APIView):
+class AddPaymentOnMilestoneView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = AddPaymentOnMilestoneSerializer
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):

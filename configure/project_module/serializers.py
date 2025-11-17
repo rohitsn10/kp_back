@@ -371,7 +371,7 @@ class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PaymentOnMilestone
-        fields = ['inflow_payment', 'amount_paid', 'payment_date', 'pending_amount', 'notes', 'attachments', 'attachment_details']
+        fields = ['inflow_payment', 'amount_paid', 'payment_date', 'notes', 'attachments', 'attachment_details','pending_amount']
 
     def validate(self, data):
         inflow_payment = data['inflow_payment']
@@ -389,6 +389,15 @@ class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         attachments = validated_data.pop('attachments', [])
         payment = super().create(validated_data)
+
+          # Calculate and update pending amount
+        inflow_payment = validated_data['inflow_payment']
+        total_amount = inflow_payment.total_amount
+        existing_payments = PaymentOnMilestone.objects.filter(inflow_payment=inflow_payment).aggregate(
+            total_paid=models.Sum('amount_paid')
+        )['total_paid'] or 0
+        payment.pending_amount = total_amount - existing_payments
+        payment.save()
 
         # Save attachments
         for attachment in attachments:
