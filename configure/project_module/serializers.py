@@ -368,6 +368,7 @@ class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
         required=False
     )
     attachment_details = PaymentAttachmentSerializer(source='attachments', many=True, read_only=True)
+    pending_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)  # Read-only field
 
     class Meta:
         model = PaymentOnMilestone
