@@ -388,23 +388,26 @@ class AddPaymentOnMilestoneSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        attachments = validated_data.pop('attachments', [])
-        payment = super().create(validated_data)
-
-          # Calculate and update pending amount
+        # Calculate pending amount before saving
         inflow_payment = validated_data['inflow_payment']
-        total_amount = inflow_payment.total_amount
+        total_amount = float(inflow_payment.total_amount or 0)
         existing_payments = PaymentOnMilestone.objects.filter(inflow_payment=inflow_payment).aggregate(
             total_paid=models.Sum('amount_paid')
         )['total_paid'] or 0
-        payment.pending_amount = total_amount - existing_payments
-        payment.save()
-
+        pending_amount = total_amount - (existing_payments + float(validated_data['amount_paid']))
+    
+        # Set the pending_amount in the validated_data
+        validated_data['pending_amount'] = pending_amount
+    
+        # Save the payment record
+        attachments = validated_data.pop('attachments', [])
+        payment = super().create(validated_data)
+    
         # Save attachments
         for attachment in attachments:
             payment_attachment = PaymentAttachment.objects.create(file=attachment)
             payment.attachments.add(payment_attachment)
-
+    
         return payment
     
 class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
