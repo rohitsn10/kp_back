@@ -282,7 +282,7 @@ This API allows you to add a payment for a specific milestone. It validates the 
 ### Example cURL Command
 ```bash
 curl -X POST \
-  http://127.0.0.1:8000/add_payment_on_milestone/ \
+  http://127.0.0.1:8000/project_module/add_payment_on_milestone/ \
   -H "Content-Type: multipart/form-data" \
   -F "inflow_payment=1" \
   -F "amount_paid=5000.00" \
