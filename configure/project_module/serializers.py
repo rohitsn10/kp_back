@@ -52,7 +52,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_full_name', 'company', 'company_name', 'start_date', 'end_date', 'project_predicted_date',
             'cod_commission_date', 'total_area_of_project', 'capacity', 'project_name',
             'ci_or_utility', 'cpp_or_ipp', 'electricity_line', 'electricity_name', 'created_at',
-            'available_land_area', 'alloted_land_area', 'landbank', 'landbank_name','assigned_users','location_name','land_location_name', 'location_name_survey'
+            'available_land_area', 'alloted_land_area', 'landbank', 'landbank_name','assigned_users','location_name','land_location_name', 'location_name_survey',
+            'is_activity_sheet_uploaded'
         ]
 
     def get_assigned_users(self, obj):

@@ -14,6 +14,12 @@ from rest_framework.views import APIView
 from land_module.models import LandBankMaster
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
+import io
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils.dataframe import dataframe_to_rows
+import os
+from django.shortcuts import get_object_or_404
 
 class ProjectExpenseCreateViewset(viewsets.ModelViewSet):
     queryset = ExpenseTracking.objects.all()
@@ -2289,7 +2295,8 @@ class UploadExcelProgressView(APIView):
 
                 # Bulk insert
                 ProjectProgress.objects.bulk_create(progress_entries)
-
+                project.is_activity_sheet_uploaded=True
+                project.save()
                 return Response({
                     "status": True,
                     "message": "Progress data uploaded successfully",
@@ -2303,6 +2310,163 @@ class UploadExcelProgressView(APIView):
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
+
+class DeleteActivitySheet(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({"status": False, "message": "Invalid project ID"})
+
+
+        if not project.is_activity_sheet_uploaded:
+            return Response(
+            {
+                "message": "Activity sheet already deleted",
+                "is_activity_sheet_uploaded": project.is_activity_sheet_uploaded,
+            },
+            status=status.HTTP_200_OK,
+            )
+
+        # Update flag
+        project.is_activity_sheet_uploaded = False
+        project.save(update_fields=["is_activity_sheet_uploaded"])
+
+        return Response(
+            {
+                "message": "Activity sheet deleted successfully",
+                "is_activity_sheet_uploaded": project.is_activity_sheet_uploaded,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+
+class ExportExcelProgressView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request,project_id, *args, **kwargs):
+        try:
+            if not project_id:
+                return Response({"status": False, "message": "Project ID is required"}, status=400)
+
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response({"status": False, "message": "Invalid project ID"}, status=404)
+
+            # Fetch all progress data for the project
+            progress_data = ProjectProgress.objects.filter(project=project).order_by('id')
+
+            if not progress_data.exists():
+                return Response({"status": False, "message": "No progress data found for this project"}, status=404)
+
+            # Prepare data for DataFrame
+            data_list = []
+            for progress in progress_data:
+                data_list.append({
+                    'Particulars': progress.particulars,
+                    'Status': progress.status.capitalize() if progress.status else '',
+                    'Category': progress.category,
+                    'UOM': progress.uom,
+                    'Qty.': progress.qty,
+                    'Days to Complete': progress.days_to_complete,
+                    'Scheduled Start Date': progress.scheduled_start_date.strftime('%Y-%m-%d') if progress.scheduled_start_date else '',
+                    'Targeted End Date': progress.targeted_end_date.strftime('%Y-%m-%d') if progress.targeted_end_date else '',
+                    'Actual Start Date': progress.actual_start_date.strftime('%Y-%m-%d') if progress.actual_start_date else '',
+                    'Today QTY': progress.today_qty,
+                    'Cumulative Task Completed as on date': progress.cumulative_completed,
+                    'Balance Task to be Completed': progress.balance_task,
+                    'Actual Completion Date': progress.actual_completion_date.strftime('%Y-%m-%d') if progress.actual_completion_date else '',
+                    'Days to deadline': progress.days_to_deadline,
+                    '% Completion': progress.percent_completion,
+                    'Project Remarks': progress.remarks
+                })
+
+            # Create Excel workbook
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Progress Data"
+
+            # Define styles
+            header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+            header_font = Font(bold=True, color="FFFFFF", size=11)
+            header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+
+            # Row 1: Project title/header (optional - you can customize this)
+            ws.merge_cells('A1:P1')
+            ws['A1'] = f'Project Progress Report - {project.name if hasattr(project, "name") else "Project"}'
+            ws['A1'].font = Font(bold=True, size=14)
+            ws['A1'].alignment = Alignment(horizontal="center", vertical="center")
+
+            # Row 2: Column headers
+            headers = [
+                'Particulars', 'Status', 'Category', 'UOM', 'Qty.', 'Days to Complete',
+                'Scheduled Start Date', 'Targeted End Date', 'Actual Start Date',
+                'Today QTY', 'Cumulative Task Completed as on date',
+                'Balance Task to be Completed', 'Actual Completion Date',
+                'Days to deadline', '% Completion', 'Project Remarks'
+            ]
+
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=2, column=col_num, value=header)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = header_alignment
+                cell.border = border
+
+            # Add data starting from row 3
+            for row_num, row_data in enumerate(data_list, 3):
+                for col_num, (key, value) in enumerate(row_data.items(), 1):
+                    cell = ws.cell(row=row_num, column=col_num, value=value)
+                    cell.border = border
+                    cell.alignment = Alignment(vertical="center")
+
+            # Auto-adjust column widths
+            column_widths = {
+                'A': 30, 'B': 12, 'C': 15, 'D': 10, 'E': 10, 'F': 15,
+                'G': 18, 'H': 18, 'I': 18, 'J': 12, 'K': 25,
+                'L': 25, 'M': 18, 'N': 15, 'O': 15, 'P': 30
+            }
+            for col, width in column_widths.items():
+                ws.column_dimensions[col].width = width
+
+            # Freeze header rows
+            ws.freeze_panes = 'A3'
+
+            # Define the file path to save the report
+            reports_dir = os.path.join(settings.MEDIA_ROOT, "project/activity_sheet/")
+            os.makedirs(reports_dir, exist_ok=True)  # Ensure the directory exists
+            
+            datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_name = f"project_progress_export_{project_id}_{datetime_str}.xlsx"
+            file_path = os.path.join(reports_dir, file_name)
+
+            # Save the workbook to the file path
+            wb.save(file_path)
+
+            # Construct the file URL
+            file_url = request.build_absolute_uri(settings.MEDIA_URL + f"project/activity_sheet/{file_name}")
+            
+            return Response({
+                "status": True, 
+                "message": "Project progress report generated successfully", 
+                "file_url": file_url,
+                "total_records": len(data_list)
+            }, status=200)
+
+        except Exception as e:
+            return Response({"status": False, "message": str(e)}, status=500)
+        
 
 class ProjectProgressListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
