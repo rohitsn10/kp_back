@@ -2529,6 +2529,7 @@ class ProjectProgressUpdateView(APIView):
 
         except Exception as e:
             return Response({"status": False, "message": str(e)}, status=500)
+
 class ProjectProgressHistoryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -2648,3 +2649,189 @@ class GetAssignedRolesToProjectAPIView(APIView):
 
         except Exception as e:
             return Response({"status": False, "message": f"Error fetching assigned roles: {str(e)}"})
+        
+
+class AddProgressRemarkView(APIView):
+    """
+    Add a remark to a specific project progress entry
+ 
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, project_task_id, *args, **kwargs):
+        try:
+            # Check if progress exists
+            try:
+                progress = ProjectProgress.objects.get(id=project_task_id)
+            except ProjectProgress.DoesNotExist:
+                return Response(
+                    {"status": False, "message": "Progress entry not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            remark_text = request.data.get('remark')
+            if not remark_text or not remark_text.strip():
+                return Response(
+                    {"status": False, "message": "Remark cannot be empty"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Create remark
+            remark = ProjectProgressRemark.objects.create(
+                project_progress=progress,
+                user=request.user,
+                remark=remark_text.strip()
+            )
+
+            serializer = ProjectProgressRemarkSerializer(remark)
+            
+            return Response({
+                "status": True,
+                "message": "Remark added successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"status": False, "message": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class GetProgressRemarksView(APIView):
+    """
+    Get all remarks for a specific project progress entry
+
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, project_task_id, *args, **kwargs):
+        try:
+            # Check if progress exists
+            try:
+                progress = ProjectProgress.objects.get(id=project_task_id)
+            except ProjectProgress.DoesNotExist:
+                return Response(
+                    {"status": False, "message": "Progress entry not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Get all remarks for this progress
+            remarks = ProjectProgressRemark.objects.filter(
+                project_progress=progress
+            ).select_related('user').order_by('-created_at')
+
+            # Optional limit
+            limit = request.query_params.get('limit')
+            if limit:
+                try:
+                    remarks = remarks[:int(limit)]
+                except ValueError:
+                    pass
+
+            serializer = ProjectProgressRemarkSerializer(remarks, many=True)
+            
+            return Response({
+                "status": True,
+                "total_remarks": remarks.count(),
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"status": False, "message": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class DeleteProgressRemarkView(APIView):
+    """
+    Delete a remark (only by the remark author)
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, remark_id, *args, **kwargs):
+        try:
+            try:
+                remark = ProjectProgressRemark.objects.get(id=remark_id)
+            except ProjectProgressRemark.DoesNotExist:
+                return Response(
+                    {"status": False, "message": "Remark not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Check if user is the remark author
+            if remark.user != request.user:
+                return Response(
+                    {"status": False, "message": "You can only delete your own remarks"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            remark.delete()
+            
+            return Response({
+                "status": True,
+                "message": "Remark deleted successfully"
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"status": False, "message": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class GetProjectRemarksView(APIView):
+    """
+    Get all remarks across all progress entries for a specific project
+ 
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, project_id, *args, **kwargs):
+        try:
+            # Check if project exists
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                return Response(
+                    {"status": False, "message": "Project not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Get all remarks for all progress entries in this project
+            remarks = ProjectProgressRemark.objects.filter(
+                project_progress__project=project
+            ).select_related('user', 'project_progress').order_by('-created_at')
+
+            # Optional limit
+            limit = request.query_params.get('limit')
+            if limit:
+                try:
+                    remarks = remarks[:int(limit)]
+                except ValueError:
+                    pass
+
+            # Custom serialization to include progress info
+            data = []
+            for remark in remarks:
+                data.append({
+                    'id': remark.id,
+                    'remark': remark.remark,
+                    'user_name': remark.user.full_name if remark.user else None,
+                    'user_email': remark.user.email if remark.user else None,
+                    'progress_id': remark.project_progress.id,
+                    'progress_particulars': remark.project_progress.particulars,
+                    'created_at': remark.created_at,
+                    'updated_at': remark.updated_at
+                })
+            
+            return Response({
+                "status": True,
+                "total_remarks": len(data),
+                "data": data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"status": False, "message": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
