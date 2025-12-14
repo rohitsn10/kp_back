@@ -75,4 +75,20 @@ urlpatterns = [
     path('export_project_progress_sheet/<int:project_id>', ExportExcelProgressView.as_view(), name='export_project_progress_sheet'),
     path('delete_activity_sheet/<int:project_id>',DeleteActivitySheet.as_view(),name="delete_activity_sheet"),
 
+
+    # Add remark to specific progress entry
+    path('add_project_progress_remark/<int:project_task_id>', AddProgressRemarkView.as_view(), name='add-progress-remark'),
+    
+    # Get all remarks for specific progress entry
+    path('get_project_progress_remark/<int:project_task_id>', GetProgressRemarksView.as_view(), name='get-progress-remarks'),
+    
+    # Update a specific remark
+    # path('update_project_progress_remark/<int:remark_id>/', UpdateProgressRemarkView.as_view(), name='update-progress-remark'),
+    
+    # Delete a specific remark
+    path('delete_project_progress_remark/<int:remark_id>', DeleteProgressRemarkView.as_view(), name='delete-progress-remark'),
+    
+    # Get all remarks for entire project
+    path('get_all_project_progress_remark/<int:project_id>', GetProjectRemarksView.as_view(), name='get-project-remarks'),
+
 ]

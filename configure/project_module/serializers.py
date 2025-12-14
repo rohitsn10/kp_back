@@ -4,6 +4,7 @@ from user_profile.function_call import *
 from activity_module.serializers import *
 from land_module.serializers import *
 from django.conf import settings
+from django.utils import timezone
 
 
 class ExpenseTrackingSerializer(serializers.ModelSerializer):
@@ -417,10 +418,29 @@ class ProjectIdWiseLandBankLocationSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['id','location_name','land_bank_location_name']
 
+class ProjectProgressRemarkSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.full_name', read_only=True)
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    
+    class Meta:
+        model = ProjectProgressRemark
+        fields = [
+            'id', 
+            'project_progress', 
+            'user', 
+            'user_name', 
+            'user_email', 
+            'remark', 
+            'created_at', 
+            'updated_at'
+        ]
+        read_only_fields = ['id', 'user', 'user_name', 'user_email', 'created_at', 'updated_at']
+
 
 class ProjectProgressSerializer(serializers.ModelSerializer):
-    from django.utils import timezone
-  
+    progress_remarks = ProjectProgressRemarkSerializer(many=True, read_only=True)
+    total_remarks = serializers.SerializerMethodField()
+    
     class Meta:
         model = ProjectProgress
         fields = [
@@ -428,16 +448,18 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
             'qty', 'cumulative_completed',
             'scheduled_start_date', 'targeted_end_date',
             'actual_start_date', 'actual_completion_date','today_qty',
-            'percent_completion', 'days_to_complete', 'remarks','days_to_deadline'
+            'percent_completion', 'days_to_complete','days_to_deadline',
+            'progress_remarks', 'total_remarks'  # Added remarks list
         ]
         extra_kwargs = {
             'status': {'required': False},
-            'remarks': {'required': False}
         }
 
+    def get_total_remarks(self, obj):
+        """Get the total count of remarks for this progress entry"""
+        return obj.progress_remarks.count()
+
     def update(self, instance, validated_data):
-        from django.utils import timezone
-        
         # Get the changed_by from context (passed from the view)
         changed_by = self.context.get('changed_by')
         
@@ -448,12 +470,12 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
         # Automatically set actual_completion_date when status changes to completed
         if new_status == 'completed' and old_status != 'completed':
             if not validated_data.get('actual_completion_date'):
-                validated_data['actual_completion_date'] = timezone.now().date()  # Changed to .date()
+                validated_data['actual_completion_date'] = timezone.now().date()
         
         # Automatically set actual_start_date when status changes from pending to in_progress
         if new_status in ['in_progress', 'completed'] and old_status == 'pending':
             if not instance.actual_start_date and not validated_data.get('actual_start_date'):
-                validated_data['actual_start_date'] = timezone.now().date()  # Changed to .date()
+                validated_data['actual_start_date'] = timezone.now().date()
         
         # Update the instance fields
         for attr, value in validated_data.items():
@@ -467,3 +489,4 @@ class ProjectProgressSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['days_to_complete'] = data.pop('days_to_complete')
         return data
+    
