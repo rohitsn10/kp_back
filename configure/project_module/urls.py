@@ -72,4 +72,7 @@ urlpatterns = [
     path('get_assigned_project_roles/<int:project_id>', GetAssignedRolesToProjectAPIView.as_view(), name='get_assigned_project_roles'),
     path('get_project_task_history/<int:project_task_id>', ProjectProgressHistoryView.as_view(), name='get_project_task_history'),
 
+    path('export_project_progress_sheet/<int:project_id>', ExportExcelProgressView.as_view(), name='export_project_progress_sheet'),
+    path('delete_activity_sheet/<int:project_id>',DeleteActivitySheet.as_view(),name="delete_activity_sheet"),
+
 ]

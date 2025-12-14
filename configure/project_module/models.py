@@ -52,6 +52,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_active = models.BooleanField(default=True, null=True, blank=True)
+    is_activity_sheet_uploaded=models.BooleanField(default=False, null=True, blank=True)
      # Use a through model for assigned users to include roles
     assigned_users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,

@@ -193,3 +193,29 @@ curl -X GET "http://127.0.0.1:8000/project_module/get_project_task_history/<proj
 -H "Authorization: Bearer <your_access_token>" \
 -H "Content-Type: application/json"
 ```
+
+### 6. Delete Activity Sheet
+
+```bash 
+curl --location --request DELETE 'http://127.0.0.1:8000/project_module/delete_activity_sheet/6' \
+--header 'Authorization: ••••••'
+```
+
+
+### 7. Export Activity Sheet
+
+```bash
+curl --location 'http://127.0.0.1:8000/project_module/export_project_progress_sheet/6' \
+--header 'Authorization: Bearer Token'
+```
+### Response
+```json
+{
+    
+    "status": true,
+    "message": "Project progress report generated successfully",
+    "file_url": "http://127.0.0.1:8000/media/project/activity_sheet/project_progress_export_6_20251214_032516.xlsx",
+    "total_records": 212
+}
+```
+
