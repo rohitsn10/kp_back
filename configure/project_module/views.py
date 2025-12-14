@@ -2310,7 +2310,6 @@ class UploadExcelProgressView(APIView):
 
         except Exception as e:
             return Response({"status": False, "message": str(e)})
-
 class DeleteActivitySheet(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -2318,17 +2317,23 @@ class DeleteActivitySheet(APIView):
         try:
             project = Project.objects.get(id=project_id)
         except Project.DoesNotExist:
-            return Response({"status": False, "message": "Invalid project ID"})
-
+            return Response(
+                {"status": False, "message": "Invalid project ID"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         if not project.is_activity_sheet_uploaded:
             return Response(
-            {
-                "message": "Activity sheet already deleted",
-                "is_activity_sheet_uploaded": project.is_activity_sheet_uploaded,
-            },
-            status=status.HTTP_200_OK,
+                {
+                    "status": False,
+                    "message": "Activity sheet already deleted",
+                    "is_activity_sheet_uploaded": project.is_activity_sheet_uploaded,
+                },
+                status=status.HTTP_200_OK,
             )
+
+        # Delete all ProjectProgress records for this project
+        deleted_count, _ = ProjectProgress.objects.filter(project=project).delete()
 
         # Update flag
         project.is_activity_sheet_uploaded = False
@@ -2336,8 +2341,10 @@ class DeleteActivitySheet(APIView):
 
         return Response(
             {
+                "status": True,
                 "message": "Activity sheet deleted successfully",
                 "is_activity_sheet_uploaded": project.is_activity_sheet_uploaded,
+                "deleted_records": deleted_count,
             },
             status=status.HTTP_200_OK,
         )
